@@ -1,143 +1,257 @@
 import React, { useEffect, useState } from "react";
-import { doc, collection, getDocs } from "firebase/firestore";
+import { Table, Button, Modal, Form, Input, Select, Popconfirm } from "antd";
 import { db } from "../../Services/firebase";
-import { Table, Select } from "antd";
-import moment from "moment";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  addDoc,
+  deleteDoc,
+} from "firebase/firestore";
 
-const ListApartment = () => {
+const { Option } = Select;
+
+export default function ListApartment() {
+  const [buildings, setBuildings] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [filteredRooms, setFilteredRooms] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [selectedBuilding, setSelectedBuilding] = useState("");
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const [form] = Form.useForm();
+  const [addForm] = Form.useForm();
 
+  // Fetch buildings on component mount
   useEffect(() => {
-    // Fetch user data
-    const fetchUsers = async () => {
-      const querySnapshot = await getDocs(collection(db, "Users"));
-      const users = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.role === "owner") {
-          users.push({
-            ...data,
-            id: doc.id,
-          });
-        }
-      });
-      setUsers(users);
-    };
-
-    // Fetch room data
-    const fetchRooms = async () => {
-      const buildings = ["CT1/D22", "CT2/D22", "CT3/D22"]; // Add all building names here
-      const allRooms = [];
-
-      for (const building of buildings) {
-        const roomRef = collection(
-          db,
-          `apartments/${building.replace("/", "-")}/rooms`
-        );
-        const querySnapshot = await getDocs(roomRef);
-        querySnapshot.forEach((doc) => {
-          allRooms.push({ key: doc.id, ...doc.data(), building });
-        });
-      }
-
-      // Map users to their rooms
-      const roomsWithUsernames = allRooms.map((room) => {
-        const user = users.find(
-          (user) => user.building === room.building && user.room === room.room
-        );
-        return {
-          ...room,
-          Username: user ? user.Username : "N/A",
-        };
-      });
-
-      setRooms(roomsWithUsernames);
-      setFilteredRooms(roomsWithUsernames);
-    };
-
-    fetchUsers();
-    fetchRooms();
+    fetchBuildings();
   }, []);
 
+  // Fetch rooms when building is selected
   useEffect(() => {
-    // Filter data based on selected building
-    if (selectedBuilding) {
-      const filtered = rooms.filter(
-        (room) => room.building === selectedBuilding
-      );
-      setFilteredRooms(filtered);
+    if (selectedBuildingId) {
+      fetchRooms(selectedBuildingId);
     } else {
-      setFilteredRooms(rooms);
+      setRooms([]);
     }
-  }, [selectedBuilding, rooms]);
+  }, [selectedBuildingId]);
 
-  const handleBuildingChange = (value) => {
-    setSelectedBuilding(value);
+  // Fetch all buildings from Firestore
+  const fetchBuildings = async () => {
+    try {
+      const buildingsCollection = collection(db, "buildings");
+      const buildingSnapshot = await getDocs(buildingsCollection);
+      const buildingList = buildingSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setBuildings(buildingList);
+    } catch (error) {
+      console.error("Error fetching buildings:", error);
+    }
   };
 
+  // Fetch rooms of selected building from Firestore
+  const fetchRooms = async (buildingId) => {
+    try {
+      const roomsCollection = collection(db, "rooms");
+      const roomSnapshot = await getDocs(roomsCollection);
+      const roomList = roomSnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .filter((room) => room.buildingId === buildingId); // Filter rooms by buildingId
+
+      setRooms(roomList);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+    }
+  };
+
+  // Show room details in modal
+  const showDetail = (room) => {
+    setSelectedRoom(room);
+    setIsModalVisible(true);
+    form.setFieldsValue(room);
+  };
+
+  // Handle room update
+  const handleOk = async () => {
+    const updatedRoom = form.getFieldsValue();
+    try {
+      await updateDoc(doc(db, "rooms", selectedRoom.id), updatedRoom);
+      fetchRooms(selectedBuildingId);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error updating room:", error);
+    }
+  };
+
+  // Close modal
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  // Handle building selection
+  const handleBuildingChange = (value) => {
+    setSelectedBuildingId(value);
+    setRooms([]);
+    setSelectedRoom(null);
+  };
+
+  // Handle room addition
+  const handleAddRoom = async (values) => {
+    if (!selectedBuildingId) {
+      alert("Please select a building first.");
+      return;
+    }
+    try {
+      await addDoc(collection(db, "rooms"), {
+        roomNumber: values.roomNumber,
+        roomType: values.roomType,
+        area: Number(values.area),
+        buildingId: selectedBuildingId,
+      });
+      addForm.resetFields();
+      fetchRooms(selectedBuildingId);
+    } catch (error) {
+      console.error("Error adding room:", error);
+    }
+  };
+
+  // Handle room deletion
+  const handleDeleteRoom = async (id) => {
+    try {
+      await deleteDoc(doc(db, "rooms", id));
+      fetchRooms(selectedBuildingId);
+    } catch (error) {
+      console.error("Error deleting room:", error);
+    }
+  };
+
+  // Define table columns
   const columns = [
     {
-      title: "Building",
-      dataIndex: "building",
-      key: "building",
+      title: "Room Number",
+      dataIndex: "roomNumber",
+      key: "roomNumber",
+      render: (text, record) => (
+        <Button type="link" onClick={() => showDetail(record)}>
+          {text}
+        </Button>
+      ),
     },
     {
-      title: "Room",
-      dataIndex: "room",
-      key: "room",
+      title: "Room Type",
+      dataIndex: "roomType",
+      key: "roomType",
     },
     {
-      title: "Acreage",
-      dataIndex: "acreage",
-      key: "acreage",
+      title: "Area (sqm)",
+      dataIndex: "area",
+      key: "area",
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-    },
-    {
-      title: "Asset",
-      dataIndex: "asset",
-      key: "asset",
-    },
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Datetime",
-      dataIndex: "datetime",
-      key: "datetime",
-      render: (text) => (text ? moment(text).format("MM/DD/YYYY HH:mm") : ""),
-    },
-    {
-      title: "Username",
-      dataIndex: "Username",
-      key: "Username",
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <span>
+          <Button onClick={() => showDetail(record)}>Edit</Button>
+          <Popconfirm
+            title="Are you sure to delete this room?"
+            onConfirm={() => handleDeleteRoom(record.id)}
+          >
+            <Button type="link">Delete</Button>
+          </Popconfirm>
+        </span>
+      ),
     },
   ];
 
   return (
-    <>
+    <div>
+      {/* Select Building */}
       <Select
-        placeholder="Select a building"
-        style={{ width: 200, marginBottom: 16, marginTop: 16, marginLeft: 16 }}
-        value={selectedBuilding}
+        placeholder="Select a Building"
+        style={{ width: 200, marginBottom: 20 }}
         onChange={handleBuildingChange}
-        options={[
-          { value: "CT1/D22", label: "CT1/D22" },
-          { value: "CT2/D22", label: "CT2/D22" },
-          { value: "CT3/D22", label: "CT3/D22" },
-        ]}
-      />
-      <Table dataSource={filteredRooms} columns={columns} pagination={false} />
-    </>
-  );
-};
+        allowClear
+      >
+        {buildings.map((building) => (
+          <Option key={building.id} value={building.id}>
+            {building.name}
+          </Option>
+        ))}
+      </Select>
 
-export default ListApartment;
+      {selectedBuildingId && (
+        <div>
+          {/* Form to add room */}
+          <Form
+            form={addForm}
+            layout="vertical"
+            onFinish={handleAddRoom}
+            style={{ marginBottom: 20 }}
+          >
+            <Form.Item
+              label="Room Number"
+              name="roomNumber"
+              rules={[{ required: true, message: "Please input room number!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Room Type"
+              name="roomType"
+              rules={[{ required: true, message: "Please input room type!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Area (sqm)"
+              name="area"
+              rules={[{ required: true, message: "Please input area!" }]}
+            >
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Add Room
+              </Button>
+            </Form.Item>
+          </Form>
+
+          {/* Table displaying rooms */}
+          <Table
+            dataSource={rooms.map((room) => ({
+              key: room.id,
+              ...room,
+            }))}
+            columns={columns}
+            pagination={false}
+          />
+        </div>
+      )}
+
+      {/* Modal for editing room */}
+      <Modal
+        title="Room Details"
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item label="Room Number" name="roomNumber">
+            <Input disabled />
+          </Form.Item>
+          <Form.Item label="Room Type" name="roomType">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Area (sqm)" name="area">
+            <Input type="number" />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  );
+}

@@ -8,14 +8,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBGa765C3xXDEjEmHvj5qdkOx_iBh41KE0",
-  authDomain: "management-211-be7a7.firebaseapp.com",
-  databaseURL:
-    "https://management-211-be7a7-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "management-211-be7a7",
-  storageBucket: "management-211-be7a7.appspot.com",
-  messagingSenderId: "671651143726",
-  appId: "1:671651143726:web:d631fda340650481e9bfbf",
+  apiKey: "AIzaSyB2aA4uIvFlZwHiZVekCV5i6NPonqDUMHk",
+  authDomain: "homehide-69f18.firebaseapp.com",
+  projectId: "homehide-69f18",
+  storageBucket: "homehide-69f18.appspot.com",
+  messagingSenderId: "706710097603",
+  appId: "1:706710097603:web:dcd3316357f4c76b9cdc76",
 };
 
 // Initialize Firebase

@@ -33,12 +33,12 @@ const items = [
   {
     key: "2",
     icon: <IdcardOutlined />,
-    label: "Management Accounts",
+    label: "Request Accounts",
   },
   {
     key: "3",
     icon: <TeamOutlined />,
-    label: "Customers",
+    label: "Management Customers",
   },
   {
     key: "sub1",

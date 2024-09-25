@@ -58,13 +58,21 @@ export default function AdminDashboard() {
           }}
         >
           <Menu.Item key="home">
-            <Link to={admin?.role === "admin" ? "/admin" : "/"}>Home</Link>
+            <Link to="/">Home</Link>
           </Menu.Item>
-          <Menu.Item key="about">About us</Menu.Item>
-          <Menu.Item key="feature">Features</Menu.Item>
-          <Menu.Item key="instruct">Instruction</Menu.Item>
-          <Menu.Item key="contact">Contact</Menu.Item>
-        </Menu>
+          <Menu.Item key="about">
+            <Link to="/about">About us</Link>
+          </Menu.Item>
+          <Menu.Item key="feature">
+            <Link to="/features">Features</Link>
+          </Menu.Item>
+          <Menu.Item key="instruct">
+            <Link to="/instruct">Instruction</Link>
+          </Menu.Item>
+          <Menu.Item key="contact">
+            <Link to="/contact">Contact</Link>
+          </Menu.Item>
+          </Menu>
         <div style={{ marginLeft: "auto" }}>
           <AdminAvatar />
         </div>

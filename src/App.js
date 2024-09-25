@@ -20,6 +20,11 @@ import SetFee from "./pages/Managements/ServicesFee/SetFee";
 import SetPrices from "./pages/Managements/ServicesFee/SetPrices";
 import VehicleRegistrationForm from "./pages/Transportation";
 import ListApartment from "./pages/Apartments/ListApartment";
+import AddData from "./pages/Apartments/AddData";
+import ChangePassword from "./pages/Profile/changepassword";
+import ListVehicle from "./pages/Transportation/ListVehicle";
+import AppContact from "./pages/Home/contact";
+import Aboutus from "./pages/Home/about";
 
 function App() {
   const [user, setUser] = useState("");
@@ -39,6 +44,8 @@ function App() {
         {/* Event */}
         <Route path="/event" element={<Event />} />
         <Route path="/event/:id" element={<DetailEvent />} />
+        <Route path="/contact" element={<AppContact />} />
+        <Route path="/about" element={<Aboutus />} />
 
         {/* Admin */}
         <Route
@@ -49,6 +56,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route path="/admin/requestAccount" element={<RequestAccount />} />
         <Route
           path="/admin/managementAccount"
@@ -61,6 +69,8 @@ function App() {
         <Route path="/admin/profile" element={<Profile />} />
         <Route path="/admin/setPrice" element={<SetPrices />} />
         <Route path="/admin/listapart" element={<ListApartment />} />
+        <Route path="/admin/add" element={<AddData />} />
+        <Route path="/admin/changepassword" element={<ChangePassword />} />
 
         {/* Owner */}
         <Route
@@ -74,7 +84,9 @@ function App() {
         {/* Profile */}
         <Route path="/owner/edit-profile" element={<EditProfile />} />
         <Route path="/owner/profile" element={<Profile />} />
-        <Route path="/trans" element={<VehicleRegistrationForm />} />
+        <Route path="owner/trans" element={<VehicleRegistrationForm />} />
+        <Route path="/owner/changepassword" element={<ChangePassword />} />
+        <Route path="/owner/listvehicle" element={<ListVehicle />} />
       </Routes>
     </Router>
   );

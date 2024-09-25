@@ -2,11 +2,9 @@ import React from "react";
 import { Layout, Menu } from "antd";
 import { Link } from "react-router-dom";
 
-import AvatarOwner from "../layout/Owner/AvatarOwner";
-
 const { Header } = Layout;
 
-export default function HeaderMain() {
+export default function HeaderHomepage() {
   return (
     <Layout>
       <Header
@@ -41,9 +39,6 @@ export default function HeaderMain() {
             <Link to="/contact">Contact</Link>
           </Menu.Item>
         </Menu>
-        <div style={{ marginLeft: "auto" }}>
-          <AvatarOwner />
-        </div>
       </Header>
     </Layout>
   );
