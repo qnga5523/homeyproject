@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
 import OwnersDashboard from "./pages/Owners/Dashboard/OwnersDashboard";
 import Login from "./pages/Auth/Login";

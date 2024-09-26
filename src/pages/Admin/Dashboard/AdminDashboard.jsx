@@ -92,7 +92,7 @@ export default function AdminDashboard() {
               borderRadius: borderRadiusLG,
             }}
           >
-            <Outlet />
+          <Outlet/>
           </Content>
         </Layout>
       </Layout>

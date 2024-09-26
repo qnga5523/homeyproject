@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Layout, Menu } from "antd";
-
 import {
   InsertRowAboveOutlined,
   IdcardOutlined,
@@ -33,21 +32,33 @@ const items = [
   {
     key: "2",
     icon: <IdcardOutlined />,
-    label: "Request Accounts",
+    label: <Link to="/admin/requestAccount">Request Accounts</Link>,
   },
   {
     key: "3",
     icon: <TeamOutlined />,
-    label: "Management Customers",
+    label: <Link to="/admin/managementAccount">Management Customers</Link>,
   },
   {
     key: "sub1",
     label: "Data Catalog",
     icon: <DatabaseOutlined />,
     children: [
-      { key: "4", icon: <ContainerOutlined />, label: "Service Pricing" },
-      { key: "5", icon: <ApartmentOutlined />, label: "Apartment/Room" },
-      { key: "6", icon: <BankOutlined />, label: "Building" },
+      {
+        key: "4",
+        icon: <ContainerOutlined />,
+        label: <Link to="/admin/setPrice">Service Pricing</Link>,
+      },
+      {
+        key: "5",
+        icon: <ApartmentOutlined />,
+        label: <Link to="/admin/listapart">Apartment/Room</Link>,
+      },
+      {
+        key: "6",
+        icon: <BankOutlined />,
+        label: <Link to="/admin/add">Building</Link>,
+      },
     ],
   },
   {
@@ -55,8 +66,16 @@ const items = [
     label: "Security Management",
     icon: <SafetyOutlined />,
     children: [
-      { key: "7", icon: <SolutionOutlined />, label: "Feedback" },
-      { key: "8", icon: <CarryOutOutlined />, label: "Book Event" },
+      {
+        key: "7",
+        icon: <SolutionOutlined />,
+        label: <Link to="/feedback">Feedback</Link>,
+      },
+      {
+        key: "8",
+        icon: <CarryOutOutlined />,
+        label: <Link to="/book-event">Book Event</Link>,
+      },
     ],
   },
   {
@@ -64,16 +83,36 @@ const items = [
     label: "Finance",
     icon: <DollarOutlined />,
     children: [
-      { key: "9", icon: <FundViewOutlined />, label: "Service Fee" },
-      { key: "10", icon: <FileTextOutlined />, label: "Bills" },
-      { key: "11", icon: <BellOutlined />, label: "Notifications" },
+      {
+        key: "9",
+        icon: <FundViewOutlined />,
+        label: <Link to="/admin/setFee">Service Fee</Link>,
+      },
+      {
+        key: "10",
+        icon: <FileTextOutlined />,
+        label: <Link to="/bills">Bills</Link>,
+      },
+      {
+        key: "11",
+        icon: <BellOutlined />,
+        label: <Link to="/notifications">Notifications</Link>,
+      },
       {
         key: "12",
         label: "Data Statistics",
         icon: <CloudServerOutlined />,
         children: [
-          { key: "13", label: "Chart", icon: <PieChartOutlined /> },
-          { key: "14", label: "Table", icon: <InsertRowAboveOutlined /> },
+          {
+            key: "13",
+            label: <Link to="/chart">Chart</Link>,
+            icon: <PieChartOutlined />,
+          },
+          {
+            key: "14",
+            label: <Link to="/table">Table</Link>,
+            icon: <InsertRowAboveOutlined />,
+          },
         ],
       },
     ],
@@ -81,7 +120,7 @@ const items = [
   {
     key: "15",
     icon: <SettingOutlined />,
-    label: "Setting",
+    label: <Link to="/settings">Setting</Link>,
   },
 ];
 
@@ -95,15 +134,15 @@ export default function SiderAdmin() {
       onCollapse={setCollapsed}
       width={240}
       style={{
-        background: "#fca5a5",
-        height: "100vh", // Đảm bảo chiều cao bằng toàn bộ trang
+        background: "#f8fafc",
+        height: "100vh", // Ensure the height takes up the full page
       }}
     >
       <Menu
         mode="inline"
         defaultSelectedKeys={["1"]}
         items={items}
-        style={{ height: "100%" }} // Đảm bảo menu chiếm toàn bộ chiều cao của sider
+        style={{ height: "100%" }} // Ensure the menu takes up the full height of the sider
       />
     </Sider>
   );

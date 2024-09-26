@@ -1,85 +1,75 @@
 import React from "react";
+import {  Row, Col, Card } from 'antd';
+import {  Input, Button } from "antd";
 
-import { Form, Input, Button, Checkbox } from "antd";
-const { TextArea } = Input;
 
 function AppContact() {
   return (
-    <div id="contact" className="block contactBlock">
-      <div className="container-fluid">
-        <div className="titleHolder">
-          <h2>Get in Touch</h2>
-        </div>
-        <Form
-          name="normal_login"
-          className="login-form"
-          initialValues={{ remember: true }}
-        >
-          <Form.Item
-            name="fullname"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your full name!",
-              },
-            ]}
-          >
-            <Input placeholder="Full Name" />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            rules={[
-              {
-                type: "email",
-                message: "The input is not valid E-mail!",
-              },
-              {
-                required: true,
-                message: "Please input your E-mail!",
-              },
-            ]}
-          >
-            <Input placeholder="Email Address" />
-          </Form.Item>
-          <Form.Item name="telephone">
-            <Input placeholder="Telephone" />
-          </Form.Item>
-          <Form.Item name="subject">
-            <Input placeholder="Subject" />
-          </Form.Item>
-          <Form.Item name="message">
-            <TextArea placeholder="Message" />
-          </Form.Item>
-          <Form.Item>
-            <Form.Item
-              name="remember"
-              valuePropName="checked"
-              noStyle
-              rules={[
-                {
-                  validator: (_, value) =>
-                    value
-                      ? Promise.resolve()
-                      : Promise.reject("Should accept agreement"),
-                },
-              ]}
-            >
-              <Checkbox>I agree with terms and conditions.</Checkbox>
-            </Form.Item>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="login-form-button"
-            >
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
+    <div className="bg-gray-50 py-16">
+      {/* Contact Us Header */}
+      <div className="container mx-auto text-center mb-12">
+        <h1 className="text-4xl font-bold">Contact Us</h1>
       </div>
-    </div>
-  );
+
+      {/* Contact Cards */}
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <Card hoverable className="text-center p-6 bg-white">
+          <h3 className="text-xl font-bold">+ (654) 6455 654</h3>
+          <p className="mt-2">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </p>
+          <Button type="link">Learn More</Button>
+        </Card>
+        <Card hoverable className="text-center p-6 bg-white">
+          <h3 className="text-xl font-bold">mail@txtils.com</h3>
+          <p className="mt-2">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </p>
+          <Button type="link">Learn More</Button>
+        </Card>
+        <Card hoverable className="text-center p-6 bg-white">
+          <h3 className="text-xl font-bold">London Eye, UK</h3>
+          <p className="mt-2">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </p>
+          <Button type="link">Learn More</Button>
+        </Card>
+      </div>
+
+      {/* Get In Touch Section */}
+      <div className="container mx-auto text-center mt-16">
+        <h2 className="text-3xl font-bold mb-6">Get In Touch</h2>
+        <p className="text-lg mb-8">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </p>
+
+        {/* Contact Form */}
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Row gutter={[16, 16]}>
+            <Col xs={24}>
+              <Input placeholder="Email" size="large" />
+            </Col>
+            <Col xs={24}>
+              <Input placeholder="Phone" size="large" />
+            </Col>
+            <Col xs={24}>
+              <Input placeholder="Name" size="large" />
+            </Col>
+            <Col xs={24}>
+              <Input.TextArea placeholder="Message" rows={4} size="large" />
+            </Col>
+            <Col xs={24}>
+              <Button type="primary" size="large" className="w-full">
+                Submit
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      </div>
+      </div>
+
+  
+)
 }
 
 export default AppContact;

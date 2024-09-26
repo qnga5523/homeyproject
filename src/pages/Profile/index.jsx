@@ -3,12 +3,14 @@ import { Button, Typography, Image } from "antd";
 import { auth, db } from "../../Services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import EditProfile from "./edit";
+import ChangePassword from "./changepassword";
 
 const { Title, Text } = Typography;
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangePassword, setIsChangePassword] = useState(false);
 
   const fetchProfile = async () => {
     const user = auth.currentUser;
@@ -36,6 +38,8 @@ export default function Profile() {
           onProfileUpdate={handleProfileUpdate}
           setIsEditing={setIsEditing}
         />
+      ) : isChangePassword ? (
+        <ChangePassword setIsChangePassword={setIsChangePassword} />
       ) : (
         profile && (
           <div>
@@ -60,6 +64,10 @@ export default function Profile() {
             <Button type="primary" onClick={() => setIsEditing(true)}>
               Edit Profile
             </Button>
+            <Button type="primary" onClick={() => setIsChangePassword(true)}>
+              Change Password
+            </Button>
+
           </div>
         )
       )}

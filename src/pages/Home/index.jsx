@@ -4,6 +4,8 @@ import image5 from "../../assets/img/home/ap5.jpg";
 import image2 from "../../assets/img/home/ap2.jpg";
 import image3 from "../../assets/img/home/ap3.jpg";
 import image4 from "../../assets/img/home/ap4.jpg";
+import image1 from "../../assets/img/home/ap1.jpg";
+import bgr from "../../assets/img/home/bgr.jpg";
 import HeaderHomepage from "../../components/layout/Main/header";
 import { Footer } from "../../components/common/Footer";
 import "../../assets/styles/home.css";
@@ -20,18 +22,24 @@ export default function Homepage() {
   return (
     <Layout>
       <HeaderHomepage />
-      <Content style={{ padding: "0 50px", marginTop: "24px" }}>
-        <Content className="bg-gray-50 py-16">
-          <div className="container mx-auto text-center">
-            <h1 className="text-4xl font-bold">
-              We Build Luxury Homes in Spokane
-            </h1>
-            <p className="text-xl mt-4">At Affordable Prices</p>
-            <Button type="primary" size="large" className="mt-6">
-              Learn More
-            </Button>
-          </div>
-        </Content>
+      <Content style={{ padding: '0 50px', marginTop: '50px' }}>
+      <Content
+        className="py-44"
+        style={{
+          backgroundImage: `url(${bgr})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'top',
+        }}
+      >
+        <div className="container mx-auto text-center text-white">
+          <h1 className="text-4xl font-bold">We Build Luxury Homes in Spokane</h1>
+          <p className="text-xl mt-4">At Affordable Prices</p>
+          <Button type="primary" size="large" className="mt-6">
+            Let's find out more
+          </Button>
+        </div>
+      </Content>
+    
 
         {/* Expertise Section */}
         <Content className="py-16 bg-white">
@@ -39,25 +47,51 @@ export default function Homepage() {
             <div>
               <h2 className="text-3xl font-bold">Our Expertise</h2>
               <p className="mt-4 text-lg">
-                At Luxury Homes, we strive for excellence and quality. Our team
-                is dedicated to innovation, craftsmanship, and customer
-                satisfaction.
+              Architecture and building construction are essential fields that shape the environments where we live, work, and play. This comprehensive guide delves into the core aspects of architecture, its historical evolution, key principles, and the basics of building construction. Additionally, we will explore how architecture intersects with other disciplines like interior design, urban planning, and landscape architecture to create functional, safe, and aesthetically pleasing structures. Real-world examples, practical tips, and a detailed overview of the construction process will provide a thorough understanding of these interconnected fields.
               </p>
+              <Button type="primary" size="large" className="mt-6">
+              About us
+            </Button>
             </div>
             <div>
-              <img
-                src="https://via.placeholder.com/600x400" // Replace with your image
-                alt="Expertise"
-                className="rounded-lg shadow-md"
-              />
+            <Col >
+          <DemoBox src={image1} alt="Image 3" />
+        </Col>
             </div>
           </div>
         </Content>
+        <Content className="py-16 bg-white">
+  <div className="container mx-auto grid grid-cols-2 gap-8">
+    {/* Images on the left */}
+    <div>
+      <Row justify="space-around" align="middle" gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={6} lg={6}>
+          <DemoBox src={image2} alt="Image 2" />
+        </Col>
+        <Col xs={24} sm={12} md={6} lg={6}>
+          <DemoBox src={image3} alt="Image 3" />
+        </Col>
+        <Col xs={24} sm={12} md={6} lg={6}>
+          <DemoBox src={image4} alt="Image 4" />
+        </Col>
+      </Row>
+    </div>
+
+    {/* Text on the right */}
+    <div>
+      <h2 className="text-3xl font-bold">Our Expertise</h2>
+      <p className="mt-4 text-lg">
+        At Luxury Homes, we strive for excellence and quality. Our team is dedicated to innovation, craftsmanship, and customer satisfaction.
+      </p>
+    </div>
+  </div>
+</Content>
+
 
         {/* Details Section */}
         <Content className="py-16 bg-gray-100">
           <div className="container mx-auto text-center">
-            <h2 className="text-4xl font-bold">Details Welcome</h2>
+            <h2 className="text-4xl font-bold">Event</h2>
             <div className="grid grid-cols-3 gap-4 mt-8">
               <Card hoverable>
                 <img
@@ -83,21 +117,18 @@ export default function Homepage() {
             </div>
           </div>
         </Content>
-        <Divider orientation="left">Homey</Divider>
-        <Row justify="space-around" align="middle" gutter={[16, 16]}>
+        <Content>
+          <Divider orientation="left" plain className="container mx-auto text-center" >
+          <h2 className="text-4xl font-bold">Features</h2>
+          </Divider>
+          <div>
           <Col xs={24} sm={12} md={6} lg={6}>
-            <DemoBox src={image5} alt="Image 1" />
-          </Col>
-          <Col xs={24} sm={12} md={6} lg={6}>
-            <DemoBox src={image2} alt="Image 2" />
-          </Col>
-          <Col xs={24} sm={12} md={6} lg={6}>
-            <DemoBox src={image3} alt="Image 3" />
-          </Col>
-          <Col xs={24} sm={12} md={6} lg={6}>
-            <DemoBox src={image4} alt="Image 4" />
-          </Col>
-        </Row>
+          <DemoBox src={image1} alt="Image 1" />
+        </Col>
+        </div>
+          
+
+        </Content>
       </Content>
       <Footer />
     </Layout>

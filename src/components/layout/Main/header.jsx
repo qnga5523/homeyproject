@@ -11,7 +11,7 @@ export default function HeaderHomepage() {
     <Layout>
       <Header className="bg-white shadow-md">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold">LH</div>
+          <div className="text-xl font-bold">HOMEY</div>
           <Menu
             mode="horizontal"
             defaultSelectedKeys={["1"]}
@@ -28,9 +28,6 @@ export default function HeaderHomepage() {
             </Menu.Item>
             <Menu.Item key="feature">
               <Link to="/features">Features</Link>
-            </Menu.Item>
-            <Menu.Item key="instruct">
-              <Link to="/instruct">Instruction</Link>
             </Menu.Item>
             <Menu.Item key="contact">
               <Link to="/contact">Contact</Link>

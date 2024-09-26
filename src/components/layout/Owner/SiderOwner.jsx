@@ -80,7 +80,7 @@ export default function SiderOwner() {
       onCollapse={setCollapsed}
       width={240}
       style={{
-        background: "#fca5a5",
+        background: "#f8fafc",
         height: "100vh",
       }}
     >
