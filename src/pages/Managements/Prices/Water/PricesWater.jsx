@@ -8,35 +8,39 @@ import {
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../../../Services/firebase";
-import { Table, Button, Form, Input, DatePicker, Switch, Modal } from "antd";
+import { Table, Button, Form, Input, DatePicker } from "antd";
+import moment from "moment";
 export default function PricesWater() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
-  const [editingPrice, setEditingPrice] = useState(null);
+  const [editingPrice, setEditingPrice] = useState(null);  // State cho biết giá nào đang được chỉnh sửa
 
   // Fetch data from Firestore
   useEffect(() => {
     const fetchPrices = async () => {
       const pricesCollection = collection(db, "waterPrices");
       const priceSnapshot = await getDocs(pricesCollection);
-      const priceList = priceSnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
+      const priceList = priceSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id,
+          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date, // Chuyển đổi nếu là Timestamp
+        };
+      });
       setPrices(priceList);
     };
 
     fetchPrices();
   }, []);
 
-  // Add or Update price
   const onFinish = async (values) => {
-    // Convert Moment to JS Date
+    // Convert Moment to JS Date if necessary
     const processedValues = {
       ...values,
-      date: values.date.toDate(), // Convert Moment to JS Date
+      date: values.date ? values.date.toDate() : null,
     };
-
+  
     if (editingPrice) {
       const priceDoc = doc(db, "waterPrices", editingPrice.id);
       await updateDoc(priceDoc, processedValues);
@@ -44,37 +48,95 @@ export default function PricesWater() {
     } else {
       await addDoc(collection(db, "waterPrices"), processedValues);
     }
+  
     form.resetFields();
+  
+    // Fetch updated data
+    const pricesCollection = collection(db, "waterPrices");
+    const priceSnapshot = await getDocs(pricesCollection);
+    const priceList = priceSnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    setPrices(priceList);
   };
-
-  // Set default price
+  
   const setDefaultPrice = async (id) => {
     const updatedPrices = prices.map(async (price) => {
       const priceDoc = doc(db, "waterPrices", price.id);
-      await updateDoc(priceDoc, { default: price.id === id });
+  
+      // Nếu bản ghi hiện tại là default và người dùng tắt default, nó sẽ về trạng thái "Paused".
+      if (price.id === id && price.default) {
+        await updateDoc(priceDoc, { default: false });
+      } 
+      // Nếu bản ghi hiện tại không phải là default, đặt nó về trạng thái "Paused".
+      else if (price.id === id) {
+        await updateDoc(priceDoc, { default: true });
+      } else {
+        await updateDoc(priceDoc, { default: false });
+      }
     });
-    Promise.all(updatedPrices);
+  
+    await Promise.all(updatedPrices);
+  
+    // Cập nhật lại danh sách giá sau khi chỉnh sửa
+    const pricesCollection = collection(db, "waterPrices");
+    const priceSnapshot = await getDocs(pricesCollection);
+    const priceList = priceSnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    setPrices(priceList);
+  };
+  
+  const handleEditPrice = (record) => {
+    setEditingPrice(record);  // Lưu bản ghi đang chỉnh sửa
+  
+    form.setFieldsValue({
+      volume: record.volume,
+      price: record.price,
+      date: record.date ? moment(record.date) : null,  // Kiểm tra trước khi chuyển thành moment
+    });
   };
 
   // Delete price
   const deletePrice = async (id) => {
     const priceDoc = doc(db, "waterPrices", id);
     await deleteDoc(priceDoc);
+    setPrices(prices.filter((price) => price.id !== id));
   };
+  const USDollar = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+  });
+
 
   const columns = [
-    { title: "M³", dataIndex: "volume", key: "volume" },
-    { title: "Price ($)", dataIndex: "price", key: "price" },
-    { title: "Date", dataIndex: "date", key: "date" },
     {
-      title: "Default",
+      title: "M³",
+      dataIndex: "volume",
+      key: "volume",
+      render: (text) => `${text} m³`, // Hiển thị giá trị kèm đơn vị m³
+    },
+    { title: "Price ($)", dataIndex: "price", key: "price" , render: (text) => USDollar.format(text),},
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', // Định dạng ngày tháng nếu có
+    },
+    {
+      title: "Status",
       dataIndex: "default",
       key: "default",
       render: (_, record) => (
-        <Switch
-          checked={record.default}
-          onChange={() => setDefaultPrice(record.id)}
-        />
+        <div>
+          <span>{record.default ? "Default" : "Paused"}</span>
+          <Button type="link" onClick={() => setDefaultPrice(record.id)}>
+            {record.default ? "Pause" : "Set Default"}
+          </Button>
+        </div>
       ),
     },
     {
@@ -82,13 +144,12 @@ export default function PricesWater() {
       key: "actions",
       render: (_, record) => (
         <>
-          <Button onClick={() => setEditingPrice(record)}>Edit</Button>
-          <Button danger onClick={() => deletePrice(record.id)}>
-            Delete
-          </Button>
+          <Button onClick={() => handleEditPrice(record)}>Edit</Button>
+          <Button danger onClick={() => deletePrice(record.id)}>Delete</Button>
+          
         </>
       ),
-    },
+    }
   ];
 
   return (
@@ -97,7 +158,6 @@ export default function PricesWater() {
         form={form}
         layout="inline"
         onFinish={onFinish}
-        initialValues={editingPrice}
       >
         <Form.Item
           name="volume"
@@ -116,9 +176,6 @@ export default function PricesWater() {
           rules={[{ required: true, message: "Please select date!" }]}
         >
           <DatePicker showTime />
-        </Form.Item>
-        <Form.Item name="default" valuePropName="checked">
-          <Switch />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
