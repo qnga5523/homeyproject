@@ -18,6 +18,9 @@ import {
   CloudServerOutlined,
   PieChartOutlined,
   ContainerOutlined,
+  HeartOutlined,
+  FormatPainterOutlined,
+  GoldOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -40,76 +43,93 @@ const items = [
     label: <Link to="/admin/managementAccount">Management Customers</Link>,
   },
   {
-    key: "sub1",
+    key: "4",
     label: "Data Catalog",
     icon: <DatabaseOutlined />,
     children: [
       {
-        key: "4",
+        key: "5",
         icon: <ContainerOutlined />,
-        label: <Link to="/admin/setPrice">Service Pricing</Link>,
+        label: "Service Pricing",
+        children: [
+          {
+            key: "6",
+            icon: <HeartOutlined />,
+            label: <Link to="/admin/water">Prices Water</Link>,
+          },
+          {
+            key: "7",
+            icon: <FormatPainterOutlined />,
+            label: <Link to="/admin/clean">Prices Clean</Link>,
+          },
+          {
+            key: "8",
+            icon: <GoldOutlined />,
+            label: <Link to="/admin/parking">Prices Parking</Link>,
+          },
+        ],
       },
       {
-        key: "5",
+        key: "9",
         icon: <ApartmentOutlined />,
         label: <Link to="/admin/listapart">Apartment/Room</Link>,
       },
       {
-        key: "6",
+        key: "10",
         icon: <BankOutlined />,
         label: <Link to="/admin/add">Building</Link>,
       },
     ],
   },
   {
-    key: "sub2",
+    key: "11",
     label: "Security Management",
     icon: <SafetyOutlined />,
     children: [
       {
-        key: "7",
+        key: "12",
         icon: <SolutionOutlined />,
         label: <Link to="/feedback">Feedback</Link>,
       },
       {
-        key: "8",
+        key: "13",
         icon: <CarryOutOutlined />,
         label: <Link to="/book-event">Book Event</Link>,
       },
     ],
   },
   {
-    key: "sub3",
+    key: "14",
     label: "Finance",
     icon: <DollarOutlined />,
     children: [
       {
-        key: "9",
+        key: "15",
         icon: <FundViewOutlined />,
         label: <Link to="/admin/setFee">Service Fee</Link>,
       },
       {
-        key: "10",
+        key: "16",
         icon: <FileTextOutlined />,
         label: <Link to="/bills">Bills</Link>,
       },
       {
-        key: "11",
+        key: "17",
         icon: <BellOutlined />,
         label: <Link to="/notifications">Notifications</Link>,
       },
       {
-        key: "12",
+        key: "18",
         label: "Data Statistics",
         icon: <CloudServerOutlined />,
         children: [
           {
-            key: "13",
+            key: "19",
             label: <Link to="/chart">Chart</Link>,
             icon: <PieChartOutlined />,
           },
           {
-            key: "14",
+            key: "20",
             label: <Link to="/table">Table</Link>,
             icon: <InsertRowAboveOutlined />,
           },
@@ -118,7 +138,7 @@ const items = [
     ],
   },
   {
-    key: "15",
+    key: "21",
     icon: <SettingOutlined />,
     label: <Link to="/settings">Setting</Link>,
   },

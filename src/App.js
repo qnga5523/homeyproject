@@ -17,7 +17,7 @@ import EditEvent from "./pages/Events/EditEvent";
 import EditProfile from "./pages/Profile/edit";
 import Profile from "./pages/Profile";
 import SetFee from "./pages/Managements/ServicesFee/SetFee";
-import SetPrices from "./pages/Managements/ServicesFee/SetPrices";
+
 import VehicleRegistrationForm from "./pages/Transportation";
 import ListApartment from "./pages/Apartments/ListApartment";
 import AddData from "./pages/Apartments/AddData";
@@ -25,6 +25,11 @@ import ChangePassword from "./pages/Profile/changepassword";
 import ListVehicle from "./pages/Transportation/ListVehicle";
 import AppContact from "./pages/Home/contact";
 import Aboutus from "./pages/Home/about";
+import Feature from "./pages/Home/feature";
+
+import PricesWater from "./pages/Managements/Prices/Water/PricesWater";
+import PricesClean from "./pages/Managements/Prices/FeeClean/PricesClean";
+import PricesParking from "./pages/Managements/Prices/Parking/PricesParking";
 
 function App() {
   const [user, setUser] = useState("");
@@ -46,6 +51,7 @@ function App() {
         <Route path="/event/:id" element={<DetailEvent />} />
         <Route path="/contact" element={<AppContact />} />
         <Route path="/about" element={<Aboutus />} />
+        <Route path="/features" element={<Feature />} />
 
         {/* Admin */}
         <Route
@@ -67,10 +73,13 @@ function App() {
         <Route path="/admin/CreateEvent" element={<CreateEvent />} />
         <Route path="/admin/edit-event/:id" element={<EditEvent />} />
         <Route path="/admin/profile" element={<Profile />} />
-        <Route path="/admin/setPrice" element={<SetPrices />} />
+
         <Route path="/admin/listapart" element={<ListApartment />} />
         <Route path="/admin/add" element={<AddData />} />
         <Route path="/admin/changepassword" element={<ChangePassword />} />
+        <Route path="/admin/water" element={<PricesWater />} />
+        <Route path="/admin/clean" element={<PricesClean />} />
+        <Route path="/admin/parking" element={<PricesParking />} />
 
         {/* Owner */}
         <Route
