@@ -4,7 +4,8 @@ import { Layout, Menu, message, theme } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import AdminAvatar from "../../../components/layout/Admin/AvatarAdmin";
 import { auth, db } from "../../../Services/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import axios from "axios";
 const { Header, Content } = Layout;
 
 export default function AdminDashboard() {
@@ -39,6 +40,49 @@ export default function AdminDashboard() {
     fetchAdminData();
   }, []);
 
+  const handleApproveUser = async (userId) => {
+    // Cập nhật trạng thái phê duyệt cho người dùng
+    await setDoc(doc(db, "Users", userId), { approved: true }, { merge: true });
+
+    // Gửi thông báo cho người dùng
+    const userDoc = await getDoc(doc(db, "Users", userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      if (userData.notificationToken) {
+        await sendNotification(
+          userData.notificationToken,
+          "Account Approved",
+          "Your account has been approved. You can now log in."
+        );
+      }
+    }
+  };
+
+  const sendNotification = async (token, title, body) => {
+    const message = {
+      to: token,
+      notification: {
+        title: title,
+        body: body,
+      },
+    };
+
+    try {
+      await axios.post("https://fcm.googleapis.com/fcm/send", message, {
+        headers: {
+          Authorization:
+            "BOXUgkTO1YvHsnWe-MbwhGn2aKKXgvkiKLnI1BIe5u99F9qJ6Ism7PJnO9dru0w-MSUQx0hCTk6p91N6OXw9lmc",
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Notification sent!");
+    } catch (error) {
+      console.error("Error sending notification", error);
+    }
+  };
+
+  // Render danh sách người dùng và nút phê duyệt...
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -72,7 +116,7 @@ export default function AdminDashboard() {
           <Menu.Item key="contact">
             <Link to="/contact">Contact</Link>
           </Menu.Item>
-          </Menu>
+        </Menu>
         <div style={{ marginLeft: "auto" }}>
           <AdminAvatar />
         </div>
@@ -92,7 +136,7 @@ export default function AdminDashboard() {
               borderRadius: borderRadiusLG,
             }}
           >
-          <Outlet/>
+            <Outlet />
           </Content>
         </Layout>
       </Layout>

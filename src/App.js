@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { auth } from "./Services/firebase";
+import { messaging, generateToken } from "./Services/firebase";
+
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
 import OwnersDashboard from "./pages/Owners/Dashboard/OwnersDashboard";
 import Login from "./pages/Auth/Login";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import Homepage from "./pages/Home";
 import Signup from "./pages/Auth/Signup";
-import { auth } from "./Services/firebase";
+
 import RequestAccount from "./pages/Admin/Accounts/RequestAccounts";
 import ManagementAccount from "./pages/Admin/Accounts/ManagementAccounts";
 import Event from "./pages/Events/Event";
@@ -30,10 +33,15 @@ import Feature from "./pages/Home/feature";
 import PricesWater from "./pages/Managements/Prices/Water/PricesWater";
 import PricesClean from "./pages/Managements/Prices/FeeClean/PricesClean";
 import PricesParking from "./pages/Managements/Prices/Parking/PricesParking";
+import { onMessage } from "firebase/messaging";
 
 function App() {
   const [user, setUser] = useState("");
   useEffect(() => {
+    generateToken();
+    onMessage(messaging, (payload) => {
+      console.log(payload);
+    });
     auth.onAuthStateChanged((user) => {
       setUser(user);
     });

@@ -5,7 +5,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
 import { doc, setDoc } from "firebase/firestore";
 import background from "../../assets/img/logo/background.jpg";
-
+import { getMessaging, getToken } from "firebase/messaging";
 import logoicon from "../../assets/img/logo/iconlogo.png";
 export default function Signup() {
   const [form] = Form.useForm();
@@ -16,6 +16,11 @@ export default function Signup() {
       const user = auth.currentUser;
       console.log(user);
       if (user) {
+        const messaging = getMessaging(); // Initialize Firebase Messaging
+        const token = await getToken(messaging, {
+          vapidKey:
+            "BOXUgkTO1YvHsnWe-MbwhGn2aKKXgvkiKLnI1BIe5u99F9qJ6Ism7PJnO9dru0w-MSUQx0hCTk6p91N6OXw9lmc",
+        }); // Replace with your VAPID key
         await setDoc(doc(db, "Users", user.uid), {
           email: user.email,
           Username: name,
@@ -24,6 +29,7 @@ export default function Signup() {
           building: building,
           role: "owner",
           approved: false,
+          notificationToken: token,
         });
       }
       console.log("User Registered Successfully!!");
