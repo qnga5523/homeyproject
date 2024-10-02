@@ -18,8 +18,6 @@ import {
   limit,
 } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
-import { Content } from "antd/es/layout/layout";
-
 
 export default function ManagementAccount() {
   const [users, setUsers] = useState([]);
@@ -189,7 +187,6 @@ export default function ManagementAccount() {
   ];
 
   return (
-    
     <div>
       <h2>Manage Accounts</h2>
       <Table
@@ -235,6 +232,5 @@ export default function ManagementAccount() {
         )}
       </Modal>
     </div>
-   
   );
 }

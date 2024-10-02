@@ -1,81 +1,90 @@
 import React, { useEffect, useState } from "react";
-import { Table, Form, InputNumber } from "antd";
+import { Table, InputNumber } from "antd";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 
 export default function SetFee() {
   const [users, setUsers] = useState([]);
-  const [prices, setPrices] = useState(null);
-  const [form] = Form.useForm();
+  const [cleanPrice, setCleanPrice] = useState(0);
+  const [waterPrice, setWaterPrice] = useState(0);
+  const [parkingPrices, setParkingPrices] = useState({}); // Lưu trữ giá cho từng loại xe
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const querySnapshot = await getDocs(collection(db, "Users"));
-      const users = [];
-      querySnapshot.forEach((doc) => {
+    const fetchUsersAndPrices = async () => {
+      // Fetch dữ liệu người dùng (chỉ lấy username, room, building)
+      const usersSnapshot = await getDocs(collection(db, "Users"));
+      const fetchedUsers = [];
+      usersSnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.role === "owner") {
-          users.push({
-            ...data,
+          fetchedUsers.push({
             id: doc.id,
+            username: data.Username,
+            room: data.room,
+            building: data.building,
+            amountService: 0,
+            amountWater: 0,
+            amountParking: {
+              Car: 0,
+              Truck: 0,
+              Motorcycle: 0,
+              Bicycle: 0,
+            }, // Khởi tạo các giá trị cho amountParking
           });
         }
       });
-      setUsers(users);
+
+      // Fetch giá dịch vụ từ Firestore
+      const [cleanPricesSnapshot, waterPricesSnapshot, parkingPricesSnapshot] =
+        await Promise.all([
+          getDocs(collection(db, "cleanPrices")),
+          getDocs(collection(db, "waterPrices")),
+          getDocs(collection(db, "parkingPrices")),
+        ]);
+
+      // Lấy giá clean
+      const cleanPriceData = cleanPricesSnapshot.docs.map((doc) => doc.data());
+      const defaultCleanPrice = cleanPriceData.find((price) => price.default);
+      setCleanPrice(defaultCleanPrice?.price || 0);
+
+      // Lấy giá nước
+      const waterPriceData = waterPricesSnapshot.docs.map((doc) => doc.data());
+      const defaultWaterPrice = waterPriceData.find((price) => price.default);
+      setWaterPrice(defaultWaterPrice?.price || 0);
+
+      // Lấy giá đỗ xe
+      const parkingPricesData = parkingPricesSnapshot.docs.reduce(
+        (acc, doc) => {
+          const data = doc.data();
+          acc[data.vehicleType] = data.price; // Giả định rằng mỗi document có trường vehicleType và price
+          return acc;
+        },
+        {}
+      );
+      setParkingPrices(parkingPricesData);
+
+      // Cập nhật users với giá dịch vụ tương ứng
+      const updatedUsers = fetchedUsers.map((user) => ({
+        ...user,
+        priceservice: defaultCleanPrice?.price || 0,
+        priceswater: defaultWaterPrice?.price || 0,
+        ...Object.keys(parkingPricesData).reduce((acc, type) => {
+          acc[`prices${type}`] = parkingPricesData[type];
+          return acc;
+        }, {}),
+      }));
+
+      setUsers(updatedUsers);
     };
 
-    fetchUsers();
+    fetchUsersAndPrices();
   }, []);
 
-  useEffect(() => {
-    const fetchPrices = async () => {
-      const querySnapshot = await getDocs(collection(db, "prices"));
-      const pricesData = querySnapshot.docs.map((doc) => doc.data());
-      if (pricesData.length > 0) {
-        const latestPrices = pricesData[pricesData.length - 1];
-        setPrices(latestPrices);
-      }
-    };
-    fetchPrices();
-  }, []);
-
-  // Function to recalculate totals when Acreage or Consume are changed
-  const handleFieldChange = (value, key, record, field) => {
+  // Hàm xử lý khi người dùng nhập amount
+  const handleFieldChange = (value, record, field) => {
     const updatedUsers = users.map((user) => {
       if (user.id === record.id) {
-        const newData = {
-          ...user,
-          [field]: value,
-        };
-        // Recalculate service fee
-        const totalService = newData.Acreage * newData.pricesevices;
-
-        // Recalculate water consumption and fee
-        const totalConsume = newData.CSC - newData.CSD;
-        const totalWater = totalConsume * newData.priceswater;
-
-        // Recalculate parking fees
-        const totalCar = newData.amountcar * newData.pricecar;
-        const totalMotorbike = newData.amountmotorbike * newData.pricemotorbike;
-        const totalElectric = newData.amountelectric * newData.pricelectric;
-        const totalBicycle = newData.amountbicycle * newData.pricebicycle;
-        const totalParking =
-          totalCar + totalMotorbike + totalElectric + totalBicycle;
-
-        // Recalculate total money
-        const totalmoney = totalService + totalWater + totalParking;
-
-        return {
-          ...newData,
-          totalacreage: totalService,
-          totalconsume: totalConsume,
-          totalwater: totalWater,
-          totalcar: totalCar,
-          totalmotorbike: totalMotorbike,
-          totalelectric: totalElectric,
-          totalbicycle: totalBicycle,
-          totalmoney,
-        };
+        return { ...user, [field]: value };
       }
       return user;
     });
@@ -90,18 +99,26 @@ export default function SetFee() {
   const columns = [
     {
       title: "Information",
+
       children: [
         {
           title: "Username",
-          dataIndex: "Username",
-          key: "Username",
+          dataIndex: "username",
+          key: "username",
           width: 100,
           fixed: "left",
         },
         {
           title: "Room",
-          dataIndex: "Room",
-          key: "Room",
+          dataIndex: "room",
+          key: "room",
+          width: 100,
+          fixed: "left",
+        },
+        {
+          title: "Building",
+          dataIndex: "building",
+          key: "building",
           width: 100,
           fixed: "left",
         },
@@ -129,8 +146,8 @@ export default function SetFee() {
             },
             {
               title: "Price",
-              dataIndex: "pricesevices",
-              key: "pricesevices",
+              dataIndex: "priceservice",
+              key: "priceservice",
               width: 100,
               render: (text) => USDollar.format(text),
             },
@@ -224,8 +241,8 @@ export default function SetFee() {
                 },
                 {
                   title: "Price",
-                  dataIndex: "pricecar",
-                  key: "pricecar",
+                  dataIndex: "pricesCar",
+                  key: "pricesCar",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -263,8 +280,8 @@ export default function SetFee() {
                 },
                 {
                   title: "Price",
-                  dataIndex: "pricemotorbike",
-                  key: "pricemotorbike",
+                  dataIndex: "pricesMotorcycle",
+                  key: "pricesMotorcycle",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -301,8 +318,8 @@ export default function SetFee() {
                 },
                 {
                   title: "Price",
-                  dataIndex: "pricelectric",
-                  key: "pricelectric",
+                  dataIndex: "pricesTruck",
+                  key: "pricesTruck",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -339,8 +356,8 @@ export default function SetFee() {
                 },
                 {
                   title: "Price",
-                  dataIndex: "pricebicycle",
-                  key: "pricebicycle",
+                  dataIndex: "pricesBicycle",
+                  key: "pricesBicycle",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -367,44 +384,15 @@ export default function SetFee() {
     },
   ];
 
-  const processedData = users.map((user) => ({
-    ...user,
-    pricesevices:
-      prices?.serviceData.find((service) => service.feeType === "Acreage")
-        ?.price || 0,
-    priceswater:
-      prices?.waterData.find((service) => service.feeType === "Water money")
-        ?.price || 0,
-    totalacreage:
-      user.Acreage *
-      (prices?.serviceData.find((service) => service.feeType === "Acreage")
-        ?.price || 0),
-    totalconsume: user.CSC - user.CSD,
-    totalwater:
-      (user.CSC - user.CSD) *
-      (prices?.waterData.find((service) => service.feeType === "Water money")
-        ?.price || 0),
-    totalmoney:
-      user.Acreage *
-        (prices?.serviceData.find((service) => service.feeType === "Acreage")
-          ?.price || 0) +
-      (user.CSC - user.CSD) *
-        (prices?.waterData.find((service) => service.feeType === "Water money")
-          ?.price || 0),
-  }));
-
-  return prices && users.length > 0 ? (
+  return users.length > 0 ? (
     <Table
       columns={columns}
-      dataSource={processedData}
+      dataSource={users}
       bordered
       size="middle"
-      scroll={{
-        x: "calc(700px + 50%)",
-        y: 240,
-      }}
+      rowKey="id"
     />
   ) : (
-    <p>Loading prices and users...</p>
+    <p>Loading users and prices...</p>
   );
 }
