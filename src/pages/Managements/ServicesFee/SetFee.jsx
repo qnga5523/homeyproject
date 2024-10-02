@@ -22,14 +22,6 @@ export default function SetFee() {
             username: data.Username,
             room: data.room,
             building: data.building,
-            amountService: 0,
-            amountWater: 0,
-            amountParking: {
-              Car: 0,
-              Truck: 0,
-              Motorcycle: 0,
-              Bicycle: 0,
-            }, 
           });
         }
       });
@@ -52,16 +44,22 @@ export default function SetFee() {
       const defaultWaterPrice = waterPriceData.find((price) => price.default);
       setWaterPrice(defaultWaterPrice?.price || 0);
 
-      // Lấy giá đỗ xe
-      const parkingPricesData = parkingPricesSnapshot.docs.reduce(
-        (acc, doc) => {
-          const data = doc.data();
-          acc[data.vehicleType] = data.price; // Giả định rằng mỗi document có trường vehicleType và price
-          return acc;
-        },
-        {}
-      );
-      setParkingPrices(parkingPricesData);
+     // Initialize an empty object to store parking prices
+const parkingPricesData = {};
+
+// Iterate over each document in parkingPricesSnapshot
+parkingPricesSnapshot.docs.forEach((doc) => {
+  const data = doc.data();  // Extract the data from the document
+  
+  // Check if the document contains both vehicleType and price
+  if (data.vehicleType && data.price) {
+    parkingPricesData[data.vehicleType] = data.price;  // Store the price with vehicleType as the key
+  }
+});
+
+// Set the state with the parking prices data
+setParkingPrices(parkingPricesData);
+
 
       // Cập nhật users với giá dịch vụ tương ứng
       const updatedUsers = fetchedUsers.map((user) => ({
@@ -86,17 +84,17 @@ export default function SetFee() {
         const newData = { ...user, [field]: value };
   
         // Recalculate service fee (based on acreage)
-        const totalService = newData.Acreage * newData.priceservice;
+        const totalService = newData.Area * newData.priceservice;
   
         // Recalculate water consumption and fee
         const totalConsume = newData.CSC - newData.CSD;
         const totalWater = totalConsume * newData.priceswater;
   
         // Recalculate parking fees for all vehicle types
-        const totalCar = newData.amountcar * newData.pricesCar;
-        const totalMotorbike = newData.amountmotorbike * newData.pricesMotorcycle;
-        const totalElectric = newData.amountelectric * newData.pricesElectric;
-        const totalBicycle = newData.amountbicycle * newData.pricesBicycle;
+        const totalCar = newData.amountcar * newData.pricesCar || 0;
+        const totalMotorbike = newData.amountmotorbike * newData.pricesMotorcycle || 0;
+        const totalElectric = newData.amountelectric * newData.pricesElectric || 0;
+        const totalBicycle = newData.amountbicycle * newData.pricesBicycle || 0;
   
         // Calculate total parking fee
         const totalParking = totalCar + totalMotorbike + totalElectric + totalBicycle;
@@ -106,7 +104,7 @@ export default function SetFee() {
   
         return {
           ...newData,
-          totalacreage: totalService,
+          totalarea: totalService,
           totalconsume: totalConsume,
           totalwater: totalWater,
           totalcar: totalCar,
@@ -122,6 +120,7 @@ export default function SetFee() {
   
     setUsers(updatedUsers);
   };
+  
   
   const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -164,18 +163,11 @@ export default function SetFee() {
           title: "Services Fee",
           children: [
             {
-              title: "Acreage",
-              dataIndex: "Acreage",
-              key: "Acreage",
+              title: "Area",
+              dataIndex: "Area",
+              key: "Area",
               width: 100,
-              render: (text, record) => (
-                <InputNumber
-                  value={record.Acreage}
-                  onChange={(value) =>
-                    handleFieldChange(value, "Acreage", record, "Acreage")
-                  }
-                />
-              ),
+                
             },
             {
               title: "Price",
@@ -186,8 +178,8 @@ export default function SetFee() {
             },
             {
               title: "Total",
-              dataIndex: "totalacreage",
-              key: "totalacreage",
+              dataIndex: "totalarea",
+              key: "totalarea",
               width: 100,
               render: (text) => USDollar.format(text),
             },
@@ -205,7 +197,7 @@ export default function SetFee() {
                 <InputNumber
                   value={record.CSD}
                   onChange={(value) =>
-                    handleFieldChange(value, "CSD", record, "CSD")
+                    handleFieldChange(value, record, "CSD")
                   }
                 />
               ),
@@ -219,7 +211,7 @@ export default function SetFee() {
                 <InputNumber
                   value={record.CSC}
                   onChange={(value) =>
-                    handleFieldChange(value, "CSC", record, "CSC")
+                    handleFieldChange(value, record, "CSC")
                   }
                 />
               ),
@@ -264,7 +256,7 @@ export default function SetFee() {
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                          "amountcar",
+                      
                           record,
                           "amountcar"
                         )
@@ -303,7 +295,7 @@ export default function SetFee() {
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                          "amountmotorbike",
+                          
                           record,
                           "amountmotorbike"
                         )
@@ -341,7 +333,7 @@ export default function SetFee() {
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                          "amountelectric",
+                         
                           record,
                           "amountelectric"
                         )
@@ -379,7 +371,7 @@ export default function SetFee() {
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                          "amountbicycle",
+                        
                           record,
                           "amountbicycle"
                         )

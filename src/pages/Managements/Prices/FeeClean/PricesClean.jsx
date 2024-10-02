@@ -108,8 +108,8 @@ export default function PricesClean() {
   const columns = [
     {
       title: "M²",
-      dataIndex: "acreage",
-      key: "acreage",
+      dataIndex: "area",
+      key: "area",
       render: (text) => `${text} M²`, // Hiển thị giá trị kèm đơn vị m³
     },
     { title: "Price ($)", dataIndex: "price", key: "price" , render: (text) => USDollar.format(text),},
@@ -153,8 +153,8 @@ export default function PricesClean() {
         onFinish={onFinish}
       >
         <Form.Item
-          name="acreage"
-          rules={[{ required: true, message: "Please input agreage!" }]}
+          name="area"
+          rules={[{ required: true, message: "Please input area!" }]}
         >
           <Input placeholder="M²" />
         </Form.Item>

@@ -34,6 +34,7 @@ import PricesWater from "./pages/Managements/Prices/Water/PricesWater";
 import PricesClean from "./pages/Managements/Prices/FeeClean/PricesClean";
 import PricesParking from "./pages/Managements/Prices/Parking/PricesParking";
 import { onMessage } from "firebase/messaging";
+import ShowRooms from "./pages/Apartments/ListRoom";
 
 function App() {
   const [user, setUser] = useState("");
@@ -89,6 +90,7 @@ function App() {
         <Route path="/admin/clean" element={<PricesClean />} />
         <Route path="/admin/parking" element={<PricesParking />} />
 
+<Route path="/admin/room" element={<ShowRooms />} />
         {/* Owner */}
         <Route
           path="/owner"
