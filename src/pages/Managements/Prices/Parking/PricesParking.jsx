@@ -134,7 +134,7 @@ export default function PricesParking() {
         <Form.Item name="vehicleType" rules={[{ required: true, message: "Please select vehicle type!" }]}>
           <Select placeholder="Select Vehicle Type">
             <Option value="Car">Car</Option>
-            <Option value="Truck">Truck</Option>
+            <Option value="Electric">Electric motorbikes/Electric bicycles</Option>
             <Option value="Motorcycle">Motorcycle</Option>
             <Option value="Bicycle">Bicycle</Option>
           </Select>

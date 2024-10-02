@@ -7,11 +7,11 @@ export default function SetFee() {
   const [users, setUsers] = useState([]);
   const [cleanPrice, setCleanPrice] = useState(0);
   const [waterPrice, setWaterPrice] = useState(0);
-  const [parkingPrices, setParkingPrices] = useState({}); // Lưu trữ giá cho từng loại xe
+  const [parkingPrices, setParkingPrices] = useState({}); 
 
   useEffect(() => {
     const fetchUsersAndPrices = async () => {
-      // Fetch dữ liệu người dùng (chỉ lấy username, room, building)
+    
       const usersSnapshot = await getDocs(collection(db, "Users"));
       const fetchedUsers = [];
       usersSnapshot.forEach((doc) => {
@@ -29,12 +29,12 @@ export default function SetFee() {
               Truck: 0,
               Motorcycle: 0,
               Bicycle: 0,
-            }, // Khởi tạo các giá trị cho amountParking
+            }, 
           });
         }
       });
 
-      // Fetch giá dịch vụ từ Firestore
+      
       const [cleanPricesSnapshot, waterPricesSnapshot, parkingPricesSnapshot] =
         await Promise.all([
           getDocs(collection(db, "cleanPrices")),
@@ -80,16 +80,49 @@ export default function SetFee() {
     fetchUsersAndPrices();
   }, []);
 
-  // Hàm xử lý khi người dùng nhập amount
   const handleFieldChange = (value, record, field) => {
     const updatedUsers = users.map((user) => {
       if (user.id === record.id) {
-        return { ...user, [field]: value };
+        const newData = { ...user, [field]: value };
+  
+        // Recalculate service fee (based on acreage)
+        const totalService = newData.Acreage * newData.priceservice;
+  
+        // Recalculate water consumption and fee
+        const totalConsume = newData.CSC - newData.CSD;
+        const totalWater = totalConsume * newData.priceswater;
+  
+        // Recalculate parking fees for all vehicle types
+        const totalCar = newData.amountcar * newData.pricesCar;
+        const totalMotorbike = newData.amountmotorbike * newData.pricesMotorcycle;
+        const totalElectric = newData.amountelectric * newData.pricesElectric;
+        const totalBicycle = newData.amountbicycle * newData.pricesBicycle;
+  
+        // Calculate total parking fee
+        const totalParking = totalCar + totalMotorbike + totalElectric + totalBicycle;
+  
+        // Recalculate total money
+        const totalMoney = totalService + totalWater + totalParking;
+  
+        return {
+          ...newData,
+          totalacreage: totalService,
+          totalconsume: totalConsume,
+          totalwater: totalWater,
+          totalcar: totalCar,
+          totalmotorbike: totalMotorbike,
+          totalelectric: totalElectric,
+          totalbicycle: totalBicycle,
+          totalparking: totalParking,
+          totalmoney: totalMoney,
+        };
       }
       return user;
     });
+  
     setUsers(updatedUsers);
   };
+  
   const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -318,8 +351,8 @@ export default function SetFee() {
                 },
                 {
                   title: "Price",
-                  dataIndex: "pricesTruck",
-                  key: "pricesTruck",
+                  dataIndex: "pricesElectric",
+                  key: "pricesElectric",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
