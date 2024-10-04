@@ -21,11 +21,10 @@ import EditProfile from "./pages/Profile/edit";
 import Profile from "./pages/Profile";
 import SetFee from "./pages/Managements/ServicesFee/SetFee";
 
-import VehicleRegistrationForm from "./pages/Transportation";
 import ListApartment from "./pages/Apartments/ListApartment";
 import AddData from "./pages/Apartments/AddData";
 import ChangePassword from "./pages/Profile/changepassword";
-import ListVehicle from "./pages/Transportation/ListVehicle";
+
 import AppContact from "./pages/Home/contact";
 import Aboutus from "./pages/Home/about";
 import Feature from "./pages/Home/feature";
@@ -35,6 +34,9 @@ import PricesClean from "./pages/Managements/Prices/FeeClean/PricesClean";
 import PricesParking from "./pages/Managements/Prices/Parking/PricesParking";
 import { onMessage } from "firebase/messaging";
 import ShowRooms from "./pages/Apartments/ListRoom";
+import RequestVehicle from "./pages/Transportation/RequestVehicle";
+import VehicleRegister from "./pages/Transportation/VehicleRegister";
+import VehicleShow from "./pages/Transportation/VehicleShow";
 
 function App() {
   const [user, setUser] = useState("");
@@ -89,8 +91,9 @@ function App() {
         <Route path="/admin/water" element={<PricesWater />} />
         <Route path="/admin/clean" element={<PricesClean />} />
         <Route path="/admin/parking" element={<PricesParking />} />
+        <Route path="/admin/requestvehicle" element={<RequestVehicle />} />
 
-<Route path="/admin/room" element={<ShowRooms />} />
+        <Route path="/admin/room" element={<ShowRooms />} />
         {/* Owner */}
         <Route
           path="/owner"
@@ -103,9 +106,9 @@ function App() {
         {/* Profile */}
         <Route path="/owner/edit-profile" element={<EditProfile />} />
         <Route path="/owner/profile" element={<Profile />} />
-        <Route path="owner/trans" element={<VehicleRegistrationForm />} />
+        <Route path="owner/vehicleregister" element={<VehicleRegister />} />
         <Route path="/owner/changepassword" element={<ChangePassword />} />
-        <Route path="/owner/listvehicle" element={<ListVehicle />} />
+        <Route path="/owner/vehicle" element={<VehicleShow />} />
       </Routes>
     </Router>
   );

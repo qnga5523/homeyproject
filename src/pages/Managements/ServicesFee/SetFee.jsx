@@ -1,32 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { Table, InputNumber } from "antd";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 
 export default function SetFee() {
   const [users, setUsers] = useState([]);
   const [cleanPrice, setCleanPrice] = useState(0);
   const [waterPrice, setWaterPrice] = useState(0);
-  const [parkingPrices, setParkingPrices] = useState({}); 
+  const [parkingPrices, setParkingPrices] = useState({});
 
   useEffect(() => {
     const fetchUsersAndPrices = async () => {
-    
       const usersSnapshot = await getDocs(collection(db, "Users"));
       const fetchedUsers = [];
-      usersSnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.role === "owner") {
+
+      for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data();
+        if (userData.role === "owner") {
+          // Fetch room information
+          const roomsQuery = collection(db, "rooms");
+          const roomQuerySnapshot = await getDocs(roomsQuery);
+          const roomDoc = roomQuerySnapshot.docs.find(
+            (doc) => doc.data().roomNumber === userData.room
+          );
+
+          const roomData = roomDoc ? roomDoc.data() : {};
+          const area = roomData.area || 0; // Use area from the room or default to 0
+
+          // Push user data with initial service calculation
           fetchedUsers.push({
-            id: doc.id,
-            username: data.Username,
-            room: data.room,
-            building: data.building,
+            id: userDoc.id,
+            username: userData.Username,
+            room: userData.room,
+            building: userData.building,
+            area: area, // Assign area from room data
           });
         }
-      });
+      }
 
-      
+      // Fetch additional price data
       const [cleanPricesSnapshot, waterPricesSnapshot, parkingPricesSnapshot] =
         await Promise.all([
           getDocs(collection(db, "cleanPrices")),
@@ -34,43 +46,41 @@ export default function SetFee() {
           getDocs(collection(db, "parkingPrices")),
         ]);
 
-      // Lấy giá clean
+      // Get clean price
       const cleanPriceData = cleanPricesSnapshot.docs.map((doc) => doc.data());
       const defaultCleanPrice = cleanPriceData.find((price) => price.default);
       setCleanPrice(defaultCleanPrice?.price || 0);
 
-      // Lấy giá nước
+      // Get water price
       const waterPriceData = waterPricesSnapshot.docs.map((doc) => doc.data());
       const defaultWaterPrice = waterPriceData.find((price) => price.default);
       setWaterPrice(defaultWaterPrice?.price || 0);
 
-     // Initialize an empty object to store parking prices
-const parkingPricesData = {};
+      // Get parking prices
+      const parkingPricesData = {};
+      parkingPricesSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        if (data.vehicleType && data.price) {
+          parkingPricesData[data.vehicleType] = data.price;
+        }
+      });
+      setParkingPrices(parkingPricesData);
 
-// Iterate over each document in parkingPricesSnapshot
-parkingPricesSnapshot.docs.forEach((doc) => {
-  const data = doc.data();  // Extract the data from the document
-  
-  // Check if the document contains both vehicleType and price
-  if (data.vehicleType && data.price) {
-    parkingPricesData[data.vehicleType] = data.price;  // Store the price with vehicleType as the key
-  }
-});
+      // Update users with service and parking prices and calculate totalarea
+      const updatedUsers = fetchedUsers.map((user) => {
+        const totalarea = user.area * (defaultCleanPrice?.price || 0); // Calculate total service area price
 
-// Set the state with the parking prices data
-setParkingPrices(parkingPricesData);
-
-
-      // Cập nhật users với giá dịch vụ tương ứng
-      const updatedUsers = fetchedUsers.map((user) => ({
-        ...user,
-        priceservice: defaultCleanPrice?.price || 0,
-        priceswater: defaultWaterPrice?.price || 0,
-        ...Object.keys(parkingPricesData).reduce((acc, type) => {
-          acc[`prices${type}`] = parkingPricesData[type];
-          return acc;
-        }, {}),
-      }));
+        return {
+          ...user,
+          priceservice: defaultCleanPrice?.price || 0, // Assign the clean price
+          totalarea: totalarea, // Calculate total service fee immediately
+          priceswater: defaultWaterPrice?.price || 0, // Water price
+          ...Object.keys(parkingPricesData).reduce((acc, type) => {
+            acc[`prices${type}`] = parkingPricesData[type];
+            return acc;
+          }, {}),
+        };
+      });
 
       setUsers(updatedUsers);
     };
@@ -82,26 +92,29 @@ setParkingPrices(parkingPricesData);
     const updatedUsers = users.map((user) => {
       if (user.id === record.id) {
         const newData = { ...user, [field]: value };
-  
+
         // Recalculate service fee (based on acreage)
-        const totalService = newData.Area * newData.priceservice;
-  
+        const totalService = newData.area * newData.priceservice;
+
         // Recalculate water consumption and fee
         const totalConsume = newData.CSC - newData.CSD;
         const totalWater = totalConsume * newData.priceswater;
-  
+
         // Recalculate parking fees for all vehicle types
         const totalCar = newData.amountcar * newData.pricesCar || 0;
-        const totalMotorbike = newData.amountmotorbike * newData.pricesMotorcycle || 0;
-        const totalElectric = newData.amountelectric * newData.pricesElectric || 0;
+        const totalMotorbike =
+          newData.amountmotorbike * newData.pricesMotorcycle || 0;
+        const totalElectric =
+          newData.amountelectric * newData.pricesElectric || 0;
         const totalBicycle = newData.amountbicycle * newData.pricesBicycle || 0;
-  
+
         // Calculate total parking fee
-        const totalParking = totalCar + totalMotorbike + totalElectric + totalBicycle;
-  
+        const totalParking =
+          totalCar + totalMotorbike + totalElectric + totalBicycle;
+
         // Recalculate total money
         const totalMoney = totalService + totalWater + totalParking;
-  
+
         return {
           ...newData,
           totalarea: totalService,
@@ -117,11 +130,10 @@ setParkingPrices(parkingPricesData);
       }
       return user;
     });
-  
+
     setUsers(updatedUsers);
   };
-  
-  
+
   const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -164,10 +176,9 @@ setParkingPrices(parkingPricesData);
           children: [
             {
               title: "Area",
-              dataIndex: "Area",
-              key: "Area",
+              dataIndex: "area",
+              key: "area",
               width: 100,
-                
             },
             {
               title: "Price",
@@ -196,9 +207,7 @@ setParkingPrices(parkingPricesData);
               render: (text, record) => (
                 <InputNumber
                   value={record.CSD}
-                  onChange={(value) =>
-                    handleFieldChange(value, record, "CSD")
-                  }
+                  onChange={(value) => handleFieldChange(value, record, "CSD")}
                 />
               ),
             },
@@ -210,9 +219,7 @@ setParkingPrices(parkingPricesData);
               render: (text, record) => (
                 <InputNumber
                   value={record.CSC}
-                  onChange={(value) =>
-                    handleFieldChange(value, record, "CSC")
-                  }
+                  onChange={(value) => handleFieldChange(value, record, "CSC")}
                 />
               ),
             },
@@ -256,7 +263,7 @@ setParkingPrices(parkingPricesData);
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                      
+
                           record,
                           "amountcar"
                         )
@@ -295,7 +302,7 @@ setParkingPrices(parkingPricesData);
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                          
+
                           record,
                           "amountmotorbike"
                         )
@@ -333,7 +340,7 @@ setParkingPrices(parkingPricesData);
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                         
+
                           record,
                           "amountelectric"
                         )
@@ -371,7 +378,7 @@ setParkingPrices(parkingPricesData);
                       onChange={(value) =>
                         handleFieldChange(
                           value,
-                        
+
                           record,
                           "amountbicycle"
                         )
