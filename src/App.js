@@ -37,6 +37,7 @@ import ShowRooms from "./pages/Apartments/ListRoom";
 import RequestVehicle from "./pages/Transportation/RequestVehicle";
 import VehicleRegister from "./pages/Transportation/VehicleRegister";
 import VehicleShow from "./pages/Transportation/VehicleShow";
+import ListVehicle from "./pages/Transportation/ListVehicle";
 
 function App() {
   const [user, setUser] = useState("");
@@ -92,6 +93,7 @@ function App() {
         <Route path="/admin/clean" element={<PricesClean />} />
         <Route path="/admin/parking" element={<PricesParking />} />
         <Route path="/admin/requestvehicle" element={<RequestVehicle />} />
+        <Route path="/admin/allvehicle" element={<ListVehicle />} />
 
         <Route path="/admin/room" element={<ShowRooms />} />
         {/* Owner */}
@@ -106,7 +108,7 @@ function App() {
         {/* Profile */}
         <Route path="/owner/edit-profile" element={<EditProfile />} />
         <Route path="/owner/profile" element={<Profile />} />
-        <Route path="owner/vehicleregister" element={<VehicleRegister />} />
+        <Route path="/owner/vehicleregister" element={<VehicleRegister />} />
         <Route path="/owner/changepassword" element={<ChangePassword />} />
         <Route path="/owner/vehicle" element={<VehicleShow />} />
       </Routes>
