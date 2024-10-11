@@ -57,12 +57,11 @@ export default function PricesClean() {
   const setDefaultPrice = async (id) => {
     const updatedPrices = prices.map(async (price) => {
       const priceDoc = doc(db, "cleanPrices", price.id);
-  
-      // Nếu bản ghi hiện tại là default và người dùng tắt default, nó sẽ về trạng thái "Paused".
+
       if (price.id === id && price.default) {
         await updateDoc(priceDoc, { default: false });
       } 
-      // Nếu bản ghi hiện tại không phải là default, đặt nó về trạng thái "Paused".
+
       else if (price.id === id) {
         await updateDoc(priceDoc, { default: true });
       } else {

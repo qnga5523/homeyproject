@@ -38,6 +38,8 @@ import RequestVehicle from "./pages/Transportation/RequestVehicle";
 import VehicleRegister from "./pages/Transportation/VehicleRegister";
 import VehicleShow from "./pages/Transportation/VehicleShow";
 import ListVehicle from "./pages/Transportation/ListVehicle";
+import FormBook from "./pages/Managements/ServiceBook/FormBook";
+import ReqBook from "./pages/Managements/ServiceBook/ReqBook";
 
 function App() {
   const [user, setUser] = useState("");
@@ -94,6 +96,7 @@ function App() {
         <Route path="/admin/parking" element={<PricesParking />} />
         <Route path="/admin/requestvehicle" element={<RequestVehicle />} />
         <Route path="/admin/allvehicle" element={<ListVehicle />} />
+        <Route path="/requestbook" element={<ReqBook/>}/>
 
         <Route path="/admin/room" element={<ShowRooms />} />
         {/* Owner */}
@@ -111,6 +114,7 @@ function App() {
         <Route path="/owner/vehicleregister" element={<VehicleRegister />} />
         <Route path="/owner/changepassword" element={<ChangePassword />} />
         <Route path="/owner/vehicle" element={<VehicleShow />} />
+        <Route path="/book" element={<FormBook/>}/>
       </Routes>
     </Router>
   );

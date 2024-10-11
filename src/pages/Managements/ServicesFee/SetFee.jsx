@@ -3,20 +3,18 @@ import { Table, Button, DatePicker, message } from "antd";
 import { collection, doc, setDoc, getDocs } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 import moment from "moment";
-import columsFee from "../../../components/layout/Colums/columsFee"; // Assuming this component returns the columns structure
+import columsFee from "../../../components/layout/Colums/columsFee"; 
 
 export default function SetFee() {
   const [users, setUsers] = useState([]);
   const [cleanPrice, setCleanPrice] = useState(0);
   const [waterPrice, setWaterPrice] = useState(0);
   const [parkingPrices, setParkingPrices] = useState({});
-  const [selectedDate, setSelectedDate] = useState(moment()); // For selecting the month and year
-  const [isNewData, setIsNewData] = useState(false); // Track if we are creating new data for a month
+  const [selectedDate, setSelectedDate] = useState(moment()); 
+  const [isNewData, setIsNewData] = useState(false); 
 
-  // Fetch available months (documents) from Firebase
   useEffect(() => {
-    const fetchPrices = async () => {
-      // Fetch clean prices, water prices, and parking prices
+    const fetchPrices = async () => {    
       const [cleanPricesSnapshot, waterPricesSnapshot, parkingPricesSnapshot] =
         await Promise.all([
           getDocs(collection(db, "cleanPrices")),
@@ -45,7 +43,7 @@ export default function SetFee() {
     fetchPrices();
   }, []);
 
-  // Fetch users, vehicle data, and prices for a selected month and year
+
   const fetchUsersAndPrices = async (month, year) => {
     try {
       const usersCollection = collection(
@@ -61,7 +59,6 @@ export default function SetFee() {
         fetchedUsers.push(doc.data());
       });
 
-      // If there are no users for the selected month/year, pre-populate users from the "Users" collection
       if (fetchedUsers.length === 0) {
         setIsNewData(true);
         const usersSnapshot = await getDocs(collection(db, "Users"));
@@ -86,14 +83,14 @@ export default function SetFee() {
               pricesCar: parkingPrices.Car || 0,
               totalParking: 0,
               totalmoney: 0,
-              CSC: 0, // Leave CSC blank for input
-              CSD: 0, // Leave CSD blank for input
+              CSC: 0, 
+              CSD: 0, 
             });
           }
         });
         setUsers(prePopulatedUsers);
       } else {
-        setIsNewData(false); // If data exists, no need for new data
+        setIsNewData(false); 
         setUsers(fetchedUsers);
       }
     } catch (error) {
@@ -101,22 +98,21 @@ export default function SetFee() {
     }
   };
 
-  // Handle field changes for recalculating fees (specifically for `CSC` and `CSD`)
   const handleFieldChange = (value, record, field) => {
     const updatedUsers = users.map((user) => {
       if (user.id === record.id) {
         const newData = { ...user, [field]: value };
 
-        // Recalculate service fee
+ 
         const totalService = newData.area * (newData.priceservice || 0);
         const CSC = newData.CSC ?? 0;
         const CSD = newData.CSD ?? 0;
 
-        // Recalculate water consumption and fee
+     
         const totalConsume = CSC - CSD || 0;
         const totalWater = (totalConsume || 0) * (newData.priceswater || 0);
 
-        // Recalculate parking fees for all vehicle types
+      
         const totalCar = newData.carCount * (parkingPrices.Car || 0);
         const totalMotorbike =
           newData.motorcycleCount * (parkingPrices.Motorcycle || 0);
@@ -128,7 +124,7 @@ export default function SetFee() {
         const totalParking =
           totalCar + totalMotorbike + totalElectric + totalBicycle;
 
-        // Calculate total money
+       
         const totalMoney =
           (totalService || 0) + (totalWater || 0) + (totalParking || 0);
 
@@ -147,13 +143,12 @@ export default function SetFee() {
     setUsers(updatedUsers);
   };
 
-  // Handle saving data to Firebase
+
   const handleSave = async () => {
     try {
       const month = selectedDate.format("MMMM");
       const year = selectedDate.year();
 
-      // Save each user's fee data under Fees/{month_year}/{userId}
       for (const user of users) {
         const userDocRef = doc(
           db,
@@ -161,9 +156,7 @@ export default function SetFee() {
           `${month}_${year}`,
           "Users",
           user.id
-        );
-
-        // Prepare the data to be saved
+        );    
         const dataToSave = {
           username: user.username,
           room: user.room,
@@ -186,9 +179,7 @@ export default function SetFee() {
           totalmoney: user.totalmoney,
           month,
           year,
-        };
-
-        // Save the user fee data
+        };       
         await setDoc(userDocRef, dataToSave);
       }
 
@@ -200,7 +191,7 @@ export default function SetFee() {
     }
   };
 
-  const columns = columsFee(handleFieldChange); // Import columns structure
+  const columns = columsFee(handleFieldChange); 
 
   return (
     <div>
@@ -211,7 +202,7 @@ export default function SetFee() {
           setSelectedDate(date);
           const month = date.format("MMMM");
           const year = date.year();
-          fetchUsersAndPrices(month, year); // Fetch the data for the selected month and year
+          fetchUsersAndPrices(month, year); 
         }}
       />
 
