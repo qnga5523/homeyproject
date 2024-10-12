@@ -144,6 +144,7 @@ export default function columsFee(handleFieldChange) {
             },
             {
               title: "Motorbike",
+
               children: [
                 {
                   title: "Amount",
@@ -167,10 +168,61 @@ export default function columsFee(handleFieldChange) {
                 },
               ],
             },
+            {
+              title: "Electric motorbikes/Electric bicycles",
+              children: [
+                {
+                  title: "Amount",
+                  dataIndex: "electricBicycleCount",
+                  key: "electricBicycleCount",
+                  width: 100,
+                },
+                {
+                  title: "Price",
+                  dataIndex: "pricesElectric",
+                  key: "pricesElectric",
+                  width: 100,
+                  render: (text) => USDollar.format(text),
+                },
+                {
+                  title: "Total",
+                  dataIndex: "totalelectric",
+                  key: "totalelectric",
+                  width: 100,
+                  render: (text) => USDollar.format(text),
+                },
+              ],
+            },
+            {
+              title: "Bicycle",
+              children: [
+                {
+                  title: "Amount",
+                  dataIndex: "bicycleCount",
+                  key: "bicycleCount",
+                  width: 100,
+                },
+                {
+                  title: "Price",
+                  dataIndex: "pricesBicycle",
+                  key: "pricesBicycle",
+                  width: 100,
+                  render: (text) => USDollar.format(text),
+                },
+                {
+                  title: "Total",
+                  dataIndex: "totalbicycle",
+                  key: "totalbicycle",
+                  width: 100,
+                  render: (text) => USDollar.format(text),
+                },
+              ],
+            },
           ],
         },
       ],
     },
+
     {
       title: "Total Fee",
       dataIndex: "totalmoney",

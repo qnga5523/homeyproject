@@ -40,6 +40,7 @@ import VehicleShow from "./pages/Transportation/VehicleShow";
 import ListVehicle from "./pages/Transportation/ListVehicle";
 import FormBook from "./pages/Managements/ServiceBook/FormBook";
 import ReqBook from "./pages/Managements/ServiceBook/ReqBook";
+import HistoryFee from "./pages/Managements/ServicesFee/HistoryFee";
 
 function App() {
   const [user, setUser] = useState("");
@@ -97,6 +98,7 @@ function App() {
         <Route path="/admin/requestvehicle" element={<RequestVehicle />} />
         <Route path="/admin/allvehicle" element={<ListVehicle />} />
         <Route path="/requestbook" element={<ReqBook/>}/>
+        <Route path="/history" element={<HistoryFee/>}/>
 
         <Route path="/admin/room" element={<ShowRooms />} />
         {/* Owner */}
