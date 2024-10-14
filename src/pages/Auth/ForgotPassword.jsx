@@ -1,19 +1,14 @@
 import Link from "antd/es/typography/Link";
 import React, { useState } from "react";
-
 import { Button, Form, Input, message } from "antd";
-import background from "../../assets/img/logo/background.jpg";
-
-import logoicon from "../../assets/img/logo/iconlogo.png";
+import picture from "../../assets/img/logo/03.jpg";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../Services/firebase";
 
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
-
   const onFinish = async (values) => {
     const { email } = values;
-
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, email);
@@ -31,19 +26,15 @@ export default function ForgotPassword() {
     }
   };
   return (
-    <div
-      className="flex w-screen min-h-screen"
-      style={{
-        backgroundImage: `url(${background})`,
-      }}
-    >
+    <div className="flex w-screen min-h-screen bg-sky-600">
       <div
-        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center"
+        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center  shadow-2xl"
         style={{
-          backgroundImage: `url(${logoicon})`,
+          backgroundImage: `url(${picture})`,
+          backgroundSize: "100% 100%",
+          backgroundPosition: "center",
         }}
       ></div>
-
       <div className="flex w-1/2 items-center justify-center bg-white/50 backdrop-blur-sm p-8">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-6 text-center">
           {/* name page */}
@@ -68,15 +59,13 @@ export default function ForgotPassword() {
             >
               <Input placeholder="Enter your email" />
             </Form.Item>
-
             <Form.Item>
               <Button
                 loading={loading}
                 block
                 type="primary"
                 htmlType="submit"
-                className="login-form-button basis-full bg-black rounded-full text-white font-bold text-lg w-full pt-2 pb-2 h-fit"
-                style={{ boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
+                className="login-form-button w-full max-w-24 rounded-full shadow-xl"
               >
                 Verify
               </Button>

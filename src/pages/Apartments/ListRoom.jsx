@@ -36,15 +36,18 @@ export default function ShowRooms() {
     buildingList.forEach((building) => {
       if (building.rooms && building.rooms.length > 0) {
         building.rooms.forEach((room) => {
-          const user = usersList.find((user) => user.room === room.roomNumber && user.building === building.name);
+          const user = usersList.find(
+            (user) =>
+              user.room === room.roomNumber && user.building === building.name
+          );
           mergedRoomData.push({
             roomNumber: room.roomNumber,
             buildingName: building.name,
             username: user ? user.Username : "No User",
-            area: room.area || "N/A", // Diện tích (Area)
-            numberOfRooms: room.numberOfRooms || "N/A", // Số phòng (Number of rooms)
-            roomType: room.roomType || "N/A", // Loại phòng (Room type)
-            assets: room.assets ? room.assets.join(", ") : "N/A", // Tài sản (Assets), assuming an array
+            area: room.area || "N/A",
+            numberOfRooms: room.numberOfRooms || "N/A",
+            roomType: room.roomType || "N/A",
+            assets: room.assets ? room.assets.join(", ") : "N/A",
           });
         });
       }

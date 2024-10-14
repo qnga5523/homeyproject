@@ -5,7 +5,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import AdminAvatar from "../../../components/layout/Admin/AvatarAdmin";
 import { auth, db } from "../../../Services/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import axios from 'axios'
+import axios from "axios";
 const { Header, Content } = Layout;
 
 export default function AdminDashboard() {

@@ -1,15 +1,11 @@
 import React from "react";
-
-import background from "../../assets/img/logo/background.jpg";
-
-import logoicon from "../../assets/img/logo/iconlogo.png";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input } from "antd";
 import { auth, db } from "../../Services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
 import { doc, getDoc } from "firebase/firestore";
-
+import picture from "../../assets/img/logo/03.jpg";
 export default function Login() {
   const onFinish = async (values) => {
     const { email, password } = values;
@@ -43,16 +39,13 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="flex w-screen min-h-screen"
-      style={{
-        backgroundImage: `url(${background})`,
-      }}
-    >
+    <div className="flex w-screen min-h-screen bg-sky-600">
       <div
-        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center"
+        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center  shadow-2xl"
         style={{
-          backgroundImage: `url(${logoicon})`,
+          backgroundImage: `url(${picture})`,
+          backgroundSize: "100% 100%",
+          backgroundPosition: "center",
         }}
       ></div>
 
@@ -71,7 +64,10 @@ export default function Login() {
           >
             <Form.Item
               name="email"
-              rules={[{ required: true, message: "Please input your Email!" }]}
+              rules={[
+                { required: true, message: "Please input your email!" },
+                { type: "email", message: "Please enter a valid email!" },
+              ]}
             >
               <Input prefix={<UserOutlined />} placeholder="Email" />
             </Form.Item>
@@ -98,11 +94,16 @@ export default function Login() {
             </Form.Item>
 
             <Form.Item>
-              <Button block type="primary" htmlType="submit">
-                Log in
+              <Button
+                className="bg-indigo-500 rounded-full"
+                block
+                type="primary"
+                htmlType="submit"
+              >
+                Sign In
               </Button>
               <div className="mt-4">
-                or <a href="/signup">Register now!</a>
+                <a href="/signup">Register</a>
               </div>
             </Form.Item>
           </Form>
