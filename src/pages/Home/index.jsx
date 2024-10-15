@@ -5,7 +5,7 @@ import image3 from "../../assets/img/home/ap3.jpg";
 import image4 from "../../assets/img/home/ap4.jpg";
 import image1 from "../../assets/img/home/ap1.jpg";
 import backgroundImage from "../../assets/img/home/picture.jpg";
-import HeaderHomepage from "../../components/layout/Main/header";
+
 import graph from "../../assets/img/home/graph.svg";
 import hand from "../../assets/img/home/hand-money.svg";
 import man from "../../assets/img/home/man-paperwork.svg";
@@ -23,7 +23,7 @@ const DemoBox = ({ src, alt }) => (
 export default function Homepage() {
   return (
     <Layout>
-      <HeaderHomepage />
+      
       <Content style={{ padding: "0 16px", marginTop: "16px" }}>
         <Content
           className="py-44 bg-origin-padding bg-cover "

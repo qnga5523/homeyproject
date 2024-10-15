@@ -15,7 +15,7 @@ export default function AdminAvatar() {
       try {
         const user = auth.currentUser;
         if (user) {
-          const adminRef = doc(db, "admin", user.uid);
+          const adminRef = doc(db, "Users", user.uid);  // Fetch admin data
           const adminSnap = await getDoc(adminRef);
           if (adminSnap.exists()) {
             setAdmin(adminSnap.data());
@@ -36,7 +36,7 @@ export default function AdminAvatar() {
 
   const handleMenuClick = ({ key }) => {
     if (key === "adminprofile") {
-      navigate("/admin/profile"); // Adjust to the actual route for editing the avatar
+      navigate("/admin/profile");  // Redirect to admin profile
     } else if (key === "logout") {
       auth.signOut().then(() => {
         navigate("/login");

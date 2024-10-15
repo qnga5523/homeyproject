@@ -56,9 +56,9 @@ export default function EditProfile({ onProfileUpdate, setIsEditing }) {
 
         message.success("Profile updated successfully");
 
-        // Gọi hàm này để tải lại profile trong component `Profile`
+        // Call this function to reload profile in the `Profile` component
         onProfileUpdate();
-        setIsEditing(false); // Đóng form edit
+        setIsEditing(false); // Close the edit form
       }
     } catch (error) {
       message.error("Failed to update profile");
@@ -75,77 +75,104 @@ export default function EditProfile({ onProfileUpdate, setIsEditing }) {
   };
 
   return (
-    <div>
+    <div className="p-6 bg-white rounded-lg shadow-lg max-w-lg mx-auto">
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="Profile Photo">
-          {currentAvatar ? (
-            <Image
-              width={100}
-              height={100}
-              src={currentAvatar}
-              alt="Avatar"
-              style={{ borderRadius: "50%" }}
-            />
-          ) : (
-            <div style={{ fontSize: "100px", color: "#d9d9d9" }}>
-              <UploadOutlined />
+          <div className="flex items-center">
+            {currentAvatar ? (
+              <Image
+                width={100}
+                height={100}
+                src={currentAvatar}
+                alt="Avatar"
+                style={{ borderRadius: "50%" }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontSize: "100px",
+                  color: "#d9d9d9",
+                  borderRadius: "50%",
+                  width: "100px",
+                  height: "100px",
+                  backgroundColor: "#f0f0f0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <UploadOutlined />
+              </div>
+            )}
+            <div className="ml-4">
+              <Upload
+                listType="picture"
+                accept="image/*"
+                beforeUpload={() => false}
+                onChange={handleChange}
+                fileList={fileList}
+              >
+                <Button icon={<UploadOutlined />} type="primary" shape="round">
+                  Upload New Avatar
+                </Button>
+              </Upload>
             </div>
-          )}
-          <Upload
-            listType="picture"
-            accept="image/*"
-            beforeUpload={() => false}
-            onChange={handleChange}
-            fileList={fileList}
-            style={{ marginTop: "10px" }}
-          >
-            <Button icon={<UploadOutlined />}>Upload New Avatar</Button>
-          </Upload>
+          </div>
         </Form.Item>
+
         <Form.Item
           label="Username"
           name="Username"
           rules={[{ required: true, message: "Please enter your username" }]}
         >
-          <Input />
+          <Input placeholder="Enter your username" />
         </Form.Item>
+
         <Form.Item
           label="Email"
           name="email"
           rules={[{ required: true, message: "Please enter your email" }]}
         >
-          <Input type="email" />
+          <Input type="email" placeholder="Enter your email" />
         </Form.Item>
+
         <Form.Item
           label="Phone Number"
           name="Phone"
-          rules={[
-            { required: true, message: "Please enter your phone number" },
-          ]}
+          rules={[{ required: true, message: "Please enter your phone number" }]}
         >
-          <Input />
+          <Input placeholder="Enter your phone number" />
         </Form.Item>
+
         <Form.Item
           label="Apartment"
           name="room"
           rules={[{ required: true, message: "Please enter your room number" }]}
         >
-          <Input />
+          <Input placeholder="Enter your apartment room number" />
         </Form.Item>
+
         <Form.Item
           label="Building"
           name="building"
           rules={[{ required: true, message: "Please enter your building" }]}
         >
-          <Input />
+          <Input placeholder="Enter your building name" />
         </Form.Item>
+
         <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Save
-          </Button>
-          <Button onClick={handleCancel} style={{ marginLeft: "10px" }}>
-            Cancel
-          </Button>
+          <div className="flex justify-end space-x-4">
+            <Button type="primary" htmlType="submit" shape="round">
+              Save
+            </Button>
+            <Button
+              onClick={handleCancel}
+              shape="round"
+              style={{ backgroundColor: "#f5f5f5" }}
+            >
+              Cancel
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </div>

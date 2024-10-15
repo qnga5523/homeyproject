@@ -8,13 +8,10 @@ import {
 } from "firebase/auth";
 
 export default function ChangePassword() {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [form] = Form.useForm(); // Ant Design form instance
 
   const handleSubmit = async (values) => {
     const { currentPassword, newPassword, confirmPassword } = values;
-    console.log("Form submitted");
 
     if (!currentPassword || !newPassword || !confirmPassword) {
       return message.error("Please fill in all fields.");
@@ -27,43 +24,33 @@ export default function ChangePassword() {
     const user = auth.currentUser;
 
     try {
-      const credential = EmailAuthProvider.credential(
-        user.email,
-        currentPassword
-      );
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPassword);
-      message.success(
-        "Mật khẩu đã được cập nhật thành công. Vui lòng đăng nhập lại."
-      );
+      message.success("Password has been successfully updated. Please log in again.");
     } catch (error) {
       console.error(error);
       if (error.code === "auth/wrong-password") {
-        message.error("Mật khẩu hiện tại không đúng.");
+        message.error("The current password you entered is incorrect.");
       } else {
-        message.error(
-          "Đã xảy ra lỗi khi cập nhật mật khẩu. Vui lòng thử lại sau."
-        );
+        message.error("An error occurred while updating the password. Please try again.");
       }
     }
   };
 
   return (
-    <div className="change-password-container">
-      <h2>Change Password</h2>
-      <Form onFinish={handleSubmit}>
+    <div className="max-w-lg mx-auto p-8 bg-white shadow-md rounded-lg">
+      <h2 className="text-xl font-semibold mb-6 text-center">Change Password</h2>
+
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           label="Current Password"
           name="currentPassword"
-          rules={[
-            { required: true, message: "Please input your current password!" },
-          ]}
+          rules={[{ required: true, message: "Please input your current password!" }]}
         >
-          <Input.Password
-            onChange={(e) => setOldPassword(e.target.value)}
-            value={oldPassword}
-          />
+          <Input.Password placeholder="Enter current password" />
         </Form.Item>
+
         <Form.Item
           label="New Password"
           name="newPassword"
@@ -72,25 +59,33 @@ export default function ChangePassword() {
             { min: 6, message: "Password must be at least 6 characters long." },
           ]}
         >
-          <Input.Password
-            onChange={(e) => setNewPassword(e.target.value)}
-            value={newPassword}
-          />
+          <Input.Password placeholder="Enter new password" />
         </Form.Item>
+
         <Form.Item
           label="Confirm New Password"
           name="confirmPassword"
           rules={[
             { required: true, message: "Please confirm your new password!" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('newPassword') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Passwords do not match!'));
+              },
+            }),
           ]}
         >
-          <Input.Password
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            value={confirmPassword}
-          />
+          <Input.Password placeholder="Confirm new password" />
         </Form.Item>
+
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md"
+          >
             Change Password
           </Button>
         </Form.Item>

@@ -244,10 +244,23 @@ export default function Signup() {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-full py-2"
+                style={{ transition: "background-color 0.3s ease" }}
+              >
                 Register
               </Button>
-              or <a href="/login"> Login</a>
+              <div className="mt-4 text-sm text-gray-600">
+                Already have an account?{" "}
+                <a
+                  href="/login"
+                  className="text-indigo-500 hover:text-indigo-600 font-medium"
+                >
+                  Login
+                </a>
+              </div>
             </Form.Item>
           </Form>
         </div>

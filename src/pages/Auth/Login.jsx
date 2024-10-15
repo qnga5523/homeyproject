@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
 import { doc, getDoc } from "firebase/firestore";
 import picture from "../../assets/img/logo/03.jpg";
+
 export default function Login() {
   const onFinish = async (values) => {
     const { email, password } = values;
@@ -33,15 +34,29 @@ export default function Login() {
         }
       }
     } catch (error) {
-      console.log(error.message);
-      toast.error(error.message, { position: "bottom-center" });
+      let errorMessage = "";
+      switch (error.code) {
+        case "auth/wrong-password":
+          errorMessage = "The password you entered is incorrect. Please try again.";
+          break;
+        case "auth/user-not-found":
+          errorMessage = "No user found with this email. Please register or try again.";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "The email address you entered is not valid. Please check and try again.";
+          break;
+        default:
+          errorMessage = error.message; 
+      }
+      toast.error(errorMessage, { position: "bottom-center" });
     }
+    
   };
 
   return (
     <div className="flex w-screen min-h-screen bg-sky-600">
       <div
-        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center  shadow-2xl"
+        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center shadow-2xl"
         style={{
           backgroundImage: `url(${picture})`,
           backgroundSize: "100% 100%",

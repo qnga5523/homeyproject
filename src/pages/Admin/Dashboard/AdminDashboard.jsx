@@ -6,7 +6,10 @@ import AdminAvatar from "../../../components/layout/Admin/AvatarAdmin";
 import SiderAdmin from "../../../components/layout/Admin/SiderAdmin";
 import { auth, db } from "../../../Services/firebase";
 import { doc, getDoc } from "firebase/firestore";
+<<<<<<< Updated upstream
 import { theme } from "antd";
+=======
+>>>>>>> Stashed changes
 
 const { Header, Content } = Layout;
 
@@ -20,28 +23,50 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchAdminData = async () => {
-      try {
-        const user = auth.currentUser;
+      auth.onAuthStateChanged(async (user) => {
         if (user) {
+<<<<<<< Updated upstream
           const userDocRef = doc(db, "Users", user.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             setAdmin(userDoc.data());
           } else {
             message.error("Admin data not found");
+=======
+          try {
+            const userDocRef = doc(db, "Users", user.uid); 
+            const userDoc = await getDoc(userDocRef);
+
+            // Check if user exists and has an admin role
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+              setAdmin(userDoc.data());
+            } else {
+              message.error("You are not authorized to access this page");
+              navigate("/login"); // Redirect non-admins to login
+            }
+          } catch (error) {
+            console.error("Error fetching admin data:", error);
+            message.error("Error fetching admin data");
+>>>>>>> Stashed changes
           }
+        } else {
+          // If user is not authenticated, just redirect silently
+          navigate("/login");
         }
-      } catch (error) {
-        console.error("Error fetching admin data:", error);
-        message.error("Error fetching admin data");
-      } finally {
         setLoading(false);
-      }
+      });
     };
 
     fetchAdminData();
-  }, []);
+  }, [navigate]);
 
+<<<<<<< Updated upstream
+=======
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+>>>>>>> Stashed changes
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -65,7 +90,7 @@ export default function AdminDashboard() {
             <Link to="/">Home</Link>
           </Menu.Item>
           <Menu.Item key="about">
-            <Link to="/about">About us</Link>
+            <Link to="/about">About us</Link> 
           </Menu.Item>
           <Menu.Item key="feature">
             <Link to="/features">Features</Link>
@@ -100,11 +125,11 @@ export default function AdminDashboard() {
         <Layout style={{ padding: "0 24px 24px", flexGrow: 1 }}>
           <Content
             style={{
-              margin: "24px 0",
+              margin: "24px 16px",
               padding: 24,
-              minHeight: "calc(100vh - 112px)",
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
+              background: "#fff",
+              minHeight: "280px",
+              overflow: "auto", // Handle content overflow
             }}
           >
             <Outlet />

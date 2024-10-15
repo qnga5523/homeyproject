@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { auth } from "./Services/firebase";
 import { messaging, generateToken } from "./Services/firebase";
-
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
 import OwnersDashboard from "./pages/Owners/Dashboard/OwnersDashboard";
 import Login from "./pages/Auth/Login";
@@ -68,6 +69,7 @@ function App() {
         <Route path="/about" element={<Aboutus />} />
         <Route path="/features" element={<Feature />} />
 
+        
         {/* Admin */}
         <Route
           path="/admin"
@@ -76,31 +78,26 @@ function App() {
               <AdminDashboard />
             </ProtectedRoute>
           }
-        />
-
-        <Route path="/admin/requestAccount" element={<RequestAccount />} />
-        <Route
-          path="/admin/managementAccount"
-          element={<ManagementAccount />}
-        />
-        <Route path="/admin/setFee" element={<SetFee />} />
-        {/* Event */}
-        <Route path="/admin/CreateEvent" element={<CreateEvent />} />
-        <Route path="/admin/edit-event/:id" element={<EditEvent />} />
-        <Route path="/admin/profile" element={<Profile />} />
-
-        <Route path="/admin/listapart" element={<ListApartment />} />
-        <Route path="/admin/add" element={<AddData />} />
-        <Route path="/admin/changepassword" element={<ChangePassword />} />
-        <Route path="/admin/water" element={<PricesWater />} />
-        <Route path="/admin/clean" element={<PricesClean />} />
-        <Route path="/admin/parking" element={<PricesParking />} />
-        <Route path="/admin/requestvehicle" element={<RequestVehicle />} />
-        <Route path="/admin/allvehicle" element={<ListVehicle />} />
-        <Route path="/requestbook" element={<ReqBook/>}/>
-        <Route path="/history" element={<HistoryFee/>}/>
-
-        <Route path="/admin/room" element={<ShowRooms />} />
+        >
+          {/* Use relative paths for nested routes */}
+          <Route path="requestAccount" element={<RequestAccount />} />
+          <Route path="managementAccount" element={<ManagementAccount />} />
+          <Route path="setFee" element={<SetFee />} />
+          <Route path="CreateEvent" element={<CreateEvent />} />
+          <Route path="edit-event/:id" element={<EditEvent />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="listapart" element={<ListApartment />} />
+          <Route path="add" element={<AddData />} />
+          <Route path="changepassword" element={<ChangePassword />} />
+          <Route path="water" element={<PricesWater />} />
+          <Route path="clean" element={<PricesClean />} />
+          <Route path="parking" element={<PricesParking />} />
+          <Route path="requestvehicle" element={<RequestVehicle />} />
+          <Route path="allvehicle" element={<ListVehicle />} />
+          <Route path="requestbook" element={<ReqBook />} />
+          <Route path="history" element={<HistoryFee />} />
+          <Route path="room" element={<ShowRooms />} />
+        </Route>
         {/* Owner */}
         <Route
           path="/owner"
@@ -118,6 +115,7 @@ function App() {
         <Route path="/owner/vehicle" element={<VehicleShow />} />
         <Route path="/book" element={<FormBook/>}/>
       </Routes>
+      <ToastContainer />
     </Router>
   );
 }
