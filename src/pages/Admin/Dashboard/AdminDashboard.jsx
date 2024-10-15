@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import SiderAdmin from "../../../components/layout/Admin/SiderAdmin";
-import { Layout, Menu, message, theme } from "antd";
+import { Badge, Layout, Menu, message } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
+import { BellOutlined } from "@ant-design/icons"; // Import bell icon
 import AdminAvatar from "../../../components/layout/Admin/AvatarAdmin";
+import SiderAdmin from "../../../components/layout/Admin/SiderAdmin";
 import { auth, db } from "../../../Services/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import axios from "axios";
+import { doc, getDoc } from "firebase/firestore";
+import { theme } from "antd";
+
 const { Header, Content } = Layout;
 
 export default function AdminDashboard() {
@@ -21,7 +23,7 @@ export default function AdminDashboard() {
       try {
         const user = auth.currentUser;
         if (user) {
-          const userDocRef = doc(db, "Users", user.uid); // Ensure correct collection path
+          const userDocRef = doc(db, "Users", user.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             setAdmin(userDoc.data());
@@ -40,49 +42,6 @@ export default function AdminDashboard() {
     fetchAdminData();
   }, []);
 
-  const handleApproveUser = async (userId) => {
-    // Cập nhật trạng thái phê duyệt cho người dùng
-    await setDoc(doc(db, "Users", userId), { approved: true }, { merge: true });
-
-    // Gửi thông báo cho người dùng
-    const userDoc = await getDoc(doc(db, "Users", userId));
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      if (userData.notificationToken) {
-        await sendNotification(
-          userData.notificationToken,
-          "Account Approved",
-          "Your account has been approved. You can now log in."
-        );
-      }
-    }
-  };
-
-  const sendNotification = async (token, title, body) => {
-    const message = {
-      to: token,
-      notification: {
-        title: title,
-        body: body,
-      },
-    };
-
-    try {
-      await axios.post("https://fcm.googleapis.com/fcm/send", message, {
-        headers: {
-          Authorization:
-            "BOXUgkTO1YvHsnWe-MbwhGn2aKKXgvkiKLnI1BIe5u99F9qJ6Ism7PJnO9dru0w-MSUQx0hCTk6p91N6OXw9lmc",
-          "Content-Type": "application/json",
-        },
-      });
-      console.log("Notification sent!");
-    } catch (error) {
-      console.error("Error sending notification", error);
-    }
-  };
-
-  // Render danh sách người dùng và nút phê duyệt...
-
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -90,6 +49,7 @@ export default function AdminDashboard() {
           display: "flex",
           alignItems: "center",
           background: "#001529",
+          padding: "0 20px", // Add padding for better spacing
         }}
       >
         <Menu
@@ -117,7 +77,19 @@ export default function AdminDashboard() {
             <Link to="/contact">Contact</Link>
           </Menu.Item>
         </Menu>
-        <div style={{ marginLeft: "auto" }}>
+
+        {/* Notification Bell and Admin Avatar */}
+        <div
+          style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}
+        >
+          {/* Notification Bell */}
+          <Badge style={{ marginRight: 20 }}>
+            {" "}
+            {/* Set badge count to 5 as an example */}
+            <BellOutlined style={{ fontSize: "24px", color: "#fff" }} />{" "}
+            {/* Bell Icon */}
+          </Badge>
+          {/* Admin Avatar */}
           <AdminAvatar />
         </div>
       </Header>
@@ -126,7 +98,6 @@ export default function AdminDashboard() {
         <SiderAdmin />
 
         <Layout style={{ padding: "0 24px 24px", flexGrow: 1 }}>
-          {" "}
           <Content
             style={{
               margin: "24px 0",
