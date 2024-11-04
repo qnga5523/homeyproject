@@ -5,27 +5,17 @@ import { auth, db, storage } from "../../Services/firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-export default function EditProfile({ onProfileUpdate, setIsEditing }) {
+export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
-  const [currentAvatar, setCurrentAvatar] = useState("");
+  const [currentAvatar, setCurrentAvatar] = useState(profile.avatarUrl || "");
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const docRef = doc(db, "Users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          form.setFieldsValue(data);
-          setCurrentAvatar(data.avatarUrl || "");
-        }
-      }
-    };
-
-    fetchUserData();
-  }, [form]);
+    form.setFieldsValue({
+      ...profile,
+      members: profile.members ? profile.members.join(", ") : "", 
+    });
+  }, [form, profile]);
 
   const handleUpload = async (file) => {
     const user = auth.currentUser;
@@ -43,22 +33,19 @@ export default function EditProfile({ onProfileUpdate, setIsEditing }) {
           const file = fileList[0].originFileObj;
           avatarUrl = await handleUpload(file);
         }
+        const membersArray = values.members
+        ? values.members.split(",").map((member) => member.trim())
+        : [];
 
         const userRef = doc(db, "Users", user.uid);
         await updateDoc(userRef, {
-          Username: values.Username || user.Username,
-          email: values.email || user.email,
-          Phone: values.Phone || user.Phone,
-          room: values.room || user.room,
-          building: values.building || user.building,
-          avatarUrl: avatarUrl || currentAvatar,
+          ...values,
+          avatarUrl: avatarUrl,
+          members: membersArray,
         });
 
         message.success("Profile updated successfully");
-
-        // Call this function to reload profile in the `Profile` component
         onProfileUpdate();
-        setIsEditing(false); // Close the edit form
       }
     } catch (error) {
       message.error("Failed to update profile");
@@ -70,23 +57,13 @@ export default function EditProfile({ onProfileUpdate, setIsEditing }) {
     setFileList(fileList);
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-  };
-
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg max-w-lg mx-auto">
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="Profile Photo">
           <div className="flex items-center">
             {currentAvatar ? (
-              <Image
-                width={100}
-                height={100}
-                src={currentAvatar}
-                alt="Avatar"
-                style={{ borderRadius: "50%" }}
-              />
+              <Image width={100} height={100} src={currentAvatar} alt="Avatar" style={{ borderRadius: "50%" }} />
             ) : (
               <div
                 style={{
@@ -119,57 +96,34 @@ export default function EditProfile({ onProfileUpdate, setIsEditing }) {
             </div>
           </div>
         </Form.Item>
-
-        <Form.Item
-          label="Username"
-          name="Username"
-          rules={[{ required: true, message: "Please enter your username" }]}
-        >
+        <Form.Item label="Username" name="Username" rules={[{ required: true, message: "Please enter your username" }]}>
           <Input placeholder="Enter your username" />
         </Form.Item>
-
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: "Please enter your email" }]}
-        >
+        <Form.Item label="Email" name="email" rules={[{ required: true, message: "Please enter your email" }]}>
           <Input type="email" placeholder="Enter your email" />
         </Form.Item>
-
-        <Form.Item
-          label="Phone Number"
-          name="Phone"
-          rules={[{ required: true, message: "Please enter your phone number" }]}
-        >
+        <Form.Item label="Phone Number" name="Phone" rules={[{ required: true, message: "Please enter your phone number" }]}>
           <Input placeholder="Enter your phone number" />
         </Form.Item>
-
-        <Form.Item
-          label="Apartment"
-          name="room"
-          rules={[{ required: true, message: "Please enter your room number" }]}
-        >
+        <Form.Item label="Apartment" name="room" rules={[{ required: true, message: "Please enter your room number" }]}>
           <Input placeholder="Enter your apartment room number" />
         </Form.Item>
-
-        <Form.Item
-          label="Building"
-          name="building"
-          rules={[{ required: true, message: "Please enter your building" }]}
-        >
+        <Form.Item label="Building" name="building" rules={[{ required: true, message: "Please enter your building" }]}>
           <Input placeholder="Enter your building name" />
         </Form.Item>
-
+        <Form.Item
+          label="Members"
+          name="members"
+          tooltip="Enter members separated by commas (e.g., John, Jane, Doe)"
+        >
+          <Input placeholder="Enter members (e.g., John, Jane, Doe)" />
+        </Form.Item>
         <Form.Item>
           <div className="flex justify-end space-x-4">
             <Button type="primary" htmlType="submit" shape="round">
               Save
             </Button>
-            <Button
-              onClick={handleCancel}
-              shape="round"
-              style={{ backgroundColor: "#f5f5f5" }}
-            >
+            <Button onClick={() => setIsEditing(false)} shape="round" style={{ backgroundColor: "#f5f5f5" }}>
               Cancel
             </Button>
           </div>

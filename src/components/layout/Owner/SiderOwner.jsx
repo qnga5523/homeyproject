@@ -19,6 +19,10 @@ const { Sider } = Layout;
 
 const items = [
   {
+    icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }} /> ,
+    label: <Link to="/allownerevent">Homey</Link>,
+  },
+  {
     key: "1",
     icon: <InsertRowAboveOutlined />,
     label: <Link to="/event">Event</Link>,
@@ -31,7 +35,8 @@ const items = [
   {
     key: "3",
     icon: <BellOutlined />,
-    label: "Notifications",
+    label: <Link to="/owner/notification">Notifications</Link>,
+
   },
   {
     key: "4",

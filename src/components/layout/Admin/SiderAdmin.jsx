@@ -7,14 +7,13 @@ import {
   DatabaseOutlined,
   SafetyOutlined,
   DollarOutlined,
-  SettingOutlined,
   BankOutlined,
   ApartmentOutlined,
   SolutionOutlined,
   CarryOutOutlined,
   FundViewOutlined,
   FileTextOutlined,
-  BellOutlined,
+  SnippetsOutlined,
   CloudServerOutlined,
   PieChartOutlined,
   ContainerOutlined,
@@ -29,18 +28,18 @@ const { Sider } = Layout;
 const items = [
   {
     key: "1",
-    icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }} /> ,
-    label: <Link to="/event">Event</Link>,
-  },
-  {
-    key: "2",
     icon: <IdcardOutlined style={{ fontSize: "20px" }} />,
     label: <Link to="/admin/requestAccount">Request Accounts</Link>,
   },
   {
-    key: "3",
+    key: "2",
     icon: <TeamOutlined style={{ fontSize: "20px" }} />,
     label: <Link to="/admin/managementAccount">Management Customers</Link>,
+  },
+  {
+    key: "3",
+    icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }} /> ,
+    label: <Link to="/admin/event">Event</Link>,
   },
   {
     key: "4",
@@ -69,34 +68,35 @@ const items = [
           },
         ],
       },
+      
+    ],
+  },
+  {
+    key: "9",
+    label: "Security Management",
+    icon: <SafetyOutlined style={{ fontSize: "20px" }}/>,
+    children: [
       {
-        key: "9",
+        key: "10",
         icon: <ApartmentOutlined style={{ fontSize: "20px" }}/>,
         label: <Link to="/admin/listapart">Apartment/Room</Link>,
       },
       {
-        key: "10",
+        key: "11",
         icon: <BankOutlined style={{ fontSize: "20px" }} />,
         label: <Link to="/admin/add">Building</Link>,
       },
     ],
   },
   {
-    key: "11",
-    label: "Security Management",
-    icon: <SafetyOutlined style={{ fontSize: "20px" }}/>,
-    children: [
-      {
-        key: "12",
-        icon: <SolutionOutlined style={{ fontSize: "20px" }} />,
-        label: <Link to="/feedback">Feedback</Link>,
-      },
-      {
-        key: "13",
-        icon: <CarryOutOutlined style={{ fontSize: "20px" }} />,
-        label: <Link to="/book-event">Book Event</Link>,
-      },
-    ],
+    key: "12",
+    icon: <SolutionOutlined style={{ fontSize: "20px" }} />,
+    label: <Link to="/admin/feedback">Feedback</Link>,
+  },
+  {
+    key: "13",
+    icon: <CarryOutOutlined style={{ fontSize: "20px" }} />,
+    label: <Link to="/admin/requestbook">Request Book Service </Link>,
   },
   {
     key: "14",
@@ -111,37 +111,35 @@ const items = [
       {
         key: "16",
         icon: <FileTextOutlined style={{ fontSize: "20px" }}/>,
-        label: <Link to="/bills">Bills</Link>,
+        label: <Link to="/admin/invoice-review">Invoices</Link>,
       },
       {
         key: "17",
-        icon: <BellOutlined style={{ fontSize: "20px" }}/>,
-        label: <Link to="/notifications">Notifications</Link>,
+        icon: <SnippetsOutlined style={{ fontSize: "20px" }}/>,
+        label: <Link to="/admin/history">History Fee</Link>,
       },
-      {
-        key: "18",
-        label: "Data Statistics",
-        icon: <CloudServerOutlined style={{ fontSize: "20px" }}/>,
-        children: [
-          {
-            key: "19",
-            label: <Link to="/chart">Chart</Link>,
-            icon: <PieChartOutlined style={{ fontSize: "20px" }}/>,
-          },
-          {
-            key: "20",
-            label: <Link to="/table">Table</Link>,
-            icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }}/>,
-          },
-        ],
-      },
+      
     ],
   },
   {
-    key: "21",
-    icon: <SettingOutlined style={{ fontSize: "20px" }}/>,
-    label: <Link to="/settings">Setting</Link>,
+    key: "18",
+    label: "Data Statistics",
+    icon: <CloudServerOutlined style={{ fontSize: "20px" }}/>,
+    children: [
+      {
+        key: "19",
+        label: <Link to="/chart">Chart</Link>,
+        icon: <PieChartOutlined style={{ fontSize: "20px" }}/>,
+      },
+      {
+        key: "20",
+        label: <Link to="/table">Table</Link>,
+        icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }}/>,
+      },
+    ],
   },
+  
+  
 ];
 
 export default function SiderAdmin() {
@@ -162,14 +160,12 @@ export default function SiderAdmin() {
     >
       <Menu
         mode="inline"
-        defaultSelectedKeys={["1"]}
         items={items}
         style={{    
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between", 
-          paddingBottom: "50px", }} 
+           }} 
       />
     </Sider>
   );

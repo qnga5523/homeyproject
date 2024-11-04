@@ -17,7 +17,7 @@ export const Footer = () => {
         <div className="md:flex md:justify-between flex-col md:flex-row">
           <div className="mb-6 md:mb-0 text-center md:text-left">
             <Link className="flex items-center justify-center md:justify-start md:ml-48">
-              {/* <img src={logomain} className="h-24" alt="Logo" /> */}
+
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-4 text-center md:text-left md:mr-48">

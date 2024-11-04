@@ -4,14 +4,13 @@ import image2 from "../../assets/img/home/ap2.jpg";
 import image3 from "../../assets/img/home/ap3.jpg";
 import image4 from "../../assets/img/home/ap4.jpg";
 import image1 from "../../assets/img/home/ap1.jpg";
-import backgroundImage from "../../assets/img/home/picture.jpg";
-
 import graph from "../../assets/img/home/graph.svg";
 import hand from "../../assets/img/home/hand-money.svg";
 import man from "../../assets/img/home/man-paperwork.svg";
 import { Footer } from "../../components/common/Footer";
 import "../../assets/styles/home.css";
 import { Button, Card } from "antd";
+import HeaderMain from "../../components/common/HeaderMain";
 const { Content } = Layout;
 
 const DemoBox = ({ src, alt }) => (
@@ -23,26 +22,48 @@ const DemoBox = ({ src, alt }) => (
 export default function Homepage() {
   return (
     <Layout>
-      
+      <HeaderMain/>
       <Content style={{ padding: "0 16px", marginTop: "16px" }}>
-        <Content
-          className="py-44 bg-origin-padding bg-cover "
-          style={{
-            backgroundImage: `url(${backgroundImage})`,
-          }}
-        >
-          <div className="container mx-auto text-center text-white">
-            <h1 className="text-5xl font-bold">
-              We Build Luxury Homes in Spokane
-            </h1>
-            <p className="text-xl mt-4">At Affordable Prices</p>
-            <Button type="primary" size="large" className="mt-6">
-              Let's find out more
-            </Button>
-          </div>
-        </Content>
-
-        <Content className="py-16 bg-white">
+      <Content>
+  <div className="container mx-auto py-16">
+    <div className="grid grid-cols-2 gap-12"> 
+      
+     
+      <div className="flex flex-col justify-center">
+        <h1 className="text-5xl font-extrabold text-gray-900 mb-8"> 
+          We’re changing the way people connect.
+        </h1>
+        <p className="text-xl text-gray-700 mb-8 leading-relaxed"> 
+          Cupidatat minim id magna ipsum sint dolor qui. Sunt sit in quis cupidatat mollit aute velit. Et labore commodo nulla aliqua proident mollit ullamco exercitation tempor.
+        </p>
+        <div className="flex space-x-6"> 
+          <Button type="primary" size="large" className="bg-blue-600 text-white rounded-lg px-6 py-3 font-semibold">
+            Get started
+          </Button>
+          <Button type="link" size="large" className="text-blue-600 font-semibold">
+            Read more →
+          </Button>
+        </div>
+      </div>
+      <div className="flex flex-col items-center"> 
+        <Row justify="center" align="middle" gutter={[16, 16]} className="w-full">
+          <Col xs={24} sm={12} md={8} lg={8}> 
+            <DemoBox src={image2} alt="Image 2" />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8}>
+            <DemoBox src={image3} alt="Image 3" />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8}>
+            <DemoBox src={image4} alt="Image 4" />
+          </Col>
+        </Row>
+      </div>
+      
+    </div>
+  </div>
+</Content>
+        <Content className="py-16 bg-white ">
+        
           <Row gutter={[16, 16]}>
             <Col span={8}>
               <div className="flex flex-col items-center justify-center h-full">
@@ -86,13 +107,15 @@ export default function Homepage() {
             </Col>
           </Row>
         </Content>
+        <Divider>
+        <h2 className="text-3xl font-bold">Our Expertise</h2>
+        </Divider>
 
         {/* Expertise Section */}
         <Content className="py-16 bg-white">
           <div className="container mx-auto grid grid-cols-2 gap-8">
             <div>
-              <h2 className="text-3xl font-bold">Our Expertise</h2>
-              <p className="mt-4 text-lg">
+              <p className=" text-lg">
                 Architecture and building construction are essential fields that
                 shape the environments where we live, work, and play. This
                 comprehensive guide delves into the core aspects of
@@ -145,47 +168,33 @@ export default function Homepage() {
           </div>
         </Content>
 
-        {/* Details Section */}
         <Content className="py-16 bg-gray-100">
           <div className="container mx-auto text-center">
+
             <h2 className="text-4xl font-bold">Event</h2>
             <div className="grid grid-cols-3 gap-4 mt-8">
               <Card hoverable>
                 <img
-                  src="https://via.placeholder.com/200x200" // Replace with your image
+                  src="https://via.placeholder.com/200x200" 
                   alt="Portfolio"
                 />
                 <h3 className="mt-2">Portfolio</h3>
               </Card>
               <Card hoverable>
                 <img
-                  src="https://via.placeholder.com/200x200" // Replace with your image
+                  src="https://via.placeholder.com/200x200" 
                   alt="Plans"
                 />
                 <h3 className="mt-2">Plans</h3>
               </Card>
               <Card hoverable>
                 <img
-                  src="https://via.placeholder.com/200x200" // Replace with your image
+                  src="https://via.placeholder.com/200x200" 
                   alt="Lots"
                 />
                 <h3 className="mt-2">Available Lots</h3>
               </Card>
             </div>
-          </div>
-        </Content>
-        <Content>
-          <Divider
-            orientation="left"
-            plain
-            className="container mx-auto text-center"
-          >
-            <h2 className="text-4xl font-bold">Features</h2>
-          </Divider>
-          <div>
-            <Col xs={24} sm={12} md={6} lg={6}>
-              <DemoBox src={image1} alt="Image 1" />
-            </Col>
           </div>
         </Content>
       </Content>

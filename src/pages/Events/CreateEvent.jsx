@@ -16,6 +16,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import { auth, db, storage } from "../../Services/firebase";
+import { sendNotificationToOwners } from "./NotificationEvent";
 const { RangePicker } = DatePicker;
 const normFile = (e) => {
   if (Array.isArray(e)) {
@@ -59,29 +60,29 @@ export default function CreateEvent() {
       apart,
       upload,
     } = values;
-
+  
     const formattedPostDate = postDate ? postDate.toDate() : null;
-    const formattedDeadline = deadline
-      ? deadline.map((date) => date.toDate())
-      : null;
-
+    const formattedDeadline = deadline ? deadline.map((date) => date.toDate()) : null;
+  
     const eventsCollectionRef = collection(db, "events");
+  
     const uploadImage = async (file) => {
       const storageRef = ref(storage, `events/${file.name}`);
       await uploadBytes(storageRef, file);
       return await getDownloadURL(storageRef);
     };
-
-    // Create the event with image upload
-    const createEvent = async () => {
+  
+  
+    const createEventAndNotifyOwners = async () => {
       try {
         let imageUrl = null;
         if (upload && upload.length > 0) {
           const file = upload[0].originFileObj;
           imageUrl = await uploadImage(file);
         }
-
-        await addDoc(eventsCollectionRef, {
+  
+    
+        const eventDocRef = await addDoc(eventsCollectionRef, {
           title,
           goal,
           mode,
@@ -96,17 +97,20 @@ export default function CreateEvent() {
             id: auth.currentUser.uid,
           },
         });
-
-        message.success("Event created successfully");
+  
+        // Notify owners about the new event
+        await sendNotificationToOwners(eventDocRef.id, title);
+  
+        message.success("Event created successfully and notifications sent");
       } catch (error) {
         console.error("Error creating event: ", error);
-        message.error("Failed to create event");
+        message.error("Failed to create event and send notifications");
       }
     };
-
-    await createEvent();
+  
+    await createEventAndNotifyOwners();
   };
-
+  
   return (
     <Form
       {...formItemLayout}

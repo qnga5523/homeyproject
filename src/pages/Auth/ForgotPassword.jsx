@@ -1,10 +1,9 @@
 import Link from "antd/es/typography/Link";
 import React, { useState } from "react";
 import { Button, Form, Input, message } from "antd";
-import picture from "../../assets/img/logo/03.jpg";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../Services/firebase";
-
+import backgroundImg from "../../assets/img/logo/bg.jpg";
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const onFinish = async (values) => {
@@ -26,23 +25,18 @@ export default function ForgotPassword() {
     }
   };
   return (
-    <div className="flex w-screen min-h-screen bg-sky-600">
-      <div
-        className="w-1/2 flex items-center justify-center bg-cover bg-no-repeat bg-center  shadow-2xl"
-        style={{
-          backgroundImage: `url(${picture})`,
-          backgroundSize: "100% 100%",
-          backgroundPosition: "center",
-        }}
-      ></div>
-      <div className="flex w-1/2 items-center justify-center bg-white/50 backdrop-blur-sm p-8">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-6 text-center">
-          {/* name page */}
-          <div>
-            <h4 className="text-lg font-bold mb-4">Sign in to your account</h4>
+    <div
+    className="flex w-screen min-h-screen bg-cover bg-center"
+    style={{ backgroundImage: `url(${backgroundImg})`}}
+  >
+      <div className="flex w-full items-center justify-center p-6">
+        <div className="w-full max-w-lg shadow-md rounded-lg p-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-slate-600 rounded-full w-20 h-20 flex items-center justify-center text-white">
+              <i className="fas fa-user text-3xl"></i>
+            </div>
           </div>
-
-          {/* form */}
+          <h2 className="text-center text-2xl font-semibold text-gray-900 mb-6">Forget Password</h2>
           <Form
             className="login-form"
             name="login"
@@ -57,41 +51,40 @@ export default function ForgotPassword() {
                 { type: "email", message: "Please enter a valid email!" },
               ]}
             >
-              <Input placeholder="Enter your email" />
+              <Input placeholder="Enter your email" className="rounded-full py-2  text-gray-700 border border-gray-300"/>
             </Form.Item>
             <Form.Item>
-              <Button
-                loading={loading}
-                block
-                type="primary"
-                htmlType="submit"
-                className="login-form-button w-full max-w-24 rounded-full shadow-xl"
-              >
-                Verify
-              </Button>
-            </Form.Item>
+  <Button
+    loading={loading}
+    block
+    type="primary"
+    htmlType="submit"
+    className="w-80 py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold shadow-lg transition duration-300 ease-in-out"
+  >
+    Verify
+  </Button>
 
-            <Form.Item>
-              <div>
-                <h4 className="font-bold">Already have an account?</h4>
-                <Link
-                  to="/login "
-                  className="text-[#d33d57] underline underline-offset-2"
-                >
-                  Sign In
-                </Link>
-              </div>
+<div className="mt-6 text-center">
+    <h4 className="font-semibold text-gray-700">Already have an account?</h4>
+    <Link
+      to="/login"
+      className="text-blue-500 hover:text-blue-600 underline underline-offset-4 transition duration-300 ease-in-out"
+    >
+      Log In
+    </Link>
+  </div>
 
-              <div>
-                <h4 className="font-bold mt-3">Don't have an account?</h4>
-                <Link
-                  to="/signup"
-                  className="text-[#d33d57] underline underline-offset-2"
-                >
-                  Sign up
-                </Link>
-              </div>
-            </Form.Item>
+  <div className="mt-4 text-center">
+    <h4 className="font-semibold text-gray-700">Don't have an account?</h4>
+    <Link
+      to="/signup"
+      className="text-blue-500 hover:text-blue-600 underline underline-offset-4 transition duration-300 ease-in-out"
+    >
+      Register
+    </Link>
+  </div>
+</Form.Item>
+
           </Form>
         </div>
       </div>
