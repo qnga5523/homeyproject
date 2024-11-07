@@ -110,11 +110,6 @@ const items = [
       },
       {
         key: "16",
-        icon: <FileTextOutlined style={{ fontSize: "20px" }}/>,
-        label: <Link to="/admin/invoice-review">Invoices</Link>,
-      },
-      {
-        key: "17",
         icon: <SnippetsOutlined style={{ fontSize: "20px" }}/>,
         label: <Link to="/admin/history">History Fee</Link>,
       },
@@ -122,17 +117,17 @@ const items = [
     ],
   },
   {
-    key: "18",
+    key: "17",
     label: "Data Statistics",
     icon: <CloudServerOutlined style={{ fontSize: "20px" }}/>,
     children: [
       {
-        key: "19",
+        key: "18",
         label: <Link to="/chart">Chart</Link>,
         icon: <PieChartOutlined style={{ fontSize: "20px" }}/>,
       },
       {
-        key: "20",
+        key: "19",
         label: <Link to="/table">Table</Link>,
         icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }}/>,
       },

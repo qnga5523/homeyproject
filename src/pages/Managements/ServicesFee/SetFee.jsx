@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, message, DatePicker, Modal} from "antd";
+import { Table, Button, message, DatePicker, Input, Select} from "antd";
 import { collection, getDocs, query, where, doc, setDoc } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 import moment from "moment";
@@ -9,15 +9,39 @@ import { useNavigate } from "react-router-dom";
 
 export default function SetFee() {
   const [users, setUsers] = useState([]);
+  const [buildings, setBuildings] = useState([]);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [cleanPrice, setCleanPrice] = useState(0);
   const [waterPrice, setWaterPrice] = useState(0);
   const [parkingPrices, setParkingPrices] = useState({});
   const [selectedDate, setSelectedDate] = useState(moment());
-  const [isDataSaved, setIsDataSaved] = useState(false);
+  const [searchRoom, setSearchRoom] = useState("");
   const navigate = useNavigate();
+ 
+  const fetchBuildings = async () => {
+    try {
+      const buildingsSnapshot = await getDocs(collection(db, "buildings"));
+      const fetchedBuildings = buildingsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name,
+      }));
+      setBuildings(fetchedBuildings);
+    } catch (error) {
+      message.error("Error loading buildings: " + error.message);
+    }
+  };
+  useEffect(() => {
+    fetchBuildings(); 
+  }, []);
+
 
   const fetchUsersAndPrices = async () => {
-    const usersSnapshot = await getDocs(collection(db, "Users"));
+    if (!selectedBuilding) return;
+    console.log("fetchUsersAndPrices called for building:", selectedBuilding);
+
+    const usersSnapshot = await getDocs(
+      query(collection(db, "Users"), where("building", "==", selectedBuilding))
+    );
     const fetchedUsers = [];
     const roomsSnapshot = await getDocs(collection(db, "rooms"));
 
@@ -31,6 +55,7 @@ export default function SetFee() {
         fetchedUsers.push({
           id: userDoc.id,
           username: userData.Username,
+          email: userData.email, 
           room: userData.room,
           building: userData.building,
           area: roomData.area || 0, 
@@ -130,7 +155,7 @@ export default function SetFee() {
       };
     });
     setUsers(updatedUsers);
-    setIsDataSaved(false);
+  
   };
   const handleFieldChange = (value, record, field) => {
     const updatedUsers = users.map((user) => {
@@ -167,150 +192,124 @@ export default function SetFee() {
 
     setUsers(updatedUsers);
   };
+  const handleBuildingChange = (value) => {
+    setSelectedBuilding(value);
+    fetchUsersAndPrices();
+  };
 
+  const handleRoomSearch = (e) => {
+    setSearchRoom(e.target.value.toLowerCase());
+  };
+
+  const filteredUsers = users.filter((user) =>
+    user.room.toLowerCase().includes(searchRoom)
+  );
+  console.log("Filtered users for table:", filteredUsers);
   const handleSave = async () => {
     try {
       const month = selectedDate.format("MMMM");
       const year = selectedDate.year();
       const day = selectedDate.date();
-
+      const buildingName = selectedBuilding;
+      const savedUsers = [];
+  
       for (const user of users) {
-        const userDocRef = doc(db, "Fees", `${month}_${year}`, "Users", user.id);
+        const userDocRef = doc(
+          db,
+          "Fees",
+          `${month}_${year}`, 
+          "Buildings",
+          buildingName, 
+          "Users",
+          user.id 
+        );
+  
         const dataToSave = {
           username: user.username,
+          email: user.email,
           room: user.room,
           building: user.building,
           area: user.area,
-          carCount: user.carCount,
-          motorcycleCount: user.motorcycleCount,
-          electricBicycleCount: user.electricBicycleCount,
-          bicycleCount: user.bicycleCount,
-          CSC: user.CSC,
-          CSD: user.CSD,
-          priceservice: user.priceservice,
-          totalarea: user.totalarea,
-          priceswater: user.priceswater,
-          totalconsume: user.totalconsume,
-          totalwater: user.totalwater,
-          pricesCar: user.pricesCar,
-          pricesMotorcycle: user.pricesMotorcycle,
-          pricesElectric: user.pricesElectric,
-          pricesBicycle: user.pricesBicycle,
-          totalParking: user.totalParking,
-          totalmoney: user.totalmoney,
+          carCount: user.carCount?? 0,
+          motorcycleCount: user.motorcycleCount?? 0,
+          electricBicycleCount: user.electricBicycleCount?? 0,
+          bicycleCount: user.bicycleCount?? 0,
+          CSC: user.CSC?? 0,
+          CSD: user.CSD?? 0,
+          priceservice: user.priceservice?? 0,
+          totalarea: user.totalarea?? 0,
+          priceswater: user.priceswater?? 0,
+          totalconsume: user.totalconsume?? 0,
+          totalwater: user.totalwater?? 0,
+          pricesCar: user.pricesCar?? 0,
+          pricesMotorcycle: user.pricesMotorcycle?? 0,
+          pricesElectric: user.pricesElectric?? 0,
+          pricesBicycle: user.pricesBicycle?? 0,
+          totalParking: user.totalParking?? 0,
+          totalmoney: user.totalmoney?? 0,
+          totalCar: user.totalCar?? 0,
+          totalBicycle: user.totalBicycle?? 0,
+          totalMotorbike: user.totalMotorbike?? 0,
+          totalElectric: user.totalElectric?? 0,
           day,
           month,
           year,
         };
+  
         await setDoc(userDocRef, dataToSave);
+        savedUsers.push({ ...dataToSave, id: user.id });
       }
-
+  
       message.success(`Data successfully saved for the month: ${month} ${year}`);
-      setIsDataSaved(true);
+      navigate("/admin/invoice-review", { state: { users: savedUsers } });
     } catch (error) {
       message.error("Error saving data: " + error.message);
     }
   };
-  // Hàm lấy danh sách các tháng, năm đã lưu trong Firestore
-  const fetchAvailableDates = async () => {
-    try {
-      const feesCollection = collection(db, "Fees");
-      const feesSnapshot = await getDocs(feesCollection);
-      const dates = [];
-
-      feesSnapshot.forEach((doc) => {
-        const [month, year] = doc.id.split("_");
-        dates.push({ month, year });
-      });
-
-      setAvailableDates(dates);
-    } catch (error) {
-      message.error("Error fetching available dates.");
-    }
-  };
-
-  // Hàm lấy dữ liệu lịch sử từ Firestore
-  const fetchHistoryData = async (month, year) => {
-    try {
-      const usersCollection = collection(db, "Fees", `${month}_${year}`, "Users");
-      const usersSnapshot = await getDocs(usersCollection);
-      const fetchedUsers = [];
-
-      usersSnapshot.forEach((doc) => {
-        fetchedUsers.push(doc.data());
-      });
-
-      if (fetchedUsers.length > 0) {
-        setUsers(fetchedUsers);
-        setIsDataSaved(true); // Đặt trạng thái là đã lưu
-      } else {
-        message.warning("No data available for the selected month and year.");
-        setUsers([]);
-        setIsDataSaved(false);
-      }
-    } catch (error) {
-      message.error("Error fetching data for the selected month and year.");
-    }
-  };
-
-  useEffect(() => {
-    fetchAvailableDates(); // Lấy các tháng năm có dữ liệu khi component được tải
-  }, []);
   
-  const handleReviewInvoice = () => {
-    if (!isDataSaved) {
-      message.warning("Please save the data before reviewing the invoice.");
-      return;
-    }
-
-    const simpleUsers = users.map(user => ({
-      ...user,
-      selectedDate: selectedDate ? selectedDate.format("YYYY-MM-DD") : "", 
-    }));
-
-    navigate("/admin/invoice-review", { state: { users: simpleUsers } });
-  };
   
   const columns = columsFee(handleFieldChange); 
-
   return (
     <div>
-  <DatePicker
-    value={selectedDate}
-    onChange={(date) => setSelectedDate(date)} 
-    style={{ marginBottom: 16 }}
-  />
-  <Button
+      <DatePicker
+        value={selectedDate}
+        onChange={(date) => setSelectedDate(date)}
+        style={{ marginBottom: 16 }}
+      />
+      <Select
+        style={{ width: 200, marginBottom: 16 }}
+        placeholder="Select Building"
+        onChange={handleBuildingChange}
+        options={buildings.map((building) => ({
+          value: building.name,
+          label: building.name,
+        }))}
+      />
+      <Button
         type="primary"
         onClick={fetchUsersAndPrices}
         style={{ marginBottom: 16 }}
+        disabled={!selectedBuilding}
       >
-        Load New Data
+        Load Building
       </Button>
-
-  <Button type="primary" onClick={handleSave} style={{ marginBottom: 16 }}>
-    Save Fees Data
-  </Button>
-  <Button
-  type="primary"
-  onClick={handleReviewInvoice}
-  style={{ marginBottom: 16 }}
-  disabled={!isDataSaved} 
->
-  Review Invoice
-</Button>
-  {users.length > 0 ? (
-    <Table
-      columns={columns}
-      dataSource={users}
-      bordered
-      size="middle"
-      rowKey="id"
-    />
-  ) : (
-    <p>No data available. Click "Load New Data" to add new fees.</p>
-  )}
-</div>
+      <Input
+        placeholder="Search by Room"
+        value={searchRoom}
+        onChange={handleRoomSearch}
+        style={{ width: 200, marginBottom: 16, marginLeft: 8 }}
+      />
+      <Button type="primary" onClick={handleSave} style={{ marginBottom: 16 }}>
+        Save Data
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={filteredUsers}
+        bordered
+        size="middle"
+        rowKey="id"
+      />
+    </div>
 
   );
 }

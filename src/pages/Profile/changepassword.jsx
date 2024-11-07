@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, Form, Input, message } from "antd";
 import { auth } from "../../Services/firebase";
 import {
@@ -8,7 +8,7 @@ import {
 } from "firebase/auth";
 
 export default function ChangePassword() {
-  const [form] = Form.useForm(); // Ant Design form instance
+  const [form] = Form.useForm(); 
 
   const handleSubmit = async (values) => {
     const { currentPassword, newPassword, confirmPassword } = values;

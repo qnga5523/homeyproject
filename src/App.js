@@ -45,6 +45,9 @@ import Dashboard from "./pages/Dashboard";
 import DetailNotification from "./pages/Notification/DetailNotification";
 
 import InvoiceReviewPage from "./pages/Managements/Invoices/InvoiceReviewPage";
+import Feedback from "./pages/Feedback25/Feedback";
+import FeedbackReport from "./pages/Feedback25/FeedbackReport";
+
 
 
 function App() {
@@ -68,8 +71,9 @@ function App() {
         <Route path="/contact" element={<AppContact />} />
         <Route path="/about" element={<Aboutus />} />
         <Route path="/features" element={<Feature />} />
-
+      
         
+        {/*  */}
         {/* Admin */}
         <Route
           path="/admin"
@@ -108,7 +112,8 @@ function App() {
           <Route path="requestbook" element={<ReqBook />} />
           {/* Notification */}
           <Route path="notification" element={<DetailNotification/>}/>
-        
+          <Route path="feedback" element={<Feedback/>}/>
+          <Route path="reportFeedback" element={<FeedbackReport/>}/>
           
         </Route>
         {/* Owner */}
@@ -130,6 +135,7 @@ function App() {
         <Route path="vehicle" element={<VehicleShow />} />
         <Route path="book" element={<FormBook/>}/>
         <Route path="notification" element={<DetailNotification/>}/>
+        <Route path="feedback" element={<Feedback/>}/>
         </Route>   
         </Routes>
       <ToastContainer />

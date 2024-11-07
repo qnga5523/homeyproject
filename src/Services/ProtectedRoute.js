@@ -8,25 +8,28 @@ export default function ProtectedRoute({ role, children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
           const userDoc = await getDoc(doc(db, "Users", user.uid));
           if (userDoc.exists()) {
             setUserRole(userDoc.data().role);
+          } else {
+            console.error("No user document found!");
           }
+        } catch (error) {
+          console.error("Failed to fetch user role:", error);
         }
-        setLoading(false);
-      });
-    };
-    fetchUserRole();
+      } else {
+        setUserRole(null);
+      }
+      setLoading(false); 
+    });
+    return () => unsubscribe();
   }, []);
-
   if (loading) return <p>Loading...</p>;
-
   if (userRole === role) {
     return children;
   }
-
   return <Navigate to="/login" />;
 }

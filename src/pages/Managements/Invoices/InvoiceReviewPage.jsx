@@ -1,46 +1,83 @@
-import React from "react";
-import { Button } from "antd";
-import { useLocation } from "react-router-dom";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import InvoiceDocument from "../Invoices/InvoiceDocument";
+import React, { useState } from "react";
+import { Button, Table, message } from "antd";
+import { pdf } from "@react-pdf/renderer";
+import { useNavigate, useLocation } from "react-router-dom";
+import InvoiceDocument from "../../../components/layout/Colums/InvoiceDocument"; 
 import sendInvoiceEmail from "./sendInvoiceEmail";
 
 const InvoiceReviewPage = () => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const { users = [], selectedDate } = location.state || {};
+  const { users } = location.state || {};
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const handleSubmit = async () => {
-    const approvedOwners = users.filter(user => user.role === "owner" && user.approved);
-
-    for (const user of approvedOwners) {
-      if (user.email) { // Kiểm tra xem user có email hay không
-        await sendInvoiceEmail(user); // Gửi email cho từng user
-      } else {
-        console.warn(`No email found for user: ${user.username}`);
-      }
+  const handleSendEmail = async (user) => {
+    if (!user.email) {
+      message.error("User email is missing. Cannot send email.");
+      return;
     }
-    alert("Invoices sent successfully to all approved owners!");
+    await sendInvoiceEmail(user);
+    message.success(`Invoice sent to ${user.username}`);
+  };
+  
+  const handleSelectUser = async (user) => {
+    setSelectedUser(user);
+     const blob = await pdf(<InvoiceDocument user={user} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
   };
 
+  const columns = [
+    { title: "Username", dataIndex: "username", key: "username" },
+    { title: "Room", dataIndex: "room", key: "room" },
+    { title: "Total Fee", dataIndex: "totalmoney", key: "totalmoney", render: (text) => `${text} VND` },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, user) => (
+        <>
+          <Button type="primary" onClick={() => handleSelectUser(user)} style={{ marginRight: "8px" }}>
+            Preview
+          </Button>
+          <Button type="primary" onClick={() => handleSendEmail(user)}>
+            Send Email
+          </Button>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div>
-      <h2>Invoice Review for {selectedDate}</h2>
-      {users.map(user => (
-        <div key={user.id} style={{ marginBottom: 16 }}>
-          <h3>Invoice for {user.username}</h3>
-          <PDFDownloadLink
-            document={<InvoiceDocument user={user} />}
-            fileName={`${user.username}_invoice.pdf`}
-          >
-            {({ loading }) => (loading ? "Generating PDF..." : "Download Invoice")}
-          </PDFDownloadLink>
+    <div style={styles.container}>
+      <h2 style={styles.title}>Invoice Management</h2>
+      <div style={styles.content}>
+        <div style={styles.tableContainer}>
+          <h3>Invoice List</h3>
+          <Table
+            columns={columns}
+            dataSource={users}
+            rowKey="id"
+            pagination={{ pageSize: 5 }}
+          />
         </div>
-      ))}
-      <Button type="primary" onClick={handleSubmit} style={{ marginTop: 20 }}>
-        Submit and Send Invoices
+      </div>
+
+      <Button
+        type="primary"
+        onClick={() => navigate("/admin")}
+        style={{ marginTop: "20px" }}
+      >
+        Back to Dashboard
       </Button>
     </div>
   );
+};
+
+const styles = {
+  container: { padding: "20px" },
+  title: { fontSize: "24px", textAlign: "center", marginBottom: "20px" },
+  content: { display: "flex", gap: "20px" },
+  tableContainer: { flex: 1 },
 };
 
 export default InvoiceReviewPage;
