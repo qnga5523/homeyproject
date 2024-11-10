@@ -7,8 +7,6 @@ import {
   Input,
   Button,
   DatePicker,
-  InputNumber,
-  Radio,
   Upload,
   message,
 } from "antd";
@@ -107,7 +105,7 @@ export default function EditEvent() {
       await updateDoc(eventRef, updatedData);
 
       message.success("Event updated successfully");
-      navigate(`/event/${id}`);
+      navigate(`/admin/event/${id}`);
     } catch (error) {
       console.error("Error updating event: ", error);
       message.error("Failed to update event");
@@ -137,21 +135,6 @@ export default function EditEvent() {
         <Input.TextArea rows={4} />
       </Form.Item>
 
-      <Form.Item label="Mode" name="mode">
-        <Radio.Group>
-          <Radio value="public">Public</Radio>
-          <Radio value="private">Private</Radio>
-        </Radio.Group>
-      </Form.Item>
-
-      <Form.Item
-        label="Number of Participants"
-        name="number"
-        rules={[{ required: true, message: "Please input the number!" }]}
-      >
-        <InputNumber />
-      </Form.Item>
-
       <Form.Item
         label="Content"
         name="content"
@@ -176,10 +159,6 @@ export default function EditEvent() {
 
       <Form.Item label="Post Date" name="postDate">
         <DatePicker />
-      </Form.Item>
-
-      <Form.Item label="Deadline" name="deadline">
-        <RangePicker />
       </Form.Item>
 
       <Form.Item>

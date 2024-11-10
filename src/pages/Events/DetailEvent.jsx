@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
-
 import { Card, Spin, Typography, Image, Button, Modal, message } from "antd";
-import { db } from "../../Services/firebase";
+import { db, auth } from "../../Services/firebase"; 
+import { NotFound } from "../../components/common/NotFound";
 
 const { Title, Paragraph } = Typography;
 
 export default function DetailEvent() {
-  const { id } = useParams(); // Get the event ID from the route parameters
-  const navigate = useNavigate(); // Navigate programmatically
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [eventNotFound, setEventNotFound] = useState(false);
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -22,7 +23,7 @@ export default function DetailEvent() {
         if (eventSnapshot.exists()) {
           setEvent(eventSnapshot.data());
         } else {
-          console.log("No such event!");
+          setEventNotFound(true);
         }
       } catch (error) {
         console.error("Error fetching event details:", error);
@@ -31,14 +32,25 @@ export default function DetailEvent() {
       }
     };
 
+    const checkAdminRole = async () => {
+      if (auth.currentUser) {
+        const userDoc = doc(db, "Users", auth.currentUser.uid); 
+        const userSnapshot = await getDoc(userDoc);
+        if (userSnapshot.exists() && userSnapshot.data().role === "admin") {
+          setIsAdmin(true);
+        }
+      }
+    };
+
     fetchEvent();
+    checkAdminRole();
   }, [id]);
 
   const handleDelete = async () => {
     try {
       await deleteDoc(doc(db, "events", id));
       message.success("Event deleted successfully!");
-      navigate("/"); // Navigate back to the events list after deletion
+      navigate("/");
     } catch (error) {
       console.error("Error deleting event: ", error);
       message.error("Failed to delete event");
@@ -56,39 +68,40 @@ export default function DetailEvent() {
   };
 
   const handleEdit = () => {
-    navigate(`/edit-event/${id}`); // Navigate to the edit page
+    navigate(`/admin/edit-event/${id}`);
   };
 
   if (loading) {
     return <Spin size="large" />;
   }
 
-  if (!event) {
-    return <div>Event not found</div>;
+  if (eventNotFound) {
+    return <NotFound />;
   }
 
   return (
     <Card
       style={{ maxWidth: 800, margin: "auto", marginTop: 20 }}
       cover={event.imageUrl && <Image alt={event.title} src={event.imageUrl} />}
-      actions={[
-        <Button type="primary" onClick={handleEdit}>
-          Edit
-        </Button>,
-        <Button type="danger" onClick={showDeleteConfirm}>
-          Delete
-        </Button>,
-      ]}
+      actions={
+        isAdmin
+          ? [
+              <Button type="primary" onClick={handleEdit}>
+                Edit
+              </Button>,
+              <Button type="danger" onClick={showDeleteConfirm}>
+                Delete
+              </Button>,
+            ]
+          : []
+      }
     >
       <Title level={2}>{event.title}</Title>
       <Paragraph>
-        <strong>Mode:</strong> {event.mode}
+        <strong>Requirement:</strong> {event.req}
       </Paragraph>
       <Paragraph>
         <strong>Goal:</strong> {event.goal}
-      </Paragraph>
-      <Paragraph>
-        <strong>Number of Participants:</strong> {event.number}
       </Paragraph>
       <Paragraph>
         <strong>Content:</strong> {event.content}
@@ -97,14 +110,6 @@ export default function DetailEvent() {
         <strong>Post Date:</strong>{" "}
         {event.postDate?.toDate().toLocaleDateString()}
       </Paragraph>
-      {event.deadline && (
-        <Paragraph>
-          <strong>Deadline:</strong>{" "}
-          {event.deadline
-            .map((date) => date.toDate().toLocaleDateString())
-            .join(" - ")}
-        </Paragraph>
-      )}
       <Paragraph>
         <strong>Author:</strong> {event.author.name}
       </Paragraph>

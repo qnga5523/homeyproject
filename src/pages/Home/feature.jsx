@@ -6,6 +6,7 @@ const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
 export default function Feature() {
   return (
+    
     <Layout>
       <Header className="bg-blue-500 text-white">Zillow Home Loans</Header>
       <Content className="py-16 bg-white">

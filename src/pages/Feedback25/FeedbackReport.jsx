@@ -33,10 +33,8 @@ export default function FeedbackReport() {
 
     if (summaryDoc.exists()) {
       const data = summaryDoc.data();
-
-      // Chuẩn bị dữ liệu cho biểu đồ
       const satisfactionData = Object.values(data.satisfaction);
-      const chartLabels = ["1 - Rất không hài lòng", "2 - Không hài lòng", "3 - Bình thường", "4 - Hài lòng"];
+      const chartLabels = ["1 - Very dissatisfied", "2 - Dissatisfied", "3 - Neutral", "4 - Satisfied"];
       setChartData({
         labels: chartLabels,
         datasets: [
@@ -48,13 +46,11 @@ export default function FeedbackReport() {
         ]
       });
 
-      // Lưu các phản hồi mở vào state
       setOpenFeedback({
         improvementSuggestions: data.improvementSuggestions,
         usefulFeatures: data.usefulFeatures
       });
     } else {
-      // Nếu không có dữ liệu cho tháng đã chọn
       setChartData(null);
       setOpenFeedback({
         improvementSuggestions: [],
@@ -75,8 +71,6 @@ export default function FeedbackReport() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-center">Feedback Summary</h1>
-
-      {/* Date Picker để chọn tháng và năm */}
       <div className="flex justify-center mb-6">
         <DatePicker 
           picker="month" 
@@ -92,7 +86,7 @@ export default function FeedbackReport() {
         </div>
       ) : (
         <>
-          {/* Biểu đồ hình tròn */}
+
           {chartData ? (
             <div className="mb-8 flex justify-center">
               <div style={{ width: "50%", maxWidth: "300px", margin: "0 auto" }}>
@@ -104,7 +98,6 @@ export default function FeedbackReport() {
             <p className="text-center text-lg">No feedback data available for the selected month.</p>
           )}
 
-          {/* Danh sách câu trả lời mở */}
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Improvement Suggestions</h2>
             <List

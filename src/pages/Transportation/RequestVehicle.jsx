@@ -1,7 +1,7 @@
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
-import { Button, message, Table } from "antd";
+import { Button, message, Table, Image } from "antd";
 
 export default function RequestVehicle() {
   const [requests, setRequests] = useState([]);
@@ -35,36 +35,62 @@ export default function RequestVehicle() {
         status: "approved",
       });
 
-      message.success("Phương tiện đã được phê duyệt!");
+      message.success("Vehicle approved!");
       setRequests(requests.filter((request) => request.id !== record.id));
     } catch (error) {
       console.error("Error approving request: ", error);
-      message.error("Lỗi khi phê duyệt phương tiện.");
+      message.error("Error approving vehicle.");
     }
   };
 
   const columns = [
     {
-      title: "Loại phương tiện",
+      title: "Username",
+      dataIndex: "Username",
+      key: "Username",
+    },
+    {
+      title: "Room",
+      dataIndex: "room",
+      key: "room",
+    },
+    {
+      title: "Building",
+      dataIndex: "building",
+      key: "building",
+    },
+    {
+      title: "Vehicle Type",
       dataIndex: "vehicleType",
       key: "vehicleType",
     },
     {
-      title: "Biển số",
+      title: "License Plate",
       dataIndex: "licensePlate",
       key: "licensePlate",
     },
     {
-      title: "Mô tả",
+      title: "Description",
       dataIndex: "description",
       key: "description",
     },
     {
-      title: "Hành động",
+      title: "Image",
+      dataIndex: "imageUrl",
+      key: "imageUrl",
+      render: (url) =>
+        url ? (
+          <Image src={url} alt="Vehicle" width={100} height={60} />
+        ) : (
+          "No image"
+        ),
+    },
+    {
+      title: "Action",
       key: "action",
       render: (text, record) => (
         <Button type="primary" onClick={() => approveRequest(record)}>
-          Phê duyệt
+          Approve
         </Button>
       ),
     },

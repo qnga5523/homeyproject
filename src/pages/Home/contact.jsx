@@ -2,7 +2,6 @@ import React from "react";
 import { Row, Col, Card } from 'antd';
 import { Input, Button } from "antd";
 import { Layout } from "antd";
-import "../../assets/styles/home.css";
 import HeaderMain from "../../components/common/HeaderMain";
 
 const { Content } = Layout;

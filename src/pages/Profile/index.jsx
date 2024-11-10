@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button, Typography, Input, Form, Upload, Image, message } from "antd";
+import { Button, Typography, Input, Form, Image, message } from "antd";
 import { auth, db } from "../../Services/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, query, where, getDocs } from "firebase/firestore";
 import EditProfile from "./edit";
 import ChangePassword from "./changepassword";
-import { UploadOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -12,6 +11,7 @@ export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
+  const [roomInfo, setRoomInfo] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -20,7 +20,10 @@ export default function Profile() {
         const docRef = doc(db, "Users", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProfile(docSnap.data());
+          const profileData = docSnap.data();
+          setProfile(profileData);
+          // Fetch room info for the user's assigned room and building
+          fetchRoomInfo(profileData.building, profileData.room);
         } else {
           message.error("User data not found");
         }
@@ -29,6 +32,44 @@ export default function Profile() {
 
     fetchProfile();
   }, []);
+
+  const fetchRoomInfo = async (buildingName, roomNumber) => {
+    if (buildingName && roomNumber) {
+      try {
+        // Step 1: Get the buildingId based on the building name
+        const buildingsCollection = collection(db, "buildings");
+        const buildingQuery = query(buildingsCollection, where("name", "==", buildingName));
+        const buildingSnapshot = await getDocs(buildingQuery);
+
+        if (buildingSnapshot.empty) {
+          message.error("Building not found.");
+          return;
+        }
+
+        const buildingId = buildingSnapshot.docs[0].id;
+
+        // Step 2: Query rooms collection with buildingId and roomNumber
+        const roomsCollection = collection(db, "rooms");
+        const roomQuery = query(
+          roomsCollection,
+          where("buildingId", "==", buildingId),
+          where("roomNumber", "==", roomNumber)
+        );
+
+        const roomSnapshot = await getDocs(roomQuery);
+
+        if (!roomSnapshot.empty) {
+          setRoomInfo(roomSnapshot.docs[0].data());
+        } else {
+          message.error("Room information not found.");
+        }
+      } catch (error) {
+        console.error("Error fetching room information:", error);
+        message.error("An error occurred while fetching room information.");
+      }
+    }
+  };
+  
 
   const handleProfileUpdate = async () => {
     const user = auth.currentUser;
@@ -52,39 +93,53 @@ export default function Profile() {
       ) : (
         profile && (
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
-             <Title level={4}>Personal Information</Title>
-             <div className="mb-4">
-                <Text>Photo</Text>
-                <div className="flex items-center space-x-4">
-                  {profile.avatarUrl ? (
-                    <Image width={100} height={100} src={profile.avatarUrl} alt="Avatar" style={{ borderRadius: "50%" }} />
-                  ) : (
-                    <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span>No Image</span>
-                    </div>
-                  )}
-                </div>
+            <Title level={4}>Personal Information</Title>
+            <div className="mb-4">
+              <Text>Photo</Text>
+              <div className="flex items-center space-x-4">
+                {profile.avatarUrl ? (
+                  <Image width={100} height={100} src={profile.avatarUrl} alt="Avatar" style={{ borderRadius: "50%" }} />
+                ) : (
+                  <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span>No Image</span>
+                  </div>
+                )}
               </div>
+            </div>
             <Form layout="vertical">
               <Form.Item label="Username">
                 <Input value={profile.Username} disabled />
               </Form.Item>
-              
               <Form.Item label="Email">
                 <Input value={profile.email || ""} disabled />
               </Form.Item>
               <Form.Item label="Phone">
-                <Input value={profile.Phone || ""} disabled/>
+                <Input value={profile.Phone || ""} disabled />
               </Form.Item>
               <Form.Item label="Apartment">
-                <Input value={profile.room || ""} disabled/>
+                <Input value={profile.room || ""} disabled />
               </Form.Item>
-              <Form.Item label="Buiding">
-                <Input value={profile.building || ""} disabled/>
+              <Form.Item label="Building">
+                <Input value={profile.building || ""} disabled />
               </Form.Item>
               <Form.Item label="Household members">
-                <Input value={profile.members || ""} disabled/>
+                <Input value={profile.members || ""} disabled />
               </Form.Item>
+              {/* Room Information Section */}
+              {roomInfo && (
+                <>
+                  <Title level={5} style={{ marginTop: "1rem" }}>Room Information</Title>
+                  <Form.Item label="Room Type">
+                    <Input value={roomInfo.roomType || "N/A"} disabled />
+                  </Form.Item>
+                  <Form.Item label="Area (sqm)">
+                    <Input value={roomInfo.area || "N/A"} disabled />
+                  </Form.Item>
+                  <Form.Item label="Assets">
+                    <Input value={roomInfo.assets ? roomInfo.assets.join(", ") : "N/A"} disabled />
+                  </Form.Item>
+                </>
+              )}
               <div className="flex space-x-4 mt-4">
                 <Button type="primary" onClick={() => setIsEditing(true)}>
                   Edit Profile

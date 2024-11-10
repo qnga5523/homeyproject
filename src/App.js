@@ -36,7 +36,6 @@ import PricesParking from "./pages/Managements/Prices/Parking/PricesParking";
 import ShowRooms from "./pages/Apartments/ListRoom";
 import RequestVehicle from "./pages/Transportation/RequestVehicle";
 import VehicleRegister from "./pages/Transportation/VehicleRegister";
-import VehicleShow from "./pages/Transportation/VehicleShow";
 import ListVehicle from "./pages/Transportation/ListVehicle";
 import FormBook from "./pages/Managements/ServiceBook/FormBook";
 import ReqBook from "./pages/Managements/ServiceBook/ReqBook";
@@ -47,6 +46,11 @@ import DetailNotification from "./pages/Notification/DetailNotification";
 import InvoiceReviewPage from "./pages/Managements/Invoices/InvoiceReviewPage";
 import Feedback from "./pages/Feedback25/Feedback";
 import FeedbackReport from "./pages/Feedback25/FeedbackReport";
+import OwnerFee from "./pages/Managements/ServicesFee/OwnerFee";
+import UserBookings from "./pages/Managements/ServiceBook/UserBookings";
+import { NotFound } from "./components/common/NotFound";
+import ServicePriceCharts from "./pages/Managements/Prices/ServicePriceCharts";
+
 
 
 
@@ -71,9 +75,9 @@ function App() {
         <Route path="/contact" element={<AppContact />} />
         <Route path="/about" element={<Aboutus />} />
         <Route path="/features" element={<Feature />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="ServicePriceCharts" element={<ServicePriceCharts/>}/>
       
-        
-        {/*  */}
         {/* Admin */}
         <Route
           path="/admin"
@@ -114,8 +118,8 @@ function App() {
           <Route path="notification" element={<DetailNotification/>}/>
           <Route path="feedback" element={<Feedback/>}/>
           <Route path="reportFeedback" element={<FeedbackReport/>}/>
-          
-        </Route>
+          {/* Chart */}
+         </Route>
         {/* Owner */}
         <Route
           path="/owner"
@@ -126,16 +130,33 @@ function App() {
           }
         >
         {/* Profile */}
+        <Route path="edit-profile" element={<EditProfile />} />
+        <Route path="profile" element={<Profile />} />       
+        <Route path="changepassword" element={<ChangePassword />} />
+
+        {/* Event */}
         <Route path="event" element={<Event />} />
         <Route path="event/:id" element={<DetailEvent />} />
-        <Route path="edit-profile" element={<EditProfile />} />
-        <Route path="profile" element={<Profile />} />
+
+        {/* Vehicle */}
         <Route path="vehicleregister" element={<VehicleRegister />} />
-        <Route path="changepassword" element={<ChangePassword />} />
-        <Route path="vehicle" element={<VehicleShow />} />
+
+        
+        {/* serviceBook */}
         <Route path="book" element={<FormBook/>}/>
+        <Route path="user-book" element={<UserBookings/>}/>
+
+        {/* notification */}
         <Route path="notification" element={<DetailNotification/>}/>
+
+        {/* feedback */}
         <Route path="feedback" element={<Feedback/>}/>
+
+        {/* Fees */}
+        <Route path="feehistory" element={<OwnerFee/>}/>
+
+        {/* dataStatistics */}
+
         </Route>   
         </Routes>
       <ToastContainer />

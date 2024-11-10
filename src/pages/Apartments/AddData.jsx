@@ -122,7 +122,7 @@ export default function ManageBuildings() {
       setBuildingName(building.name);
       setFloors(building.floors);
       setRoomsPerFloor(building.roomsPerFloor);
-      setCurrentBuildingId(id); // Lưu ID của tòa nhà đang chỉnh sửa
+      setCurrentBuildingId(id); 
     }
   };
 

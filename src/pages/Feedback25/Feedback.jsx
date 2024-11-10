@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Radio, Space } from 'antd';
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from '../../Services/firebase';
-
+import { auth, db } from '../../Services/firebase';
+import { useNavigate } from 'react-router-dom';
 const { TextArea } = Input;
 
 export default function Feedback() {
@@ -13,12 +13,37 @@ export default function Feedback() {
     improvementSuggestions: '',
     usefulFeatures: '',
   });
+  const [isMandatory, setIsMandatory] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+  const checkFeedbackRequired = async () => {
+    const currentDate = new Date();
+    const day = currentDate.getDate();
+    const user = auth.currentUser;
+ 
+    if (user) {
+      const userDoc = await getDoc(doc(db, "Users", user.uid));
+      if (userDoc.exists() && userDoc.data().role === "owner" && day >= 1 && day <= 5) {
+        setIsMandatory(true);  
+      } else {
+        navigate('/owner'); 
+      }
+    }
+  };
+
+  checkFeedbackRequired();
+}, [navigate]);
 
   const handleChange = (name, value) => {
     setFeedback({ ...feedback, [name]: value });
   };
 
   const handleSubmit = async () => {
+    if (!feedback.satisfaction || !feedback.reliability || !feedback.security) {
+      alert("Please fill out all required fields.");
+      return;
+    }
     const currentDate = new Date();
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
@@ -31,9 +56,7 @@ export default function Feedback() {
     try {
       const summaryRef = doc(db, "feedback_summary", documentId); 
       const summaryDoc = await getDoc(summaryRef);
-
       let summaryData;
-
       if (summaryDoc.exists()) {
         summaryData = summaryDoc.data();
       } else {
@@ -52,6 +75,7 @@ export default function Feedback() {
       summaryData.improvementSuggestions.push(feedback.improvementSuggestions);
       summaryData.usefulFeatures.push(feedback.usefulFeatures);
       await setDoc(summaryRef, summaryData);
+      await setDoc(doc(db, "Users", auth.currentUser.uid), { feedbackCompleted: documentId }, { merge: true });
       console.log("Feedback summary updated successfully");
       alert("Feedback submitted successfully!");
       setFeedback({
@@ -61,6 +85,7 @@ export default function Feedback() {
         improvementSuggestions: '',
         usefulFeatures: '',
       });
+      navigate('/owner');
     } catch (error) {
       console.error("Error submitting feedback:", error);
     }

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Badge, Layout, Menu, message, Dropdown } from "antd";
+import { Badge, Layout, Menu, message, Dropdown, Card, Spin, Row, Col } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { BellOutlined } from "@ant-design/icons";
-
 import {
   doc,
   getDoc,
@@ -12,9 +11,9 @@ import {
   where,
   onSnapshot,
   serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 import logo from "../../assets/img/logo/logo.jpg";
-
 import { theme } from "antd";
 import AdminAvatar from "../../components/layout/Admin/AvatarAdmin";
 import AvatarOwner from "../../components/layout/Owner/AvatarOwner";
@@ -22,6 +21,10 @@ import SiderAdmin from "../../components/layout/Admin/SiderAdmin";
 import SiderOwner from "../../components/layout/Owner/SiderOwner";
 import { auth, db } from "../../Services/firebase";
 import NotificationsMenu from "../../components/common/notificationsMenu";
+import FeedbackReport from "../Feedback25/FeedbackReport";
+import ServicePriceCharts from "../Managements/Prices/ServicePriceCharts";
+
+
 const { Header, Content } = Layout;
 
 const addNotification = async (userId, role, content) => {
@@ -71,12 +74,44 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState(null);
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [ownerCount, setOwnerCount] = useState(0);
+  const [totalVehicles, setTotalVehicles] = useState(0);
+  const [buildingCount, setBuildingCount] = useState(0);
+  const [roomCount, setRoomCount] = useState(0);
   const navigate = useNavigate();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
+  useEffect(() => {
+    // Fetch owner count
+    const fetchOwnerCount = async () => {
+      const q = query(collection(db, "Users"), where("role", "==", "owner"));
+      const querySnapshot = await getDocs(q);
+      setOwnerCount(querySnapshot.size);
+    };
 
+    const fetchTotalVehicleCount = async () => {
+      const q = query(collection(db, "Vehicle"), where("status", "==", "approved"));
+      const querySnapshot = await getDocs(q);
+      setTotalVehicles(querySnapshot.size);
+    };
+    const fetchBuildingCount = async () => {
+      const buildingsCollection = collection(db, "buildings");
+      const buildingSnapshot = await getDocs(buildingsCollection);
+      setBuildingCount(buildingSnapshot.size);
+    };
+
+    const fetchRoomCount = async () => {
+      const roomsCollection = collection(db, "rooms");
+      const roomSnapshot = await getDocs(roomsCollection);
+      setRoomCount(roomSnapshot.size);
+    };
+
+    setLoading(true);
+    Promise.all([fetchOwnerCount(), fetchTotalVehicleCount(), fetchBuildingCount(), fetchRoomCount()])
+      .then(() => setLoading(false));
+  }, []);
   useEffect(() => {
     const fetchUserRole = async () => {
       auth.onAuthStateChanged(async (user) => {
@@ -114,18 +149,18 @@ export default function Dashboard() {
 
     fetchUserRole();
   }, [navigate]);
-
+  const logoPath = userRole === "admin" ? "/admin" : userRole === "owner" ? "/owner" : "/";
   return (
     <Layout>
       <Header
         style={{
           display: "flex",
           alignItems: "center",
-          background: "#082f49",
+          background: "#11354d",
         }}
       >
         <div style={{ marginRight: "18px" }}>
-          <Link to="/">
+          <Link to={logoPath}>
             <img
               src={logo}
               alt="Logo"
@@ -222,6 +257,58 @@ export default function Dashboard() {
             }}
           >
             <Outlet />
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-6">Dashboard Statistics</h2>
+
+              {loading ? (
+                <Spin size="large" />
+              ) : (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Card title="Total Owners" bordered={false}>
+                      <p className="text-4xl font-semibold text-center">{ownerCount}</p>
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card title="Total Vehicles" bordered={false}>
+                      <p className="text-4xl font-semibold text-center">{totalVehicles}</p>
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card title="Total Buildings" bordered={false}>
+                      <p className="text-4xl font-semibold text-center">{buildingCount}</p>
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card title="Total Rooms" bordered={false}>
+                      <p className="text-4xl font-semibold text-center">{roomCount}</p>
+                    </Card>
+                  </Col>
+                </Row>
+                
+              )}
+            </div>
+            <div className="p-6 max-w-6xl mx-auto">
+              <Row gutter={[16, 16]} className="mb-6">
+                <Col span={24}>
+                  <Card title="Service Price Charts" bordered={false}>
+                    <ServicePriceCharts />
+                  </Card>
+                </Col>
+              </Row>
+              <Row gutter={[16, 16]}>
+                <Col span={12}>
+                  <Card title="Feedback Summary - Satisfaction Levels" bordered={false}>
+                    <FeedbackReport />
+                  </Card>
+                </Col>
+                <Col span={12}>
+                  <Card title="Feedback Suggestions and Features" bordered={false}>
+                    <FeedbackReport />
+                  </Card>
+                </Col>
+              </Row>
+            </div>
           </Content>
         </Layout>
       </Layout>

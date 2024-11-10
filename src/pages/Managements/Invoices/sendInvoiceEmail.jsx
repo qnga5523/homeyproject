@@ -15,10 +15,10 @@ const sendInvoiceEmail = async (user) => {
 
       - Building: ${user.building}
       - Room: ${user.room}
-      - Area Fee: ${user.totalarea} VND
-      - Water Fee: ${user.totalwater} VND
-      - Parking Fee: ${user.totalParking} VND
-      - Total Amount Due: ${user.totalmoney} VND
+      - Area Fee: ${user.totalarea} USD
+      - Water Fee: ${user.totalwater} USD
+      - Parking Fee: ${user.totalParking} USD
+      - Total Amount Due: ${user.totalmoney} USD
 
       **Payment Instructions**:
       - Bank Account: 123-456-789
@@ -33,6 +33,7 @@ const sendInvoiceEmail = async (user) => {
       Best regards,
       Homey Management Team
     `;
+
 
     // Setup template parameters
     const templateParams = {

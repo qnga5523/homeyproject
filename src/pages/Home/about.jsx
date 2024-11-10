@@ -4,11 +4,6 @@ import { Layout, Card } from "antd";
 const { Header, Content, Footer } = Layout;
 export default function Aboutus() {
 
-
-
-
-
-
   return (
     <Layout>
       {/* Hero Section */}

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 import { Table, Button, Modal } from "antd";
 
-export default function ListVehicle() {
+export default function ListVehicle({ setVehicleCounts }) {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [groupedVehicles, setGroupedVehicles] = useState([]);
@@ -13,11 +13,9 @@ export default function ListVehicle() {
   useEffect(() => {
     const fetchApprovedVehicles = async () => {
       setLoading(true);
-
-      // Query the Vehicle collection for all approved vehicles
       const q = query(
         collection(db, "Vehicle"),
-        where("status", "==", "approved") // Only fetch approved vehicles
+        where("status", "==", "approved") 
       );
 
       const querySnapshot = await getDocs(q);
@@ -26,11 +24,21 @@ export default function ListVehicle() {
       querySnapshot.forEach((doc) => {
         approvedVehicles.push({ ...doc.data(), id: doc.id });
       });
-
-      // Group vehicles by userId and count the total vehicles for each user
+      const vehicleCounts = {
+        total: 0,
+        carCount: 0,
+        motorcycleCount: 0,
+        electricBicycleCount: 0,
+        bicycleCount: 0,
+      };
       const grouped = approvedVehicles.reduce((acc, vehicle) => {
         const userId = vehicle.userId;
         const vehicleType = vehicle.vehicleType;
+        vehicleCounts.total += 1;
+        if (vehicleType === "car") vehicleCounts.carCount += 1;
+        else if (vehicleType === "motorbike") vehicleCounts.motorcycleCount += 1;
+        else if (vehicleType === "electric_bicycle") vehicleCounts.electricBicycleCount += 1;
+        else if (vehicleType === "bicycle") vehicleCounts.bicycleCount += 1;
 
         if (!acc[userId]) {
           acc[userId] = {
@@ -38,7 +46,7 @@ export default function ListVehicle() {
             totalVehicles: 0,
             carCount: 0,
             motorcycleCount: 0,
-            electricBicycleCount: 0, // Renamed this for electric bicycles
+            electricBicycleCount: 0, 
             bicycleCount: 0,
             vehicles: [],
           };
@@ -46,7 +54,7 @@ export default function ListVehicle() {
 
         acc[userId].totalVehicles += 1;
 
-        // Count each type of vehicle
+      
         if (vehicleType === "car") acc[userId].carCount += 1;
         else if (vehicleType === "motorbike") acc[userId].motorcycleCount += 1;
         else if (vehicleType === "electric_bicycle")
@@ -57,16 +65,17 @@ export default function ListVehicle() {
         return acc;
       }, {});
 
-      // Convert the grouped object into an array
+
       setGroupedVehicles(Object.values(grouped));
       setVehicles(approvedVehicles);
+      setVehicleCounts(vehicleCounts);
       setLoading(false);
     };
 
     fetchApprovedVehicles();
-  }, []);
+  }, [setVehicleCounts]);
 
-  // Function to open modal and show detailed vehicles of a specific user
+
   const showUserVehicles = (userVehicles) => {
     setSelectedUserVehicles(userVehicles);
     setIsModalVisible(true);
@@ -79,66 +88,66 @@ export default function ListVehicle() {
       key: "userId",
     },
     {
-      title: "Tổng số phương tiện",
+      title: "Total Vehicles",
       dataIndex: "totalVehicles",
       key: "totalVehicles",
     },
     {
-      title: "Số xe ô tô",
+      title: "Cars",
       dataIndex: "carCount",
       key: "carCount",
     },
     {
-      title: "Số xe máy",
+      title: "Motorcycles",
       dataIndex: "motorcycleCount",
       key: "motorcycleCount",
     },
     {
-      title: "Số xe đạp điện",
+      title: "Electric Bicycles",
       dataIndex: "electricBicycleCount",
       key: "electricBicycleCount",
     },
     {
-      title: "Số xe đạp",
+      title: "Bicycles",
       dataIndex: "bicycleCount",
       key: "bicycleCount",
     },
     {
-      title: "Hành động",
+      title: "Action",
       key: "action",
       render: (_, record) => (
         <Button onClick={() => showUserVehicles(record.vehicles)}>
-          Xem chi tiết
+          View Details
         </Button>
       ),
     },
   ];
-
+  
   const detailColumns = [
     {
-      title: "Loại phương tiện",
+      title: "Vehicle Type",
       dataIndex: "vehicleType",
       key: "vehicleType",
     },
     {
-      title: "Biển số",
+      title: "License Plate",
       dataIndex: "licensePlate",
       key: "licensePlate",
     },
     {
-      title: "Mô tả",
+      title: "Description",
       dataIndex: "description",
       key: "description",
     },
     {
-      title: "Hình ảnh",
+      title: "Image",
       dataIndex: "imageUrl",
       key: "imageUrl",
       render: (text) =>
         text ? <img src={text} alt="vehicle" style={{ width: 100 }} /> : "N/A",
     },
   ];
-
+  
   return (
     <>
       <Table
@@ -148,9 +157,9 @@ export default function ListVehicle() {
         rowKey="userId"
         pagination={false}
       />
-
+  
       <Modal
-        title="Chi tiết phương tiện của người dùng"
+        title="User Vehicle Details"
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
@@ -165,4 +174,5 @@ export default function ListVehicle() {
       </Modal>
     </>
   );
+  
 }

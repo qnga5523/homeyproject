@@ -4,14 +4,13 @@ import { Layout, Menu } from "antd";
 import {
   InsertRowAboveOutlined,
   IdcardOutlined,
-  SettingOutlined,
   CarryOutOutlined,
   FundViewOutlined,
   FileTextOutlined,
   BellOutlined,
   CloudServerOutlined,
-  PieChartOutlined,
   TruckOutlined,
+  FormOutlined
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -19,60 +18,51 @@ const { Sider } = Layout;
 
 const items = [
   {
-    icon: <InsertRowAboveOutlined style={{ fontSize: "20px" }} /> ,
-    label: <Link to="/allownerevent">Homey</Link>,
-  },
-  {
     key: "1",
     icon: <InsertRowAboveOutlined />,
-    label: <Link to="/event">Event</Link>,
+    label: <Link to="/owner/event">Event</Link>,
   },
   {
     key: "2",
     icon: <IdcardOutlined />,
-    label: "Profile",
+    label: <Link to="/owner/profile">Profile</Link>,
   },
   {
     key: "3",
     icon: <BellOutlined />,
     label: <Link to="/owner/notification">Notifications</Link>,
-
   },
   {
     key: "4",
-    label: "Book Services",
+     label: <Link to="/owner/book">Book Services</Link>,
     icon: <CarryOutOutlined />,
   },
   {
     key: "5",
-    label: "Service Fee",
+    label: <Link to="/owner/feehistory">Service Fee</Link>,
     icon: <FundViewOutlined />,
   },
   {
     key: "6",
-    label: "Bills",
+    label: <Link to="/owner/feedback">Feedback</Link>,
     icon: <FileTextOutlined />,
-  },
-  {
-    key: "7",
-    label: "Data Statistics",
-    icon: <CloudServerOutlined />,
-    children: [
-      { key: "13", label: "Chart", icon: <PieChartOutlined /> },
-      { key: "14", label: "Table", icon: <InsertRowAboveOutlined /> },
-    ],
   },
   {
     key: "8",
     icon: <TruckOutlined />,
-    label: "Public Transportation",
+    label: <Link to="/owner/vehicleregister">Public Transportation</Link>,
   },
-
   {
     key: "9",
-    icon: <SettingOutlined />,
-    label: "Setting",
+    icon: <CloudServerOutlined />,
+    label: <Link to="/owner/dataStatistics">Data Statistics</Link>,   
   },
+  {
+    key: "10",
+    icon: <FormOutlined />,
+    label: <Link to="/owner/changepassword">Change Password</Link>,   
+  },
+
 ];
 
 export default function SiderOwner() {
@@ -92,7 +82,6 @@ export default function SiderOwner() {
       <Menu
         mode="inline"
         theme="light"
-        defaultSelectedKeys={["1"]}
         items={items}
         style={{ height: "100%" }}
       />

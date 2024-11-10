@@ -8,7 +8,6 @@ import graph from "../../assets/img/home/graph.svg";
 import hand from "../../assets/img/home/hand-money.svg";
 import man from "../../assets/img/home/man-paperwork.svg";
 import { Footer } from "../../components/common/Footer";
-import "../../assets/styles/home.css";
 import { Button, Card } from "antd";
 import HeaderMain from "../../components/common/HeaderMain";
 const { Content } = Layout;

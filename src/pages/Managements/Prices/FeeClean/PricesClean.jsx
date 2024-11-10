@@ -6,9 +6,9 @@ import { db } from "../../../../Services/firebase";
 export default function PricesClean() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
-  const [editingPrice, setEditingPrice] = useState(null);  // State cho biết giá nào đang được chỉnh sửa
+  const [editingPrice, setEditingPrice] = useState(null);  
 
-  // Fetch data from Firestore
+
   useEffect(() => {
     const fetchPrices = async () => {
       const pricesCollection = collection(db, "cleanPrices");
@@ -18,7 +18,7 @@ export default function PricesClean() {
         return {
           ...data,
           id: doc.id,
-          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date, // Chuyển đổi nếu là Timestamp
+          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date, 
         };
       });
       setPrices(priceList);
@@ -28,7 +28,7 @@ export default function PricesClean() {
   }, []);
 
   const onFinish = async (values) => {
-    // Convert Moment to JS Date if necessary
+
     const processedValues = {
       ...values,
       date: values.date ? values.date.toDate() : null,
@@ -44,7 +44,6 @@ export default function PricesClean() {
   
     form.resetFields();
   
-    // Fetch updated data
     const pricesCollection = collection(db, "cleanPrices");
     const priceSnapshot = await getDocs(pricesCollection);
     const priceList = priceSnapshot.docs.map((doc) => ({
@@ -71,7 +70,7 @@ export default function PricesClean() {
   
     await Promise.all(updatedPrices);
   
-    // Cập nhật lại danh sách giá sau khi chỉnh sửa
+
     const pricesCollection = collection(db, "cleanPrices");
     const priceSnapshot = await getDocs(pricesCollection);
     const priceList = priceSnapshot.docs.map((doc) => ({
@@ -82,16 +81,16 @@ export default function PricesClean() {
   };
   
   const handleEditPrice = (record) => {
-    setEditingPrice(record);  // Lưu bản ghi đang chỉnh sửa
+    setEditingPrice(record);  
   
     form.setFieldsValue({
       volume: record.volume,
       price: record.price,
-      date: record.date ? moment(record.date) : null,  // Kiểm tra trước khi chuyển thành moment
+      date: record.date ? moment(record.date) : null,  
     });
   };
 
-  // Delete price
+
   const deletePrice = async (id) => {
     const priceDoc = doc(db, "cleanPrices", id);
     await deleteDoc(priceDoc);
@@ -109,14 +108,14 @@ export default function PricesClean() {
       title: "M²",
       dataIndex: "area",
       key: "area",
-      render: (text) => `${text} M²`, // Hiển thị giá trị kèm đơn vị m³
+      render: (text) => `${text} M²`, 
     },
     { title: "Price ($)", dataIndex: "price", key: "price" , render: (text) => USDollar.format(text),},
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', // Định dạng ngày tháng nếu có
+      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', 
     },
     {
       title: "Status",

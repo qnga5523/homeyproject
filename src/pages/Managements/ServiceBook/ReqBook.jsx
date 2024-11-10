@@ -11,8 +11,8 @@ export default function ReqBook() {
   const [responseModalVisible, setResponseModalVisible] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [adminResponse, setAdminResponse] = useState('');
-  const [additionalRequests, setAdditionalRequests] = useState('');
   const [proposedTimes, setProposedTimes] = useState([]);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -37,9 +37,12 @@ export default function ReqBook() {
   const handleOpenResponseModal = (booking) => {
     setSelectedBooking(booking);
     setAdminResponse(booking.adminResponse || '');
-    setAdditionalRequests(booking.additionalRequests || '');
     setProposedTimes(booking.proposedTimes || []);
     setResponseModalVisible(true);
+  };
+  const handleOpenDetailsModal = (booking) => {
+    setSelectedBooking(booking);
+    setDetailsModalVisible(true);
   };
 
   const handleAddProposedTime = (time) => {
@@ -61,7 +64,6 @@ export default function ReqBook() {
       await updateDoc(bookingRef, {
         adminResponse: adminResponse,
         responseStatus: 'Responded',
-        additionalRequests: additionalRequests,
         proposedTimes: proposedTimes,
       });
       message.success('Response sent successfully!');
@@ -71,14 +73,14 @@ export default function ReqBook() {
       setBookings((prevBookings) =>
         prevBookings.map((booking) =>
           booking.id === selectedBooking.id
-            ? { ...booking, adminResponse, responseStatus: 'Responded', additionalRequests, proposedTimes }
+            ? { ...booking, adminResponse, responseStatus: 'Responded', proposedTimes }
             : booking
         )
       );
   
       // Create notification for user
       await addDoc(collection(db, 'notifications'), {
-        userId: selectedBooking.userId, // Use userId from booking
+        userId: selectedBooking.userId, 
         role: 'user',
         content: `Your booking request has been responded to by the admin. Status: Responded.`,
         bookingId: selectedBooking.id,
@@ -90,14 +92,26 @@ export default function ReqBook() {
       console.error("Error sending response:", error);
     }
   };
-  
-  
-
   const columns = [
     {
       title: 'Resident Name',
       dataIndex: 'residentName',
       key: 'residentName',
+      render: (text, record) => (
+        <Button type="link" onClick={() => handleOpenDetailsModal(record)}>
+          {text}
+        </Button>
+      ),
+    },
+    {
+      title: 'Room',
+      dataIndex: 'room',
+      key: 'room',
+    },
+    {
+      title: 'Building',
+      dataIndex: 'building',
+      key: 'building',
     },
     {
       title: 'Service Type',
@@ -106,15 +120,18 @@ export default function ReqBook() {
       render: (serviceType) => {
         let color;
         switch (serviceType) {
-          case 'repair':
+          case 'cleaning':
             color = 'volcano';
             break;
-          case 'sports':
+          case 'security':
             color = 'green';
             break;
-          case 'transport':
+          case 'managementservice':
             color = 'blue';
             break;
+            case 'infrastructureservice':
+              color='yellow';
+              break;
           default:
             color = 'grey';
         }
@@ -141,6 +158,93 @@ export default function ReqBook() {
       ),
     },
   ];
+  const renderBookingDetails = () => {
+    if (!selectedBooking) return null;
+    return (
+      <div>
+        <p><strong>Resident Name:</strong> {selectedBooking.residentName}</p>
+        <p><strong>Room:</strong> {selectedBooking.room}</p>
+        <p><strong>Building:</strong> {selectedBooking.building}</p>
+        <p><strong>Service Type:</strong> {selectedBooking.serviceType.toUpperCase()}</p>
+        <p><strong>Status:</strong> {selectedBooking.status || 'Pending'}</p>
+        {selectedBooking.serviceType === 'cleaning' && (
+          <>
+            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
+            <p><strong>Special Requirements:</strong> {selectedBooking.cause || 'N/A'}</p>
+            <p><strong>Contact Information:</strong> {selectedBooking.notes || 'N/A'}</p>
+            <p><strong>Start Time:</strong> {selectedBooking.startTime ? 
+  (selectedBooking.startTime.toDate ? selectedBooking.startTime.toDate().toLocaleString() : new Date(selectedBooking.startTime).toLocaleString()) 
+  : 'N/A'}
+</p>
+<p><strong>End Time:</strong> {selectedBooking.endTime ? 
+  (selectedBooking.endTime.toDate ? selectedBooking.endTime.toDate().toLocaleString() : new Date(selectedBooking.endTime).toLocaleString()) 
+  : 'N/A'}
+</p>
+
+
+          </>
+        )}
+        
+        {selectedBooking.serviceType === 'security' && (
+          <>
+            <p><strong>Service Name:</strong> {selectedBooking.field}</p>
+            <p><strong>Duration (Hours):</strong> {selectedBooking.duration}</p>
+            <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
+            <p><strong>Special Instructions:</strong> {selectedBooking.notes || 'N/A'}</p>
+          </>
+        )}
+  
+        {selectedBooking.serviceType === 'managementservice' && (
+          <>
+            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
+            <p><strong>Details of Request:</strong> {selectedBooking.notes || 'N/A'}</p>
+            <p><strong>Preferred Schedule:</strong> {selectedBooking.PreferredSchedule ? 
+  (selectedBooking.PreferredSchedule.toDate ? selectedBooking.PreferredSchedule.toDate().toLocaleString() : new Date(selectedBooking.PreferredSchedule).toLocaleString()) 
+  : 'N/A'}
+</p>
+            <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
+            <p><strong>Images:</strong> {selectedBooking.images && selectedBooking.images.length > 0 ? selectedBooking.images.map((url, index) => (
+          <img key={index} src={url} alt="booking" style={{ width: '100px', marginRight: '5px' }} />
+        )) : 'N/A'}</p>
+            
+          </>
+        )}
+  
+        {selectedBooking.serviceType === 'infrastructureservice' && (
+          <>
+            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
+            <p><strong>Issue Description:</strong> {selectedBooking.notes || 'N/A'}</p>
+            <p><strong>Preferred Schedule:</strong> {selectedBooking.PreferredSchedule ? 
+  (selectedBooking.PreferredSchedule.toDate ? selectedBooking.PreferredSchedule.toDate().toLocaleString() : new Date(selectedBooking.PreferredSchedule).toLocaleString()) 
+  : 'N/A'}
+</p> <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
+            <p><strong>Images:</strong> {selectedBooking.images && selectedBooking.images.length > 0 ? selectedBooking.images.map((url, index) => (
+          <img key={index} src={url} alt="booking" style={{ width: '100px', marginRight: '5px' }} />
+        )) : 'N/A'}</p>
+          </>
+        )}
+  
+        {selectedBooking.serviceType === 'recreationalservice' && (
+          <>
+            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
+            <p><strong>Special Requirements:</strong> {selectedBooking.cause || 'N/A'}</p>
+            <p><strong>Booking Details:</strong> {selectedBooking.BookingDetails ? 
+  (selectedBooking.BookingDetails.toDate ? selectedBooking.BookingDetails.toDate().toLocaleString() : new Date(selectedBooking.BookingDetails).toLocaleString()) 
+  : 'N/A'}
+</p>
+
+            <p><strong>Participants:</strong> {selectedBooking.participants || 'N/A'}</p>
+            <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
+          </>
+        )}
+  
+        <p><strong>Payment Method:</strong> {selectedBooking.paymentMethod || 'N/A'}</p>
+        <p><strong>Images:</strong> {selectedBooking.images && selectedBooking.images.length > 0 ? selectedBooking.images.map((url, index) => (
+          <img key={index} src={url} alt="booking" style={{ width: '100px', marginRight: '5px' }} />
+        )) : 'N/A'}</p>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -153,6 +257,18 @@ export default function ReqBook() {
         pagination={{ pageSize: 5 }}
       />
 
+<Modal
+  title="Booking Details"
+  visible={detailsModalVisible}
+  onCancel={() => setDetailsModalVisible(false)}
+  footer={[
+    <Button key="close" onClick={() => setDetailsModalVisible(false)}>
+      Close
+    </Button>,
+  ]}
+>
+  {renderBookingDetails()}
+</Modal>
       {/* Modal for Admin Response */}
       <Modal
         title="Respond to Booking"
@@ -169,15 +285,6 @@ export default function ReqBook() {
               value={adminResponse}
               onChange={(e) => setAdminResponse(e.target.value)}
               placeholder="Write your response here..."
-            />
-          </Form.Item>
-
-          <Form.Item label="Additional Requests">
-            <TextArea
-              rows={2}
-              value={additionalRequests}
-              onChange={(e) => setAdditionalRequests(e.target.value)}
-              placeholder="Add any additional requests here..."
             />
           </Form.Item>
 

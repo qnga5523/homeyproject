@@ -1,105 +1,125 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { List, Card, Tabs, Button } from "antd";
-import { Link } from "react-router-dom";
-import { db } from "../../Services/firebase";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { PlusOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Button, Typography } from "antd";
+import {auth, db } from "../../Services/firebase";
+import { useNavigate } from "react-router-dom";
+const { Title, Paragraph } = Typography;
 
-const { TabPane } = Tabs;
+const categories = [
+  "Community Events",
+  "Sports Activities",
+  "Children's Programs",
+  "Utility Services",
+  "Classes and Workshops",
+  "Charity Programs",
+  "Fairs and Exhibitions",
+];
 
-export default function Event() {
-  const [publicEvents, setPublicEvents] = useState([]);
-  const [privateEvents, setPrivateEvents] = useState([]);
-
+export default function EventPage() {
+  const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        // Fetch public events
-        const publicQuery = query(
-          collection(db, "events"),
-          where("mode", "==", "public")
-        );
-        const publicSnapshot = await getDocs(publicQuery);
-        const publicData = publicSnapshot.docs.map((doc) => ({
+        const eventsCollection = collection(db, "events");
+        const snapshot = await getDocs(eventsCollection);
+        const eventsData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setPublicEvents(publicData);
-
-        // Fetch private events
-        const privateQuery = query(
-          collection(db, "events"),
-          where("mode", "==", "private")
-        );
-        const privateSnapshot = await getDocs(privateQuery);
-        const privateData = privateSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setPrivateEvents(privateData);
+        setEvents(eventsData);
+        setFilteredEvents(eventsData); // Initialize with all events
       } catch (error) {
         console.error("Error fetching events: ", error);
       }
     };
+    const fetchUserRole = async () => {
+      if (auth.currentUser) {
+        const userDoc = doc(db, "Users", auth.currentUser.uid); // Assuming user roles are stored in "Users" collection
+        const userSnapshot = await getDoc(userDoc);
+        if (userSnapshot.exists()) {
+          setUserRole(userSnapshot.data().role); // Set the user role, e.g., "admin" or "owner"
+        }
+      }
+    };
 
     fetchEvents();
+    fetchUserRole();
   }, []);
 
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    if (category === "") {
+      setFilteredEvents(events); // Show all events if no category is selected
+    } else {
+      setFilteredEvents(events.filter((event) => event.req === category));
+    }
+  };
+
   return (
-    <Tabs defaultActiveKey="1">
-      <TabPane tab="Public Events" key="1">
-        <List
-          grid={{ gutter: 16, column: 3 }}
-          dataSource={publicEvents}
-          renderItem={(event) => (
-            <List.Item>
-              <Card
-                title={event.title}
-                cover={<img alt={event.title} src={event.imageUrl} />}
-                actions={[
-                  <Link to={`/event/${event.id}`}>
-                    <Button type="link">View Details</Button>
-                  </Link>,
-                ]}
+    <div style={{ padding: "20px" }}>
+      <Title level={2}>Events</Title>
+      {userRole === "admin" && (
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate("/admin/CreateEvent")}
+          style={{ marginBottom: "20px" }}
+        >
+          Create Event
+        </Button>
+      )}
+      {/* Category Filter */}
+      <div style={{ marginBottom: "20px" }}>
+        <Button
+          type={selectedCategory === "" ? "primary" : "default"}
+          onClick={() => handleCategoryClick("")}
+          style={{ marginRight: "10px" }}
+        >
+          All
+        </Button>
+        {categories.map((category) => (
+          <Button
+            key={category}
+            type={selectedCategory === category ? "primary" : "default"}
+            onClick={() => handleCategoryClick(category)}
+            style={{ marginRight: "10px", marginBottom: "10px" }}
+          >
+            {category}
+          </Button>
+        ))}
+      </div>
+
+      {/* Events List */}
+      <Row gutter={[16, 16]}>
+        {filteredEvents.map((event) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={event.id}>
+            <Card
+              hoverable
+              cover={
+                <img
+                  alt={event.title}
+                  src={event.imageUrl}
+                  style={{ height: "200px", objectFit: "cover" }}
+                />
+              }
+            >
+              <Title level={4}>{event.title}</Title>
+              <Paragraph>{event.content.slice(0, 100)}...</Paragraph>
+              <Button
+                type="link"
+                href={`/${userRole}/event/${event.id}`} 
               >
-                <p>{event.content}</p>
-                <p>
-                  <strong>Goal:</strong> {event.goal}
-                </p>
-                <p>
-                  <strong>Number of Participants:</strong> {event.number}
-                </p>
-              </Card>
-            </List.Item>
-          )}
-        />
-      </TabPane>
-      <TabPane tab="Private Events" key="2">
-        <List
-          grid={{ gutter: 16, column: 3 }}
-          dataSource={privateEvents}
-          renderItem={(event) => (
-            <List.Item>
-              <Card
-                title={event.title}
-                cover={<img alt={event.title} src={event.imageUrl} />}
-                actions={[
-                  <Link to={`/event/${event.id}`}>
-                    <Button type="link">View Details</Button>
-                  </Link>,
-                ]}
-              >
-                <p>{event.content}</p>
-                <p>
-                  <strong>Goal:</strong> {event.goal}
-                </p>
-                <p>
-                  <strong>Number of Participants:</strong> {event.number}
-                </p>
-              </Card>
-            </List.Item>
-          )}
-        />
-      </TabPane>
-    </Tabs>
+                Read More
+              </Button>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
 }

@@ -9,7 +9,7 @@ const { Text } = Typography;
 
 export default function DetailNotification() {
   const [notifications, setNotifications] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false); // Track if the user is an admin
+  const [isAdmin, setIsAdmin] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,21 +17,20 @@ export default function DetailNotification() {
       const user = auth.currentUser;
       if (user) {
         try {
-          // Step 1: Fetch the user's role from the "Users" collection
+        
           const userDoc = await getDoc(doc(db, "Users", user.uid));
-          let userRole = "owner"; // Default role if not found
+          let userRole = "owner"; 
 
           if (userDoc.exists()) {
-            userRole = userDoc.data().role; // Extract the role from user data
-            setIsAdmin(userRole === "admin"); // Set isAdmin based on role
+            userRole = userDoc.data().role; 
+            setIsAdmin(userRole === "admin"); 
           } else {
             console.error("User document not found.");
           }
 
-          // Step 2: Query notifications based on the role
           const notificationsQuery = userRole === "admin"
-            ? collection(db, "notifications") // Admins get all notifications
-            : query(collection(db, "notifications"), where("userId", "==", user.uid)); // Owners get only their notifications
+            ? collection(db, "notifications")
+            : query(collection(db, "notifications"), where("userId", "==", user.uid)); 
 
           const querySnapshot = await getDocs(notificationsQuery);
           const notificationList = querySnapshot.docs.map((doc) => ({
@@ -47,16 +46,36 @@ export default function DetailNotification() {
     };
 
     fetchUserRoleAndNotifications();
-  }, [isAdmin]); // Re-run if `isAdmin` changes
+  }, [isAdmin]); 
 
   const handleNotificationClick = async (eventId, notificationId) => {
-    if (eventId) {
-      navigate(`/event/${eventId}`);
+    const user = auth.currentUser;
+  
+    if (!user) {
+      console.error("User not authenticated");
+      return;
     }
-
+  
     try {
+
+      const userDoc = await getDoc(doc(db, "Users", user.uid));
+      if (!userDoc.exists()) {
+        console.error("User document not found.");
+        return;
+      }  
+    const userRole = userDoc.data().role;
+      if (userRole === "admin" || userRole === "owner") {
+        const rolePath = userRole === "admin" ? "admin" : "owner";
+ 
+        if (eventId) {
+          navigate(`/${rolePath}/event/${eventId}`);
+        }
+      } else {
+        alert("You do not have permission to view this event.");
+      }
       const notificationRef = doc(db, "notifications", notificationId);
       await updateDoc(notificationRef, { isRead: true });
+  
 
       setNotifications((prev) =>
         prev.map((notification) =>
@@ -64,9 +83,10 @@ export default function DetailNotification() {
         )
       );
     } catch (error) {
-      console.error("Error updating notification status:", error);
+      console.error("Error updating notification or navigating:", error);
     }
   };
+  
 
   const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
@@ -75,7 +95,7 @@ export default function DetailNotification() {
       <Badge count={unreadCount} overflowCount={99}>
         <BellOutlined style={{ fontSize: "24px", color: "white" }} />
       </Badge>
-      <h2>{isAdmin ? "All Notifications" : "Owner Notifications"}</h2>
+      <h2>{isAdmin ? "All Notifications" : " Notifications"}</h2>
       {notifications.length > 0 ? (
         <List
           itemLayout="horizontal"

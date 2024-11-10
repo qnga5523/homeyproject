@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { List, Avatar, Empty, Button } from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../Services/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../../Services/firebase";
 
 const NotificationsMenu = ({ notifications = [] }) => {
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userDoc = await getDoc(doc(db, "Users", user.uid));
+        if (userDoc.exists()) {
+          setUserRole(userDoc.data().role);
+        }
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   const handleViewAll = () => {
-    navigate("/notifications");
+    if (userRole === "admin") {
+      navigate("/notifications/admin");
+    } else {
+      navigate("/notifications/owner");
+    }
   };
 
   const handleMarkAllAsRead = () => {
