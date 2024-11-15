@@ -65,7 +65,6 @@ export default function Profile() {
       }
     }
   };
-  
 
   const handleProfileUpdate = async () => {
     const user = auth.currentUser;
@@ -81,20 +80,26 @@ export default function Profile() {
   };
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 py-8">
       {isEditing ? (
         <EditProfile profile={profile} onProfileUpdate={handleProfileUpdate} setIsEditing={setIsEditing} />
       ) : isChangePassword ? (
         <ChangePassword setIsChangePassword={setIsChangePassword} />
       ) : (
         profile && (
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
-            <Title level={4}>Personal Information</Title>
-            <div className="mb-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg max-w-lg mx-auto">
+            <Title level={4} className="text-center sm:text-left">Personal Information</Title>
+            <div className="mb-4 flex flex-col items-center sm:flex-row sm:items-start sm:space-x-4">
               <Text>Photo</Text>
               <div className="flex items-center space-x-4">
                 {profile.avatarUrl ? (
-                  <Image width={100} height={100} src={profile.avatarUrl} alt="Avatar" style={{ borderRadius: "50%" }} />
+                  <Image
+                    width={100}
+                    height={100}
+                    src={profile.avatarUrl}
+                    alt="Avatar"
+                    style={{ borderRadius: "50%" }}
+                  />
                 ) : (
                   <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
                     <span>No Image</span>
@@ -135,11 +140,11 @@ export default function Profile() {
                   </Form.Item>
                 </>
               )}
-              <div className="flex space-x-4 mt-4">
-                <Button type="primary" onClick={() => setIsEditing(true)}>
+              <div className="flex flex-col sm:flex-row sm:space-x-4 mt-4">
+                <Button type="primary" onClick={() => setIsEditing(true)} className="w-full sm:w-auto">
                   Edit Profile
                 </Button>
-                <Button onClick={() => setIsChangePassword(true)}>
+                <Button onClick={() => setIsChangePassword(true)} className="w-full sm:w-auto mt-2 sm:mt-0">
                   Change Password
                 </Button>
               </div>

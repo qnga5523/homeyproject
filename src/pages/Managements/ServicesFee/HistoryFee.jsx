@@ -127,7 +127,9 @@ export default function HistoryFee() {
       </Space>
 
       {users.length > 0 ? (
-        <Table dataSource={users} columns={columns} rowKey="id" />
+        <Table dataSource={users} columns={columns} rowKey="id"bordered
+        scroll={{ x: "max-content" }}
+        size="middle" />
       ) : (
         <p>No data available. Adjust the filters to view fees.</p>
       )}

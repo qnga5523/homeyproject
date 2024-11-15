@@ -142,7 +142,7 @@ export default function AddBookingForm() {
 
   return (
     <div style={{ padding: "20px" }}>
-       <Row justify="space-between" align="middle">
+      <Row justify="space-between" align="middle">
         <Col>
           <Title level={2} style={{ color: "#1890ff", marginBottom: "20px" }}>
             Booking Management
@@ -152,29 +152,30 @@ export default function AddBookingForm() {
           <Button
             type="primary"
             icon={<BookOutlined />}
-            onClick={() => navigate("/owner/user-book")} 
+            onClick={() => navigate("/owner/user-book")}
             style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
           >
             View User Bookings
           </Button>
         </Col>
       </Row>
-      <Row gutter={[24, 24]}>
-        <Col xs={24} md={10}>
-          <Card title="Service Information" bordered style={{ height: "100%" }}>
-            <Table
-              columns={columns}
-              dataSource={serviceNotes}
-              pagination={false}
-              rowClassName="clickable-row"
-              style={{ cursor: "pointer" }}
-            />
-          </Card>
-        </Col>
-        
+      <Row gutter={[24, 24]} style={{ flexDirection: "column" }}>
+      <Col xs={24} md={10} style={{ width: "100%" }}>
+  <Card title="Service Information" bordered style={{ height: "100%" }}>
+    <div style={{ overflowX: "auto" }}>
+      <Table
+        columns={columns}
+        dataSource={serviceNotes}
+        pagination={false}
+        rowClassName="clickable-row"
+        style={{ cursor: "pointer", minWidth: 600 }} 
+      />
+    </div>
+  </Card>
+</Col>
 
     
-        <Col xs={24} md={14}>
+        <Col xs={24} md={14} style={{ width: "100%" }}>
           <Card title="Add New Booking" bordered style={{ backgroundColor: "#e6f7ff" }}>
             <Form form={form} layout="vertical" onFinish={handleAddBooking}>
               <Form.Item label="Service Type" name="serviceType" rules={[{ required: true, message: "Please select a service type" }]}>
@@ -429,8 +430,7 @@ export default function AddBookingForm() {
                 </Form.Item>
               </>
             )}
-              <Divider />
-
+             <Divider />
               <Form.Item label="Payment Method" name="paymentMethod" rules={[{ required: true, message: "Please select a payment method" }]}>
                 <Select placeholder="Select payment method">
                   <Option value="creditCard">Credit Card</Option>
@@ -440,7 +440,6 @@ export default function AddBookingForm() {
                   <Option value="no fee">No Banking</Option>
                 </Select>
               </Form.Item>
-
               <Form.Item>
                 <Button type="primary" htmlType="submit" block>
                   Submit

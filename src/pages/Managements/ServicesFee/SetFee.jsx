@@ -207,6 +207,21 @@ export default function SetFee() {
   console.log("Filtered users for table:", filteredUsers);
   const handleSave = async () => {
     try {
+      if (!selectedBuilding) {
+        message.error("Please select a building before saving.");
+        return;
+      }
+
+      const incompleteUsers = users.filter(
+        (user) =>     
+          user.CSC === undefined || user.CSD === undefined 
+      );
+  
+      if (incompleteUsers.length > 0) {
+        message.error("Please complete all required fields before saving.");
+        return;
+      }
+
       const month = selectedDate.format("MMMM");
       const year = selectedDate.year();
       const day = selectedDate.date();

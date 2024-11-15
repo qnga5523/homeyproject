@@ -120,30 +120,33 @@ export default function UserBookings() {
   return (
     <div style={{ padding: '20px', maxWidth: '1000px', margin: 'auto' }}>
       <Title level={3} style={{ textAlign: 'center', marginBottom: '20px' }}>Your Bookings</Title>
-      <Table
-        columns={columns}
-        dataSource={userBookings}
-        loading={loading}
-        rowKey="id"
-        pagination={{ pageSize: 5 }}
-        bordered
-        style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}
-      />
-      
+      <div style={{ overflowX: 'auto' }}>
+        <Table
+          columns={columns}
+          dataSource={userBookings}
+          loading={loading}
+          rowKey="id"
+          pagination={{ pageSize: 5 }}
+          bordered
+          style={{ backgroundColor: '#fff', borderRadius: '8px' }}
+        />
+      </div>
+
       {/* Booking Details Modal */}
       <Modal
-        title="Booking Details"
+        title={<span style={{ fontSize: '18px' }}>Booking Details</span>}
         visible={modalVisible}
         onCancel={handleModalClose}
-        footer={<Button onClick={handleModalClose}>Close</Button>}
+        footer={<Button onClick={handleModalClose} block>Close</Button>}
+        bodyStyle={{ padding: '15px' }}
       >
         {selectedBooking && (
-          <div>
+          <div style={{ fontSize: '16px', lineHeight: '1.5', padding: '10px 0' }}>
             <p><strong>Service Type:</strong> {selectedBooking.serviceType.toUpperCase()}</p>
             <p><strong>Status:</strong> {selectedBooking.responseStatus || 'Pending'}</p>
             <p><strong>Admin Response:</strong> {selectedBooking.adminResponse || 'No response yet'}</p>
             <p><strong>Proposed Times:</strong></p>
-            <ul>
+            <ul style={{ paddingLeft: '20px' }}>
               {selectedBooking.proposedTimes && selectedBooking.proposedTimes.length > 0 ? (
                 selectedBooking.proposedTimes.map((time, index) => (
                   <li key={index}>{new Date(time).toLocaleString()}</li>

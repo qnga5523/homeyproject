@@ -110,7 +110,7 @@ export default function OwnerInvoice() {
   });
 
   return (
-    <Row gutter={16} style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
+    <Row gutter={[16, 16]} style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
       <Col xs={24} md={12}>
         <Card bordered={false} style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
           <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -124,15 +124,15 @@ export default function OwnerInvoice() {
             {fees ? (
               <>
                 <Divider orientation="left"> <AuditOutlined />Invoice Details</Divider>
-                <Row gutter={16} style={{ marginBottom: 16 }}>
-                  <Col span={12}>
+                <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+                  <Col xs={12} sm={12} md={12}>
                     <Statistic
                       title="Room"
                       value={fees.room || "N/A"}
                       prefix={<HomeOutlined />}
                     />
                   </Col>
-                  <Col span={12}>
+                  <Col xs={12} sm={12} md={12}>
                     <Statistic
                       title="Building"
                       value={fees.building || "N/A"}
@@ -154,10 +154,10 @@ export default function OwnerInvoice() {
                   Total Amount: {USDollar.format(fees.totalmoney || 0)}
                 </Title>
                 <Divider />
-                <div style={{ textAlign: "center", marginTop: "10px" }}>
+                <div className="text-center mt-2">
                   <Text type="secondary">Thank you for your payment!</Text>
                 </div>
-                <div style={{ marginTop: 10, textAlign: "center" }}>
+                <div className="mt-2 text-center">
                   <PDFDownloadLink
                     document={<InvoiceDocument user={fees} />}
                     fileName={`Invoice_${selectedMonth.format("MMMM")}_${selectedYear}.pdf`}

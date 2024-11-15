@@ -169,13 +169,43 @@ export default function ReqBook() {
 
   const renderBookingDetails = () => {
     if (!selectedBooking) return null;
+
+    const { residentName, room, building, serviceType, itemName, cause, notes, startTime, endTime, participants, paymentMethod, images } = selectedBooking;
+
     return (
       <div>
-        <p><strong>Resident Name:</strong> {selectedBooking.residentName}</p>
-        <p><strong>Room:</strong> {selectedBooking.room}</p>
-        <p><strong>Building:</strong> {selectedBooking.building}</p>
+        <p><strong>Resident Name:</strong> {residentName}</p>
+        <p><strong>Room:</strong> {room}</p>
+        <p><strong>Building:</strong> {building}</p>
+        <p><strong>Service Type:</strong> {serviceType}</p>
+        {itemName && <p><strong>Service Name:</strong> {itemName}</p>}
+        {cause && <p><strong>Special Requirements:</strong> {cause}</p>}
+        {notes && <p><strong>Additional Notes:</strong> {notes}</p>}
+        {startTime && (
+          <p>
+            <strong>Start Time:</strong> {startTime.toDate ? startTime.toDate().toLocaleString() : new Date(startTime).toLocaleString()}
+          </p>
+        )}
+        {endTime && (
+          <p>
+            <strong>End Time:</strong> {endTime.toDate ? endTime.toDate().toLocaleString() : new Date(endTime).toLocaleString()}
+          </p>
+        )}
+        {participants && <p><strong>Participants:</strong> {participants}</p>}
+        {paymentMethod && <p><strong>Payment Method:</strong> {paymentMethod}</p>}
+        {images && images.length > 0 && (
+          <div>
+            <strong>Images:</strong>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+              {images.map((url, index) => (
+                <img key={index} src={url} alt="Booking" style={{ width: 100, height: 60, objectFit: 'cover' }} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
+    
   };
 
   return (

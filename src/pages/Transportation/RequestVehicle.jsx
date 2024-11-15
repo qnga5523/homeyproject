@@ -1,8 +1,9 @@
-import { collection, doc, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
-import { Button, message, Table, Image, Modal } from "antd";
+import { Button, message, Table, Image, Modal,Card, Typography  } from "antd";
 import { sendNotification } from "../Notification/NotificationService";
+const { Title } = Typography;
 export default function RequestVehicle() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,25 +34,23 @@ export default function RequestVehicle() {
     setActionLoading({ ...actionLoading, [record.id]: true });
 
     try {
-      // Update the vehicle request status in Firestore
       await updateDoc(requestDocRef, { status });
       message.success(`Vehicle registration ${status.toLowerCase()} successfully!`);
       setRequests(requests.filter((request) => request.id !== record.id));
 
-      // Send notification to the user
       await sendNotification(
-        record.userId, // userId of the vehicle request submitter
-        'user', // Role of the recipient
-        `Your vehicle registration has been ${status.toLowerCase()} by the admin.`, // Notification message
-        record.id // ID of the related vehicle request
+        record.userId, 
+        'user', 
+        `Your vehicle registration has been ${status.toLowerCase()} by the admin.`, 
+        record.id 
       );
 
-      // Send notification to the admin
+    
       await sendNotification(
-        null, // No specific userId for admin notifications
-        'admin', // Role of the recipient
-        `Vehicle registration request for ${record.userId} has been ${status.toLowerCase()}.`, // Notification message
-        record.id // ID of the related vehicle request
+        null, 
+        'admin', 
+        `Vehicle registration request for ${record.userId} has been ${status.toLowerCase()}.`,
+        record.id 
       );
 
     } catch (error) {
@@ -116,12 +115,11 @@ export default function RequestVehicle() {
       title: "Action",
       key: "action",
       render: (text, record) => (
-        <>
+        <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
             onClick={() => confirmAction(record, "approved")}
             loading={actionLoading[record.id]}
-            style={{ marginRight: 8 }}
           >
             Approve
           </Button>
@@ -132,18 +130,28 @@ export default function RequestVehicle() {
           >
             Reject
           </Button>
-        </>
+        </div>
       ),
     },
   ];
 
   return (
-    <Table
-      columns={columns}
-      dataSource={requests}
-      loading={loading}
-      rowKey="id"
-      pagination={{ pageSize: 5 }}
-    />
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+    <Card
+      style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", borderRadius: "8px" }}
+    >
+      <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
+        Vehicle Registration Requests
+      </Title>
+      <Table
+        columns={columns}
+        dataSource={requests}
+        loading={loading}
+        rowKey="id"
+        pagination={{ pageSize: 5 }}
+        bordered
+      />
+    </Card>
+  </div>
   );
 }

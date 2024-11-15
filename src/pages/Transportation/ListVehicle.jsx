@@ -1,8 +1,8 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
-import { Table, Button, Modal, message } from "antd";
-
+import { Table, Button, Modal, message, Card ,Typography} from "antd";
+const { Title } = Typography;
 export default function ListVehicle() {
   const [groupedVehicles, setGroupedVehicles] = useState([]);
   const [selectedUserVehicles, setSelectedUserVehicles] = useState([]);
@@ -24,7 +24,6 @@ export default function ListVehicle() {
           ...docSnapshot.data(),
         }));
 
-        // Group vehicles by `userId`
         const grouped = approvedVehicles.reduce((acc, vehicle) => {
           const userId = vehicle.userId;
           const vehicleType = vehicle.vehicleType;
@@ -151,29 +150,44 @@ export default function ListVehicle() {
   ];
 
   return (
-    <>
-      <Table
-        columns={columns}
-        dataSource={groupedVehicles}
-        loading={loading}
-        rowKey="userId"
-        pagination={false}
-      />
+    <div style={{ padding: "20px" }}>
+      <Card
+        style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", borderRadius: "8px" }}
+      >
+        <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
+          Vehicle List by User
+        </Title>
+        <Table
+          columns={columns}
+          dataSource={groupedVehicles}
+          loading={loading}
+          rowKey="userId"
+          pagination={{ pageSize: 5 }}
+          bordered
+          style={{ marginBottom: "20px" }}
+        />
+      </Card>
 
       <Modal
         title="User Vehicle Details"
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
-        footer={null}
+        footer={[
+          <Button key="close" onClick={() => setIsModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
         width={800}
+        centered
       >
         <Table
           columns={detailColumns}
           dataSource={selectedUserVehicles}
           rowKey="id"
           pagination={false}
+          bordered
         />
       </Modal>
-    </>
+    </div>
   );
 }

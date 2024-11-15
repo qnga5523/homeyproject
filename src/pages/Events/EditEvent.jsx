@@ -14,7 +14,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { db, storage } from "../../Services/firebase";
-const { RangePicker } = DatePicker;
+
+
 export default function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();

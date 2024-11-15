@@ -1,8 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
-// Dummy QR code image link for display purposes
-const qrCodeImage = "https://dummyimage.com/100x100/000/fff.png&text=QR";
 
 const styles = StyleSheet.create({
   page: { padding: 30 },
@@ -78,8 +76,8 @@ const InvoiceDocument = ({ user = {} }) => {
             </View>
             <View style={styles.tableRow}>
               <View style={styles.tableCol}><Text style={styles.tableCell}>{area}</Text></View>
-              <View style={styles.tableCol}><Text style={styles.tableCell}>{priceservice}</Text></View>
-              <View style={styles.tableCol}><Text style={styles.tableCell}>{totalarea}</Text></View>
+              <View style={styles.tableCol}><Text style={styles.tableCell}>${priceservice}</Text></View>
+              <View style={styles.tableCol}><Text style={styles.tableCell}>${totalarea}</Text></View>
             </View>
           </View>
         </View>
@@ -98,8 +96,8 @@ const InvoiceDocument = ({ user = {} }) => {
               <View style={styles.tableCol}><Text style={styles.tableCell}>{CSD}</Text></View>
               <View style={styles.tableCol}><Text style={styles.tableCell}>{CSC}</Text></View>
               <View style={styles.tableCol}><Text style={styles.tableCell}>{totalconsume}</Text></View>
-              <View style={styles.tableCol}><Text style={styles.tableCell}>{priceswater}</Text></View>
-              <View style={styles.tableCol}><Text style={styles.tableCell}>{totalwater}</Text></View>
+              <View style={styles.tableCol}><Text style={styles.tableCell}>${priceswater}</Text></View>
+              <View style={styles.tableCol}><Text style={styles.tableCell}>${totalwater}</Text></View>
             </View>
           </View>
         </View>
@@ -116,33 +114,37 @@ const InvoiceDocument = ({ user = {} }) => {
             <View style={styles.tableRow}>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>Car</Text></View>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>{carCount}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{pricesCar}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{totalCar}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${pricesCar}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalCar}</Text></View>
             </View>
             <View style={styles.tableRow}>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>Motorbike</Text></View>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>{motorcycleCount}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{pricesMotorcycle}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{totalMotorbike}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${pricesMotorcycle}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalMotorbike}</Text></View>
             </View>
             <View style={styles.tableRow}>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>Electric Bicycle</Text></View>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>{electricBicycleCount}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{pricesElectric}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{totalElectric}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${pricesElectric}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalElectric}</Text></View>
             </View>
             <View style={styles.tableRow}>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>Bicycle</Text></View>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>{bicycleCount}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{pricesBicycle}</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>{totalBicycle}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${pricesBicycle}</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalBicycle}</Text></View>
+            </View>
+            <View style={styles.tableRow}>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>Parking</Text></View>
+              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalParking}</Text></View>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.subtitle}>Total Fee</Text>
-          <Text style={styles.text}>Total Amount Due: {totalmoney} VND</Text>
+          <Text style={styles.text}>Total Amount Due: ${totalmoney}</Text>
         </View>
 
         <View style={styles.paymentSection}>
@@ -154,10 +156,6 @@ const InvoiceDocument = ({ user = {} }) => {
           <View style={styles.paymentRow}>
             <Text style={styles.paymentText}>Phone: +84 123 456 789</Text>
             <Text style={styles.paymentText}>Address: 123 Nguyen Trai, Hanoi</Text>
-          </View>
-          <View style={styles.paymentRow}>
-            <Text style={styles.paymentText}>QR Code:</Text>
-            <Image style={styles.qrCode} src={qrCodeImage} />
           </View>
         </View>
 

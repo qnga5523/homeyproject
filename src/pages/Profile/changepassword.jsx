@@ -8,7 +8,7 @@ import {
 } from "firebase/auth";
 
 export default function ChangePassword() {
-  const [form] = Form.useForm(); 
+  const [form] = Form.useForm();
 
   const handleSubmit = async (values) => {
     const { currentPassword, newPassword, confirmPassword } = values;
@@ -39,8 +39,10 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-8 bg-white shadow-md rounded-lg">
-      <h2 className="text-xl font-semibold mb-6 text-center">Change Password</h2>
+    <div className="max-w-md mx-auto p-4 sm:p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-center">
+        Change Password
+      </h2>
 
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
@@ -69,10 +71,10 @@ export default function ChangePassword() {
             { required: true, message: "Please confirm your new password!" },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                if (!value || getFieldValue('newPassword') === value) {
+                if (!value || getFieldValue("newPassword") === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(new Error('Passwords do not match!'));
+                return Promise.reject(new Error("Passwords do not match!"));
               },
             }),
           ]}

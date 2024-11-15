@@ -15,7 +15,7 @@ import {
 } from 'chart.js';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../Services/firebase';
-import { DollarOutlined, CarOutlined, ContainerOutlined } from '@ant-design/icons';
+import { CarOutlined, ContainerOutlined } from '@ant-design/icons';
 
 ChartJS.register(
   CategoryScale,
@@ -147,8 +147,6 @@ export default function ServicePriceCharts() {
     scales: {
       y: {
         beginAtZero: true,
-        suggestedMin: 0,
-        suggestedMax: 100,
         title: {
           display: true,
           text: 'Price (in USD)',
@@ -174,7 +172,6 @@ export default function ServicePriceCharts() {
         },
       },
       tooltip: {
-        enabled: true,
         callbacks: {
           label: (context) => `${context.dataset.label}: ${context.raw} USD`,
         },
@@ -183,47 +180,43 @@ export default function ServicePriceCharts() {
   };
 
   return (
-    <div>
+    <div className="px-4 md:px-8 lg:px-12">
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
       ) : (
-        <Row gutter={[24, 24]} style={{ padding: '20px' }}>
-          <Col span={12}>
+        <Row gutter={[16, 16]} className="w-full">
+          <Col xs={24} md={12} className="mb-4">
             <Card
               title={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <ContainerOutlined style={{ color: '#4BC0C0', marginRight: '8px' }} />
-                  <AntTitle level={4} style={{ margin: 0, color: '#4BC0C0' }}>Cleaning and Water Price Comparison</AntTitle>
+                <div className="flex items-center">
+                  <ContainerOutlined className="text-blue-500 mr-2" />
+                  <AntTitle level={5} className="m-0 text-blue-500">Cleaning and Water Price Comparison</AntTitle>
                 </div>
               }
               bordered={false}
-              style={{
-                borderRadius: '10px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              }}
+              className="shadow rounded-lg"
+              bodyStyle={{ padding: '16px' }}
             >
-              <div style={{ height: 300, padding: '10px' }}>
+              <div className="w-full h-64 md:h-72 lg:h-80">
                 <Bar data={barChartData} options={chartOptions} />
               </div>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} className="mb-4">
             <Card
               title={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <CarOutlined style={{ color: '#FF6384', marginRight: '8px' }} />
-                  <AntTitle level={4} style={{ margin: 0, color: '#FF6384' }}>Parking Price Comparison by Vehicle Type</AntTitle>
+                <div className="flex items-center">
+                  <CarOutlined className="text-red-500 mr-2" />
+                  <AntTitle level={5} className="m-0 text-red-500">Parking Price Comparison by Vehicle Type</AntTitle>
                 </div>
               }
               bordered={false}
-              style={{
-                borderRadius: '10px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              }}
+              className="shadow rounded-lg"
+              bodyStyle={{ padding: '16px' }}
             >
-              <div style={{ height: 300, padding: '10px' }}>
+              <div className="w-full h-64 md:h-72 lg:h-80">
                 <Line data={lineChartData} options={chartOptions} />
               </div>
             </Card>

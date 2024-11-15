@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Radio, Space,message } from 'antd';
+import { Form, Input, Button, Radio, Space, message } from 'antd';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from '../../Services/firebase';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,33 +16,34 @@ export default function Feedback() {
   const [isMandatory, setIsMandatory] = useState(false);
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  useEffect(() => {
-  const checkFeedbackRequired = async () => {
-    const currentDate = new Date();
-    const day = currentDate.getDate();
-    const user = auth.currentUser;
- 
-    if (user) {
-      const userDoc = await getDoc(doc(db, "Users", user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();       
-        if (userData.role === "admin") {
-          setIsAdmin(true);
-        }
-        if (userData.role === "owner" && day >= 1 && day <= 5) {
-          setIsMandatory(true);
-        } else if (userData.role === "owner") {
-          navigate('/owner');
-        }
-      } else {
-        message.error("User not found or unauthorized");
-        navigate('/login');
-      }
-    }
-  };
 
-  checkFeedbackRequired();
-}, [navigate]);
+  useEffect(() => {
+    const checkFeedbackRequired = async () => {
+      const currentDate = new Date();
+      const day = currentDate.getDate();
+      const user = auth.currentUser;
+
+      if (user) {
+        const userDoc = await getDoc(doc(db, "Users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();       
+          if (userData.role === "admin") {
+            setIsAdmin(true);
+          }
+          if (userData.role === "owner" && day >= 1 && day <= 5) {
+            setIsMandatory(true);
+          } else if (userData.role === "owner") {
+            navigate('/owner');
+          }
+        } else {
+          message.error("User not found or unauthorized");
+          navigate('/login');
+        }
+      }
+    };
+
+    checkFeedbackRequired();
+  }, [navigate]);
 
   const handleChange = (name, value) => {
     setFeedback({ ...feedback, [name]: value });
@@ -101,8 +102,8 @@ export default function Feedback() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Feedback</h1>
+    <div className="p-4 sm:p-6 md:p-8 lg:p-10 max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
+      <h1 className="text-2xl md:text-3xl font-bold mb-4 text-center text-gray-800">Feedback</h1>
       {isAdmin && (
         <div className="mb-4 text-right">
           <Link to="/reportFeedback" className="text-blue-500 hover:underline">
@@ -112,7 +113,7 @@ export default function Feedback() {
       )}
       <Form layout="vertical" onFinish={handleSubmit}>
 
-        <Form.Item label="Overall, how would you rate your experience using the condominium management software?" className="mb-6">
+        <Form.Item label="Overall, how would you rate your experience using the condominium management software?" className="mb-4">
           <Radio.Group
             onChange={(e) => handleChange('satisfaction', e.target.value)}
             value={feedback.satisfaction}
@@ -127,7 +128,7 @@ export default function Feedback() {
           </Radio.Group>
         </Form.Item>
 
-        <Form.Item label="Is the software stable and reliable (few errors, no crashes)?" className="mb-6">
+        <Form.Item label="Is the software stable and reliable (few errors, no crashes)?" className="mb-4">
           <Radio.Group
             onChange={(e) => handleChange('reliability', e.target.value)}
             value={feedback.reliability}
@@ -142,7 +143,7 @@ export default function Feedback() {
           </Radio.Group>
         </Form.Item>
 
-        <Form.Item label="How confident are you in the security of your personal information on the software?" className="mb-6">
+        <Form.Item label="How confident are you in the security of your personal information on the software?" className="mb-4">
           <Radio.Group
             onChange={(e) => handleChange('security', e.target.value)}
             value={feedback.security}
@@ -157,7 +158,7 @@ export default function Feedback() {
           </Radio.Group>
         </Form.Item>
 
-        <Form.Item label="What features in the software do you find most useful?" className="mb-6">
+        <Form.Item label="What features in the software do you find most useful?" className="mb-4">
           <TextArea
             value={feedback.improvementSuggestions}
             onChange={(e) => handleChange('improvementSuggestions', e.target.value)}
@@ -167,7 +168,7 @@ export default function Feedback() {
           />
         </Form.Item>
 
-        <Form.Item label="Would you be willing to recommend this software to others?" className="mb-6">
+        <Form.Item label="Would you be willing to recommend this software to others?" className="mb-4">
           <TextArea
             value={feedback.usefulFeatures}
             onChange={(e) => handleChange('usefulFeatures', e.target.value)}
@@ -178,7 +179,7 @@ export default function Feedback() {
         </Form.Item>
 
         <Form.Item className="text-center">
-          <Button type="primary" htmlType="submit" className="px-6 py-2 text-lg rounded-lg shadow-sm">
+          <Button type="primary" htmlType="submit" className="px-6 py-2 text-lg rounded-lg shadow-sm w-full sm:w-auto">
             Submit Feedback
           </Button>
         </Form.Item>

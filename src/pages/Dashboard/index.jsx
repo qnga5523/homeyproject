@@ -9,6 +9,8 @@ import {
   Row,
   Col,
   Card,
+  Button,
+  Typography,
 } from "antd";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -43,19 +45,21 @@ import {
   getDocs,
   serverTimestamp,
   addDoc,
-  onSnapshot
+  onSnapshot,
+  limit
 } from "firebase/firestore";
 import logo from "../../assets/img/logo/logo.jpg";
-
 import AdminAvatar from "../../components/layout/Admin/AvatarAdmin";
 import AvatarOwner from "../../components/layout/Owner/AvatarOwner";
-
 import { auth, db } from "../../Services/firebase";
 import NotificationsMenu from "../../components/common/notificationsMenu";
 import FeedbackReport from "../Feedback25/FeedbackReport";
 import ServicePriceCharts from "../Managements/Prices/ServicePriceCharts";
 import ServiceBookingChart from "../Managements/ServiceBook/ServiceBookingChart";
 import MonthlyServiceFeeChart from "../Managements/ServicesFee/MonthlyServiceChart"
+import TableBuilding from "../../components/layout/Colums/TableBuilding";
+
+const { Title, Paragraph } = Typography;
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
 const addNotification = async (userId, role, content) => {
@@ -109,6 +113,7 @@ export default function Dashboard() {
   const [totalVehicles, setTotalVehicles] = useState(0);
   const [buildingCount, setBuildingCount] = useState(0);
   const [roomCount, setRoomCount] = useState(0);
+  const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -119,7 +124,11 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchCounts = async () => {
       const fetchOwnerCount = async () => {
-        const q = query(collection(db, "Users"), where("role", "==", "owner"));
+        const q = query(
+          collection(db, "Users"),
+          where("role", "==", "owner"),
+          where("approved", "==", true)
+        );
         const querySnapshot = await getDocs(q);
         setOwnerCount(querySnapshot.size);
       };
@@ -189,8 +198,23 @@ export default function Dashboard() {
         setLoading(false);
       });
     };
+    const fetchEvents = async () => {
+      try {
+        const eventsQuery = query(collection(db, "events"), limit(3));
+        const querySnapshot = await getDocs(eventsQuery);
+        const eventsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setEvents(eventsData);
+      } catch (error) {
+        console.error("Error fetching events: ", error);
+      }
+      setLoading(false);
+    };
 
     fetchUserRole();
+    fetchEvents();
   }, [navigate]);
 
   const logoPath = userRole === "admin" ? "/" : "/owner";
@@ -289,6 +313,11 @@ export default function Dashboard() {
           label: <Link to="/requestvehicle">Request Vehicle</Link>,
         },
       ],
+    },
+    {
+      key: "18",
+      icon: <SolutionOutlined />,
+      label: <Link to="/invoice-review">Invoice Template</Link>,
     },
   ];
 
@@ -422,59 +451,92 @@ export default function Dashboard() {
             marginLeft: collapsed ? 80 : 250,
             height: "calc(100vh - 64px)",
             overflowY: "auto",
-            backgroundColor: "#f7f7f7",
+            backgroundColor: "#F6FBFE",
           }}
         >
           <div className="p-4 bg-white border border-gray-200 rounded-lg">
             {location.pathname === "/" && (
-              <>
-                <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
-                {loading ? (
-                  <Spin size="large" />
-                ) : (
-                  <Row gutter={16} justify="space-around">
-                    <Col xs={12} sm={6} md={6} lg={6}>
-                      <Card title="Total Owners" bordered={false}>
-                        <p className="text-4xl font-semibold text-center">
-                          {ownerCount}
-                        </p>
-                      </Card>
-                    </Col>
-                    <Col xs={12} sm={6} md={6} lg={6}>
-                      <Card title="Total Vehicles" bordered={false}>
-                        <p className="text-4xl font-semibold text-center">
-                          {totalVehicles}
-                        </p>
-                      </Card>
-                    </Col>
-                    <Col xs={12} sm={6} md={6} lg={6}>
-                      <Card title="Total Buildings" bordered={false}>
-                        <p className="text-4xl font-semibold text-center">
-                          {buildingCount}
-                        </p>
-                      </Card>
-                    </Col>
-                    <Col xs={12} sm={6} md={6} lg={6}>
-                      <Card title="Total Rooms" bordered={false}>
-                        <p className="text-4xl font-semibold text-center">
-                          {roomCount}
-                        </p>
-                      </Card>
-                    </Col>
-                  </Row>
-                )}
-              </>
+             <>
+             <h2 className="text-2xl font-bold mb-6 text-center">Dashboard</h2>
+             {loading ? (
+               <div className="flex justify-center items-center h-64">
+                 <Spin size="large" />
+               </div>
+             ) : (
+               <Row gutter={[16, 16]} justify="space-around">
+                 <Col xs={12} sm={12} md={6} lg={6}>
+                   <Card
+                     title="Total Owners"
+                     bordered={false}
+                     style={{
+                       backgroundColor: '#98B4CA',
+                       borderRadius: '10px',
+                       color: '#fff',
+                     }}
+                     bodyStyle={{ padding: '20px', textAlign: 'center' }}
+                   >
+                     <p className="text-4xl font-semibold text-white">{ownerCount}</p>
+                   </Card>
+                 </Col>
+                 <Col xs={12} sm={12} md={6} lg={6}>
+                   <Card
+                     title="Total Vehicles"
+                     bordered={false}
+                     style={{
+                       backgroundColor: '#98B4CA',
+                       borderRadius: '10px',
+                       color: '#fff',
+                     }}
+                     bodyStyle={{ padding: '20px', textAlign: 'center' }}
+                   >
+                     <p className="text-4xl font-semibold text-white">{totalVehicles}</p>
+                   </Card>
+                 </Col>
+                 <Col xs={12} sm={12} md={6} lg={6}>
+                   <Card
+                     title="Total Buildings"
+                     bordered={false}
+                     style={{
+                       backgroundColor: '#98B4CA',
+                       borderRadius: '10px',
+                       color: '#fff',
+                     }}
+                     bodyStyle={{ padding: '20px', textAlign: 'center' }}
+                   >
+                     <p className="text-4xl font-semibold text-white">{buildingCount}</p>
+                   </Card>
+                 </Col>
+                 <Col xs={12} sm={12} md={6} lg={6}>
+                   <Card
+                     title="Total Rooms"
+                     bordered={false}
+                     style={{
+                       backgroundColor: '#98B4CA',
+                       borderRadius: '10px',
+                       color: '#fff',
+                     }}
+                     bodyStyle={{ padding: '20px', textAlign: 'center' }}
+                   >
+                     <p className="text-4xl font-semibold text-white">{roomCount}</p>
+                   </Card>
+                 </Col>
+               </Row>
+             )}
+           </>
+           
+           
             )}
 
 {isRootDashboard && userRole === "admin" && (
               <>
-                {/* Dashboard Statistics and Charts */}
                 <div className="p-6 max-w-6xl mx-auto">
+                
                   <Row gutter={[16, 16]} className="mb-6">
                     <Col span={12}>
                       <Card
                         title="Feedback Summary - Satisfaction Levels"
                         bordered={false}
+                        style={{ textAlign: "center", marginTop:"24px" }}
                       >
                         <FeedbackReport
                           showAnswers={false}
@@ -483,43 +545,110 @@ export default function Dashboard() {
                       </Card>
                     </Col>
                     <Col span={12}>
-                      <Card title="Service Booking Chart" bordered={false}>
+                      <Card title="Service Booking Chart" bordered={false}
+                      style={{ textAlign: "center", marginTop:"24px" }}>
                         <ServiceBookingChart />
                       </Card>
                     </Col>
                   </Row>
                   <Row gutter={[16, 16]}>
                     <Col span={24}>
-                      <Card title="Service Price Charts" bordered={false}>
+                      <Card title="Service Price Charts" bordered={false}
+                      style={{ textAlign: "center", marginTop:"24px" }}>
                         <ServicePriceCharts />
                       </Card>
+                    </Col>
+                  </Row>
+                  <Row gutter={[16, 16]}>
+                    <Col span={24}>  
+                    <Card title=" Owner Count by Building" bordered={false} style={{ textAlign: "center", marginTop:"24px" }}>
+                    <TableBuilding/></Card>                  
                     </Col>
                   </Row>
                 </div>
               </>
             )}
             {isRootDashboard && userRole === "owner" && (
-              <>
-                {/* Dashboard Statistics and Charts */}
-                <div className="p-6 max-w-6xl mx-auto">
-                  <Row gutter={[16, 16]} className="mb-6">
-                    <Col span={24}>
-                      <Card title="Service Fee Chart"
-                        bordered={false}
-                      >
-                        <MonthlyServiceFeeChart/>
-                      </Card>
-                    </Col>
-                  </Row>
-                  <Row gutter={[16, 16]}>
-                    <Col span={24}>
-                      <Card title="Service Price Charts" bordered={false}>
-                        <ServicePriceCharts />
-                      </Card>
-                    </Col>
-                  </Row>
-                </div>
-              </>
+             <>
+             <div className="p-4 md:p-8 max-w-full md:max-w-7xl mx-auto space-y-6 md:space-y-8">
+               <div className="bg-white shadow rounded-lg p-4 md:p-6">
+                 <Title level={3} className="text-center mb-4 text-lg md:text-2xl">
+                   Upcoming Events
+                 </Title>
+                 {loading ? (
+                   <div className="flex justify-center py-12">
+                     <Spin size="large" />
+                   </div>
+                 ) : (
+                   <Row gutter={[16, 16]} className="md:space-x-0">
+                     {events.map((event) => (
+                       <Col xs={24} sm={12} md={8} key={event.id} className="mb-4 md:mb-0">
+                         <Card
+                           hoverable
+                           className="shadow-sm border border-gray-200 rounded-lg overflow-hidden"
+                           cover={
+                             <img
+                               alt={event.title}
+                               src={event.imageUrl}
+                               className="h-40 md:h-48 w-full object-cover"
+                             />
+                           }
+                         >
+                           <Title level={5} className="text-gray-800 text-center mb-2 text-sm md:text-lg">
+                             {event.title}
+                           </Title>
+                           <Paragraph className="text-gray-600 text-center text-xs md:text-base">
+                             {event.content.slice(0, 50)}...
+                           </Paragraph>
+                           <Button
+                             type="link"
+                             href={`/event/${event.id}`}
+                             className="block text-center mt-2"
+                             style={{ color: "#1890ff" }}
+                           >
+                             Read More
+                           </Button>
+                         </Card>
+                       </Col>
+                     ))}
+                   </Row>
+                 )}
+               </div>
+           
+               <div className="bg-white shadow rounded-lg p-4 md:p-6">
+                 <Title level={3} className="text-center mb-4 text-lg md:text-2xl">
+                   Service Fee and Price Analysis
+                 </Title>
+                 <Row gutter={[16, 16]} className="flex flex-col md:flex-row">
+                   <Col span={24} className="mb-4 md:mb-0">
+                     <Card
+                       title={<span className="text-base md:text-lg">Monthly Service Fee Chart</span>}
+                       bordered={false}
+                       className="shadow-sm rounded-lg"
+                       bodyStyle={{ padding: "16px", paddingBottom: "24px" }}
+                       style={{ textAlign: "center", background: "#f0f5ff" }}
+                     >
+                       <MonthlyServiceFeeChart />
+                     </Card>
+                   </Col>
+                 </Row>
+           
+                 <Row gutter={[16, 16]} className="mt-4 md:mt-6 flex flex-col md:flex-row">
+                   <Col span={24}>
+                     <Card
+                       title={<span className="text-base md:text-lg">Service Price Trends</span>}
+                       bordered={false}
+                       className="shadow-sm rounded-lg"
+                       bodyStyle={{ padding: "16px", paddingBottom: "24px" }}
+                       style={{ textAlign: "center", background: "#f0f5ff" }}
+                     >
+                       <ServicePriceCharts />
+                     </Card>
+                   </Col>
+                 </Row>
+               </div>
+             </div>
+           </>
             )}
             <Outlet />
           </div>

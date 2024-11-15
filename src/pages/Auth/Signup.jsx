@@ -17,7 +17,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import backgroundImg from "../../assets/img/logo/bg.jpg";
-
+import { sendNotification } from "../Notification/NotificationService";
 export default function Signup() {
   const [form] = Form.useForm();
   const [buildings, setBuildings] = useState([]);
@@ -52,7 +52,8 @@ export default function Signup() {
       const roomList = roomsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      }))
+      .sort((a, b) => parseInt(a.roomNumber) - parseInt(b.roomNumber));
       setRooms(roomList);
     } else {
       setRooms([]);
@@ -81,6 +82,11 @@ export default function Signup() {
           role: "owner",
           approved: false,
         });
+        await sendNotification(
+          null,
+          "admin",
+          `New user "${name}" has registered and requires approval.`
+        );
       }
       toast.success("User Registered Successfully!!", {
         position: "top-center",

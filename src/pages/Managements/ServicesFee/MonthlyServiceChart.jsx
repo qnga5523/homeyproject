@@ -6,8 +6,7 @@ import { db } from '../../../Services/firebase';
 import { getAuth } from 'firebase/auth';
 import moment from 'moment';
 import { Card, Col, Row, Spin, Typography, message } from 'antd';
-import { DollarOutlined, SlidersTwoTone } from '@ant-design/icons';
-
+import { DollarOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
@@ -21,7 +20,6 @@ export default function MonthlyServiceFeeChart() {
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
-  // Fetch user's building ID
   const fetchUserBuilding = async () => {
     try {
       if (!currentUser) {
@@ -41,7 +39,6 @@ export default function MonthlyServiceFeeChart() {
     }
   };
 
-  // Fetch monthly fees for both money and water
   const fetchMonthlyFees = async (building) => {
     if (!currentUser || !building) return;
     const moneyData = {};
@@ -120,26 +117,27 @@ export default function MonthlyServiceFeeChart() {
   }, [buildingId]);
 
   return (
-    <div>
+    <div className="px-4 md:px-8 lg:px-12">
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
       ) : (
-        <Row gutter={[24, 24]} style={{ padding: '20px' }}>
-          <Col span={12}>
+        <Row gutter={[16, 16]} className="w-full">
+          <Col xs={24} md={12} className="mb-4">
             <Card
               bordered={false}
-              style={{
-                borderRadius: '10px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              }}
+              className="shadow rounded-lg"
+              bodyStyle={{ padding: '16px' }}
+              style={{ borderRadius: '10px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                <DollarOutlined style={{ fontSize: '24px', color: '#36A2EB', marginRight: '8px' }} />
-                <Title level={4} style={{ margin: 0, color: '#36A2EB' }}>Monthly Service Fee Comparison</Title>
+              <div className="flex items-center mb-4">
+                <DollarOutlined className="text-blue-500 mr-2" style={{ fontSize: '24px' }} />
+                <Title level={5} className="m-0 text-blue-500 text-center md:text-left">
+                  Monthly Service Fee Comparison
+                </Title>
               </div>
-              <div style={{ height: 300 }}>
+              <div className="w-full h-64 md:h-72 lg:h-80">
                 <Line
                   data={moneyChartData}
                   options={{
@@ -154,18 +152,20 @@ export default function MonthlyServiceFeeChart() {
               </div>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12} className="mb-4">
             <Card
               bordered={false}
-              style={{
-                borderRadius: '10px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              }}
+              className="shadow rounded-lg"
+              bodyStyle={{ padding: '16px' }}
+              style={{ borderRadius: '10px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                <Title level={4} style={{ margin: 0, color: '#FF6384' }}>Monthly Water Fee Comparison</Title>
+              <div className="flex items-center mb-4">
+                <DollarOutlined className="text-red-500 mr-2" style={{ fontSize: '24px' }} />
+                <Title level={5} className="m-0 text-red-500 text-center md:text-left">
+                  Monthly Water Fee Comparison
+                </Title>
               </div>
-              <div style={{ height: 300 }}>
+              <div className="w-full h-64 md:h-72 lg:h-80">
                 <Line
                   data={waterChartData}
                   options={{

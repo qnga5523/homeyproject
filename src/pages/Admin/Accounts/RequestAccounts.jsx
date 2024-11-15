@@ -6,16 +6,20 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Table, Space, message } from "antd";
+import { Table, Space, message, Input, Select } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { db } from "../../../Services/firebase";
 import emailjs from "emailjs-com"
 import { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_USER_ID } from "../Email/EmailReactApi";
 import { Typography } from "antd";
+const { Option } = Select;
 const { Title } = Typography;
 export default function RequestAccount() {
   const [owners, setOwners] = useState([]);
-
+  const [filteredOwners, setFilteredOwners] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedBuilding, setSelectedBuilding] = useState("");
+  const [buildings, setBuildings] = useState([]);
   useEffect(() => {
     const fetchOwners = async () => {
       const querySnapshot = await getDocs(collection(db, "Users"));
@@ -26,9 +30,20 @@ export default function RequestAccount() {
         }
       });
       setOwners(ownerData);
+      setFilteredOwners(ownerData);
+    };
+    const fetchBuildings = async () => {
+      const buildingSnapshot = await getDocs(collection(db, "buildings"));
+      const buildingList = [];
+      buildingSnapshot.forEach((doc) => {
+        const data = doc.data();
+        buildingList.push({ id: doc.id, name: data.name });
+      });
+      setBuildings(buildingList);
     };
 
     fetchOwners();
+    fetchBuildings();
   }, []);
 
   const handleApprove = async (id, email) => {
@@ -65,6 +80,23 @@ export default function RequestAccount() {
     message.error("Account rejected and deleted.");
     setOwners(owners.filter((owner) => owner.id !== id));
   };
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleBuildingChange = (value) => {
+    setSelectedBuilding(value);
+  };
+  useEffect(() => {
+    const filteredData = owners.filter((owner) => {
+      const matchesNameOrRoom =
+        (owner.Username?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (owner.room?.toString() || "").includes(searchTerm);
+      const matchesBuilding = !selectedBuilding || owner.building === selectedBuilding;
+      return matchesNameOrRoom && matchesBuilding;
+    });
+    setFilteredOwners(filteredData);
+  }, [searchTerm, selectedBuilding, owners]);
 
   const columns = [
     { title: "Email", dataIndex: "email", key: "email" },
@@ -112,7 +144,23 @@ export default function RequestAccount() {
       >
         Request Account for Owner
       </Title>
-      <Table dataSource={owners} columns={columns} rowKey="id" />
+      <Space style={{ marginBottom: 16 }}>
+        <Input placeholder="Search by name or room" value={searchTerm} onChange={handleSearch} />
+        <Select
+          placeholder="Select Building"
+          value={selectedBuilding}
+          onChange={handleBuildingChange}
+          allowClear
+          style={{ width: 200 }}
+        >
+          {buildings.map((building) => (
+            <Option key={building.id} value={building.name}>
+              {building.name}
+            </Option>
+          ))}
+        </Select>
+      </Space>
+      <Table dataSource={filteredOwners} columns={columns} rowKey="id" />
     </div>
   );
   
