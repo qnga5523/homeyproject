@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import moment from 'moment';
-import { Spin } from 'antd';
+import { Spin, Row, Col, Card, Typography } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../Services/firebase';
+import { DollarOutlined, CarOutlined, ContainerOutlined } from '@ant-design/icons';
 
 ChartJS.register(
   CategoryScale,
@@ -26,6 +27,8 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+const { Title: AntTitle } = Typography;
 
 export default function ServicePriceCharts() {
   const [pricesData, setPricesData] = useState({ cleaning: [], parking: [], water: [] });
@@ -60,7 +63,7 @@ export default function ServicePriceCharts() {
       return {
         date: data.date.toDate(),
         price: data.price,
-        vehicleType: data.vehicleType || null
+        vehicleType: data.vehicleType || null,
       };
     });
   };
@@ -85,11 +88,13 @@ export default function ServicePriceCharts() {
         label: 'Cleaning Price',
         data: dates.map(date => getPriceOnDate(pricesData.cleaning, date)),
         backgroundColor: '#4BC0C0',
+        maxBarThickness: 20,
       },
       {
         label: 'Water Price',
         data: dates.map(date => getPriceOnDate(pricesData.water, date)),
         backgroundColor: '#36A2EB',
+        maxBarThickness: 20,
       },
     ],
   };
@@ -101,50 +106,129 @@ export default function ServicePriceCharts() {
         label: 'Parking - Car',
         data: dates.map(date => getPriceOnDate(pricesData.parking, date, 'Car')),
         borderColor: '#FF6384',
+        borderWidth: 2,
+        pointRadius: 3,
         fill: false,
-        tension: 0.3,
+        tension: 0.4,
       },
       {
         label: 'Parking - Electric',
         data: dates.map(date => getPriceOnDate(pricesData.parking, date, 'Electric')),
         borderColor: '#FFCE56',
+        borderWidth: 2,
+        pointRadius: 3,
         fill: false,
-        tension: 0.3,
+        tension: 0.4,
       },
       {
         label: 'Parking - Motorcycle',
         data: dates.map(date => getPriceOnDate(pricesData.parking, date, 'Motorcycle')),
         borderColor: '#36A2EB',
+        borderWidth: 2,
+        pointRadius: 3,
         fill: false,
-        tension: 0.3,
+        tension: 0.4,
       },
       {
         label: 'Parking - Bicycle',
         data: dates.map(date => getPriceOnDate(pricesData.parking, date, 'Bicycle')),
         borderColor: '#4BC0C0',
+        borderWidth: 2,
+        pointRadius: 3,
         fill: false,
-        tension: 0.3,
+        tension: 0.4,
       },
     ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        suggestedMin: 0,
+        suggestedMax: 100,
+        title: {
+          display: true,
+          text: 'Price (in USD)',
+        },
+        ticks: {
+          stepSize: 10,
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Date',
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 12,
+          },
+        },
+      },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.raw} USD`,
+        },
+      },
+    },
   };
 
   return (
     <div>
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
           <Spin size="large" />
         </div>
       ) : (
-        <>
-          <div style={{ marginBottom: '40px' }}>
-            <h3>Cleaning and Water Price Comparison (Bar Chart)</h3>
-            <Bar data={barChartData} options={{ responsive: true }} />
-          </div>
-          <div>
-            <h3>Parking Price Comparison by Vehicle Type (Line Chart)</h3>
-            <Line data={lineChartData} options={{ responsive: true }} />
-          </div>
-        </>
+        <Row gutter={[24, 24]} style={{ padding: '20px' }}>
+          <Col span={12}>
+            <Card
+              title={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <ContainerOutlined style={{ color: '#4BC0C0', marginRight: '8px' }} />
+                  <AntTitle level={4} style={{ margin: 0, color: '#4BC0C0' }}>Cleaning and Water Price Comparison</AntTitle>
+                </div>
+              }
+              bordered={false}
+              style={{
+                borderRadius: '10px',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <div style={{ height: 300, padding: '10px' }}>
+                <Bar data={barChartData} options={chartOptions} />
+              </div>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card
+              title={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <CarOutlined style={{ color: '#FF6384', marginRight: '8px' }} />
+                  <AntTitle level={4} style={{ margin: 0, color: '#FF6384' }}>Parking Price Comparison by Vehicle Type</AntTitle>
+                </div>
+              }
+              bordered={false}
+              style={{
+                borderRadius: '10px',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <div style={{ height: 300, padding: '10px' }}>
+                <Line data={lineChartData} options={chartOptions} />
+              </div>
+            </Card>
+          </Col>
+        </Row>
       )}
     </div>
   );

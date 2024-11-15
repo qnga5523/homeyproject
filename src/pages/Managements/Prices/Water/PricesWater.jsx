@@ -8,14 +8,18 @@ import {
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../../../Services/firebase";
-import { Table, Button, Form, Input, DatePicker } from "antd";
+import { Table, Button, Form, Input, DatePicker, Tooltip, Typography,Space  } from "antd";
+import { EditOutlined, DeleteOutlined, CheckCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 import moment from "moment";
+
+const { Title } = Typography;
+
 export default function PricesWater() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
-  const [editingPrice, setEditingPrice] = useState(null);  // State cho biết giá nào đang được chỉnh sửa
+  const [editingPrice, setEditingPrice] = useState(null);  
 
-  // Fetch data from Firestore
+
   useEffect(() => {
     const fetchPrices = async () => {
       const pricesCollection = collection(db, "waterPrices");
@@ -25,7 +29,7 @@ export default function PricesWater() {
         return {
           ...data,
           id: doc.id,
-          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date, // Chuyển đổi nếu là Timestamp
+          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date, 
         };
       });
       setPrices(priceList);
@@ -35,7 +39,7 @@ export default function PricesWater() {
   }, []);
 
   const onFinish = async (values) => {
-    // Convert Moment to JS Date if necessary
+
     const processedValues = {
       ...values,
       date: values.date ? values.date.toDate() : null,
@@ -51,7 +55,7 @@ export default function PricesWater() {
   
     form.resetFields();
   
-    // Fetch updated data
+
     const pricesCollection = collection(db, "waterPrices");
     const priceSnapshot = await getDocs(pricesCollection);
     const priceList = priceSnapshot.docs.map((doc) => ({
@@ -65,11 +69,11 @@ export default function PricesWater() {
     const updatedPrices = prices.map(async (price) => {
       const priceDoc = doc(db, "waterPrices", price.id);
   
-      // Nếu bản ghi hiện tại là default và người dùng tắt default, nó sẽ về trạng thái "Paused".
+
       if (price.id === id && price.default) {
         await updateDoc(priceDoc, { default: false });
       } 
-      // Nếu bản ghi hiện tại không phải là default, đặt nó về trạng thái "Paused".
+    
       else if (price.id === id) {
         await updateDoc(priceDoc, { default: true });
       } else {
@@ -78,8 +82,7 @@ export default function PricesWater() {
     });
   
     await Promise.all(updatedPrices);
-  
-    // Cập nhật lại danh sách giá sau khi chỉnh sửa
+
     const pricesCollection = collection(db, "waterPrices");
     const priceSnapshot = await getDocs(pricesCollection);
     const priceList = priceSnapshot.docs.map((doc) => ({
@@ -90,16 +93,15 @@ export default function PricesWater() {
   };
   
   const handleEditPrice = (record) => {
-    setEditingPrice(record);  // Lưu bản ghi đang chỉnh sửa
+    setEditingPrice(record);  
   
     form.setFieldsValue({
       volume: record.volume,
       price: record.price,
-      date: record.date ? moment(record.date) : null,  // Kiểm tra trước khi chuyển thành moment
+      date: record.date ? moment(record.date) : null,
     });
   };
 
-  // Delete price
   const deletePrice = async (id) => {
     const priceDoc = doc(db, "waterPrices", id);
     await deleteDoc(priceDoc);
@@ -117,14 +119,14 @@ export default function PricesWater() {
       title: "M³",
       dataIndex: "volume",
       key: "volume",
-      render: (text) => `${text} m³`, // Hiển thị giá trị kèm đơn vị m³
+      render: (text) => `${text} m³`, 
     },
     { title: "Price ($)", dataIndex: "price", key: "price" , render: (text) => USDollar.format(text),},
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', // Định dạng ngày tháng nếu có
+      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', 
     },
     {
       title: "Status",
@@ -132,9 +134,13 @@ export default function PricesWater() {
       key: "default",
       render: (_, record) => (
         <div>
-          <span>{record.default ? "Default" : "Paused"}</span>
+          {record.default ? (
+            <CheckCircleOutlined style={{ color: "green" }} />
+          ) : (
+            <PauseCircleOutlined style={{ color: "gray" }} />
+          )}
           <Button type="link" onClick={() => setDefaultPrice(record.id)}>
-            {record.default ? "Pause" : "Set Default"}
+            {record.default ? "" : "Default"}
           </Button>
         </div>
       ),
@@ -143,47 +149,54 @@ export default function PricesWater() {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
-          <Button onClick={() => handleEditPrice(record)}>Edit</Button>
-          <Button danger onClick={() => deletePrice(record.id)}>Delete</Button>
-          
-        </>
+        <Space size="middle">
+          <Tooltip title="Edit">
+            <Button icon={<EditOutlined />} onClick={() => handleEditPrice(record)} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button danger icon={<DeleteOutlined />} onClick={() => deletePrice(record.id)} />
+          </Tooltip>
+        </Space>
       ),
     }
   ];
 
   return (
-    <>
+    <div style={{ textAlign: "center" }}>
+      <Title level={2} style={{ marginBottom: "20px" }}>Water Price Management</Title>
       <Form
         form={form}
         layout="inline"
         onFinish={onFinish}
+        style={{ marginBottom: "30px", justifyContent: "center" }}
       >
-        <Form.Item
-          name="volume"
-          rules={[{ required: true, message: "Please input volume!" }]}
-        >
-          <Input placeholder="M³" />
-        </Form.Item>
-        <Form.Item
-          name="price"
-          rules={[{ required: true, message: "Please input price!" }]}
-        >
-          <Input placeholder="Price" />
-        </Form.Item>
-        <Form.Item
-          name="date"
-          rules={[{ required: true, message: "Please select date!" }]}
-        >
-          <DatePicker showTime />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
+        <Space size="large">
+          <Form.Item
+            name="volume"
+            rules={[{ required: true, message: "Please input volume!" }]}
+          >
+            <Input placeholder="M³" />
+          </Form.Item>
+          <Form.Item
+            name="price"
+            rules={[{ required: true, message: "Please input price!" }]}
+          >
+            <Input placeholder="Price" />
+          </Form.Item>
+          <Form.Item
+            name="date"
+            rules={[{ required: true, message: "Please select date!" }]}
+          >
+            <DatePicker showTime />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Space>
       </Form>
       <Table dataSource={prices} columns={columns} rowKey="id" />
-    </>
+    </div>
   );
 }

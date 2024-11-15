@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Button, Upload, DatePicker, message, Table } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  Upload,
+  DatePicker,
+  message,
+  Table,
+  Card,
+  Divider,
+  Row,
+  Col,
+  Typography,
+} from "antd";
+import { UploadOutlined, BookOutlined} from "@ant-design/icons";
 import {
   addDoc,
   collection,
@@ -10,15 +24,19 @@ import {
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "../../../Services/firebase";
-import { sendNotification } from "./NotificationService";
+import { sendNotification } from "../../Notification/NotificationService";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 const { TextArea } = Input;
+const { Title } = Typography;
 const storage = getStorage();
+
 export default function AddBookingForm() {
   const [form] = Form.useForm();
   const [serviceType, setServiceType] = useState(null);
   const [fileList, setFileList] = useState([]);
   const [userData, setUserData] = useState({});
+  const navigate = useNavigate(); 
   useEffect(() => {
     const fetchUserData = async () => {
       if (auth.currentUser) {
@@ -27,10 +45,7 @@ export default function AddBookingForm() {
           const userSnapshot = await getDoc(userDoc);
           if (userSnapshot.exists()) {
             const data = userSnapshot.data();
-            console.log("Fetched user data:", data); 
             setUserData(data);
-          } else {
-            console.log("User data not found");
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -39,6 +54,7 @@ export default function AddBookingForm() {
     };
     fetchUserData();
   }, []);
+
   const handleAddBooking = async (values) => {
     if (!auth.currentUser) {
       message.error("You need to be logged in to upload files.");
@@ -54,12 +70,7 @@ export default function AddBookingForm() {
       if (fileList.length > 0) {
         const uploadPromises = fileList.map(async (file) => {
           const fileToUpload = file.originFileObj || file;
-          if (!(fileToUpload instanceof File))
-            throw new Error("Invalid file type");
-          const storageRef = ref(
-            storage,
-            `serviceBookings/${fileToUpload.name}`
-          );
+          const storageRef = ref(storage, `serviceBookings/${fileToUpload.name}`);
           const snapshot = await uploadBytes(storageRef, fileToUpload);
           return getDownloadURL(snapshot.ref);
         });
@@ -78,30 +89,15 @@ export default function AddBookingForm() {
         field: values.field || null,
         startTime: values.startTime ? values.startTime.toDate() : null,
         endTime: values.endTime ? values.endTime.toDate() : null,
-        transportTime: values.transportTime
-          ? values.transportTime.toDate()
-          : null,
         participants: values.participants || null,
         images: imageUrls,
         paymentMethod: values.paymentMethod,
         status: "Pending",
         createdAt: serverTimestamp(),
-        duration: values.duration || null,
-        PreferredSchedule: values.PreferredSchedule ? values.PreferredSchedule.toDate() : null,
-        BookingDetails: values.BookingDetails ? values.BookingDetails.toDate() : null,
-        contact: values.contact ||null
       };
-      const bookingRef = await addDoc(
-        collection(db, "serviceBookings"),
-        bookingData
-      );
+      const bookingRef = await addDoc(collection(db, "serviceBookings"), bookingData);
 
-      await sendNotification(
-        "admin",
-        "admin",
-        `New booking request from ${values.residentName}`,
-        bookingRef.id
-      );
+      await sendNotification("admin", "admin", `New booking request from ${residentName}`, bookingRef.id);
 
       message.success("Booking added successfully!");
       form.resetFields();
@@ -115,42 +111,27 @@ export default function AddBookingForm() {
 
   const handleServiceTypeChange = (value) => {
     setServiceType(value);
-    form.resetFields();
     form.setFieldsValue({ serviceType: value });
   };
+
   const serviceNotes = [
-    {
-      key: "1",
-      type: "Cleaning Services",
-      description: "Cleaning rooms, floors, garbage areas, and other common areas.",
-    },
-    {
-      key: "2",
-      type: "Security Services",
-      description: "24/7 security personnel, CCTV monitoring, and access control.",
-    },
-    {
-      key: "3",
-      type: "Management Services",
-      description: "Maintenance of infrastructure and handling day-to-day operations.",
-    },
-    {
-      key: "4",
-      type: "Infrastructure Services",
-      description: "Supply and maintenance of utilities like water and electricity.",
-    },
-    {
-      key: "5",
-      type: "Recreational Services",
-      description: "Amenities like gyms, swimming pools, playgrounds, and community rooms.",
-    },
+    { key: "1", type: "cleaning", name: "Cleaning Services", description: "Cleaning rooms, floors, garbage areas, and other common areas." },
+    { key: "2", type: "security", name: "Security Services", description: "24/7 security personnel, CCTV monitoring, and access control." },
+    { key: "3", type: "managementservice", name: "Management Services", description: "Maintenance of infrastructure and handling day-to-day operations." },
+    { key: "4", type: "infrastructureservice", name: "Infrastructure Services", description: "Supply and maintenance of utilities like water and electricity." },
+    { key: "5", type: "recreationalservice", name: "Recreational Services", description: "Amenities like gyms, swimming pools, playgrounds, and community rooms." },
   ];
 
   const columns = [
     {
       title: "Service Type",
-      dataIndex: "type",
-      key: "type",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <Button type="link" onClick={() => handleServiceTypeChange(record.type)}>
+          {text}
+        </Button>
+      ),
     },
     {
       title: "Description",
@@ -160,93 +141,77 @@ export default function AddBookingForm() {
   ];
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <div style={{ backgroundColor: "#f0f8ff", padding: "20px", borderRadius: "8px" }}>
-        <h2 style={{ color: "#1e90ff" }}>Service Notes</h2>
-        <Table
-          columns={columns}
-          dataSource={serviceNotes}
-          pagination={false}
-          style={{ marginBottom: "20px", backgroundColor: "white", borderRadius: "8px" }}
-        />
-      </div>
+    <div style={{ padding: "20px" }}>
+       <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={2} style={{ color: "#1890ff", marginBottom: "20px" }}>
+            Booking Management
+          </Title>
+        </Col>
+        <Col>
+          <Button
+            type="primary"
+            icon={<BookOutlined />}
+            onClick={() => navigate("/owner/user-book")} 
+            style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
+          >
+            View User Bookings
+          </Button>
+        </Col>
+      </Row>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} md={10}>
+          <Card title="Service Information" bordered style={{ height: "100%" }}>
+            <Table
+              columns={columns}
+              dataSource={serviceNotes}
+              pagination={false}
+              rowClassName="clickable-row"
+              style={{ cursor: "pointer" }}
+            />
+          </Card>
+        </Col>
+        
 
-      <div style={{ backgroundColor: "#e6f7ff", padding: "20px", borderRadius: "8px", marginTop: "20px" }}>
-        <h2 style={{ color: "#1890ff" }}>Add New Booking</h2>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddBooking}
-          initialValues={{ serviceType: null }}
-        >
-        <Form.Item
-          label="Service Type"
-          name="serviceType"
-         
-          rules={[{ required: true, message: "Please select service type" }]}
-        >
-          <Select onChange={handleServiceTypeChange}  placeholder="Please choice service">
-            <Option value="cleaning">Cleaning Services</Option>
-            <Option value="security">Security Services</Option>
-            <Option value="managementservice">Management Services</Option>
-            <Option value="infrastructureservice">
-              Infrastructure Services
-            </Option>
-            <Option value="recreationalservice">Recreational Services</Option>
-          </Select>
-        </Form.Item>
+    
+        <Col xs={24} md={14}>
+          <Card title="Add New Booking" bordered style={{ backgroundColor: "#e6f7ff" }}>
+            <Form form={form} layout="vertical" onFinish={handleAddBooking}>
+              <Form.Item label="Service Type" name="serviceType" rules={[{ required: true, message: "Please select a service type" }]}>
+                <Select onChange={handleServiceTypeChange} placeholder="Select a service">
+                  {serviceNotes.map((service) => (
+                    <Option key={service.type} value={service.type}>
+                      {service.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
 
-        {serviceType === "cleaning" && (
-          <>
-            <Form.Item
-              label="Service Name"
-              name="itemName"
-               
-              rules={[
-                {
-                  required: true,
-                  message:
-                    "Please enter name ",
-                },
-              ]}
-            >
-              <Input placeholder="Room cleaning, floor cleaning, garbage area cleaning, etc." />
-            </Form.Item>
-            <Form.Item label="Special Requirements" name="cause"
-             >
-              <Input placeholder="Use of specific cleaning products, allergy considerations, etc."/>
-            </Form.Item>
-            <Form.Item label="Contact Information" name="notes" >
-              <TextArea rows={2} placeholder="Resident's name, apartment number, phone number, email."/>
-            </Form.Item>
-            <Form.Item label="Images" name="images">
-              <Upload
-                listType="picture"
-                fileList={fileList}
-                onChange={({ fileList }) => setFileList(fileList)}
-                beforeUpload={() => false}
-              >
-                <Button icon={<UploadOutlined />}>Upload</Button>
-              </Upload>
-            </Form.Item>
-            <Form.Item
-              label="Start Time"
-              name="startTime"
-              rules={[{ required: true, message: "Please select start time" }]}
-            >
-              <DatePicker showTime />
-            </Form.Item>
-            <Form.Item
-              label="End Time"
-              name="endTime"
-              rules={[{ required: true, message: "Please select end time" }]}
-            >
-              <DatePicker showTime />
-            </Form.Item>
-          </>
-        )}
-
-        {serviceType === "security" && (
+              {serviceType === "cleaning" && (
+                <>
+                  <Form.Item label="Service Name" name="itemName" rules={[{ required: true, message: "Please enter a service name" }]}>
+                    <Input placeholder="Room cleaning, floor cleaning, etc." />
+                  </Form.Item>
+                  <Form.Item label="Special Requirements" name="cause">
+                    <Input placeholder="Specific cleaning products, allergy considerations, etc." />
+                  </Form.Item>
+                  <Form.Item label="Contact Information" name="notes">
+                    <TextArea rows={2} placeholder="Resident's name, apartment number, phone number, email." />
+                  </Form.Item>
+                  <Form.Item label="Images" name="images">
+                    <Upload listType="picture" fileList={fileList} onChange={({ fileList }) => setFileList(fileList)} beforeUpload={() => false}>
+                      <Button icon={<UploadOutlined />}>Upload</Button>
+                    </Upload>
+                  </Form.Item>
+                  <Form.Item label="Start Time" name="startTime" rules={[{ required: true, message: "Please select a start time" }]}>
+                    <DatePicker showTime />
+                  </Form.Item>
+                  <Form.Item label="End Time" name="endTime" rules={[{ required: true, message: "Please select an end time" }]}>
+                    <DatePicker showTime />
+                  </Form.Item>
+                </>
+              )}
+              {serviceType === "security" && (
           <>
             <Form.Item
               label="Field"
@@ -292,7 +257,6 @@ export default function AddBookingForm() {
             </Form.Item>
           </>
         )}
-
         {serviceType === "managementservice" && (
           <>
             <Form.Item
@@ -354,8 +318,7 @@ export default function AddBookingForm() {
             </Form.Item>
           </>
         )}
-        <Form.Item>
-          {serviceType === "infrastructureservice" && (
+        {serviceType === "infrastructureservice" && (
             <>
               <Form.Item
                 label="Service Name"
@@ -414,8 +377,7 @@ export default function AddBookingForm() {
               </Form.Item>
             </>
           )}
-          <Form.Item>
-            {serviceType === "recreationalservice" && (
+           {serviceType === "recreationalservice" && (
               <>
                 <Form.Item
                   label="Service Name"
@@ -467,29 +429,27 @@ export default function AddBookingForm() {
                 </Form.Item>
               </>
             )}
-            <Form.Item
-            label="Payment Method"
-            name="paymentMethod"
-            rules={[
-              { required: true, message: "Please select a payment method" },
-            ]}
-          >
-            <Select placeholder="Select payment method">
-              <Option value="creditCard">Credit Card</Option>
-              <Option value="debitCard">Debit Card</Option>
-              <Option value="cash">Cash</Option>
-              <Option value="onlineBanking">Online Banking</Option>
-            </Select>
-          </Form.Item>
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-        </Form.Item>
-        </Form>
-      </div>
+              <Divider />
+
+              <Form.Item label="Payment Method" name="paymentMethod" rules={[{ required: true, message: "Please select a payment method" }]}>
+                <Select placeholder="Select payment method">
+                  <Option value="creditCard">Credit Card</Option>
+                  <Option value="debitCard">Debit Card</Option>
+                  <Option value="cash">Cash</Option>
+                  <Option value="onlineBanking">Online Banking</Option>
+                  <Option value="no fee">No Banking</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item>
+                <Button type="primary" htmlType="submit" block>
+                  Submit
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 }

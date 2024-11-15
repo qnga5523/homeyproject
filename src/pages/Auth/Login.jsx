@@ -17,13 +17,11 @@ export default function Login() {
         password
       );
       const user = userCredential.user;
-
-      // Fetch user details from Firestore
       const userDoc = await getDoc(doc(db, "Users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.role === "admin") {
-          window.location.href = "/admin";
+          window.location.href = "/";
         } else if (userData.role === "owner" && userData.approved) {
           window.location.href = "/owner";
         } else {
@@ -64,7 +62,7 @@ export default function Login() {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.role === "admin") {
-          window.location.href = "/admin";
+          window.location.href = "/";
         } else if (userData.role === "owner" && userData.approved) {
           window.location.href = "/owner";
         } else {

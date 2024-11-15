@@ -6,7 +6,7 @@ import {
   message,
   Modal,
   Descriptions,
-  Spin,
+  Spin
 } from "antd";
 import {
   collection,
@@ -18,7 +18,8 @@ import {
   limit,
 } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
-
+import { Typography } from "antd";
+const { Title } = Typography;
 export default function ManagementAccount() {
   const [users, setUsers] = useState([]);
   const [buildings, setBuildings] = useState({});
@@ -32,7 +33,6 @@ export default function ManagementAccount() {
     fetchUsers();
   }, []);
 
-  // Fetch all buildings and create a mapping from name to ID
   const fetchBuildings = async () => {
     try {
       const buildingSnapshot = await getDocs(collection(db, "buildings"));
@@ -48,7 +48,6 @@ export default function ManagementAccount() {
     }
   };
 
-  // Fetch all users with role 'owner'
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -56,7 +55,7 @@ export default function ManagementAccount() {
       const usersList = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.role === "owner") {
+        if (data.role === "owner" && data.approved === true) {
           usersList.push({ ...data, id: doc.id });
         }
       });
@@ -69,7 +68,6 @@ export default function ManagementAccount() {
     }
   };
 
-  // Handle user deletion
   const handleDelete = async (userId) => {
     try {
       await deleteDoc(doc(db, "Users", userId));
@@ -81,7 +79,6 @@ export default function ManagementAccount() {
     }
   };
 
-  // Fetch and display room details
   const handleViewDetail = async (user) => {
     const { building, room } = user;
 
@@ -101,13 +98,13 @@ export default function ManagementAccount() {
     setIsModalVisible(true);
 
     try {
-      // Query to find the room with the specific roomNumber and buildingId
+
       const roomsRef = collection(db, "rooms");
       const q = query(
         roomsRef,
         where("buildingId", "==", buildingId),
         where("roomNumber", "==", room),
-        limit(1) // Assuming room numbers are unique within a building
+        limit(1) 
       );
 
       const roomSnapshot = await getDocs(q);
@@ -130,7 +127,6 @@ export default function ManagementAccount() {
     }
   };
 
-  // Helper function to get building name from ID
   const buildingNameFromId = (id) => {
     const entry = Object.entries(buildings).find(
       ([name, buildingId]) => buildingId === id
@@ -138,7 +134,7 @@ export default function ManagementAccount() {
     return entry ? entry[0] : "Unknown Building";
   };
 
-  // Define table columns
+
   const columns = [
     {
       title: "Username",
@@ -157,7 +153,7 @@ export default function ManagementAccount() {
     },
     {
       title: "Apartment",
-      dataIndex: "room", // Corrected to lowercase
+      dataIndex: "room", 
       key: "room",
       render: (text, record) => (
         <Button type="link" onClick={() => handleViewDetail(record)}>
@@ -187,8 +183,17 @@ export default function ManagementAccount() {
   ];
 
   return (
-    <div>
-      <h2>Manage Accounts</h2>
+    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+      <Title
+        level={2}
+        style={{
+          textAlign: "center",
+          fontWeight: "bold",
+          marginBottom: "20px",
+        }}
+      >
+        Management Accounts
+      </Title>
       <Table
         columns={columns}
         dataSource={users}
@@ -198,7 +203,6 @@ export default function ManagementAccount() {
         pagination={{ pageSize: 10 }}
       />
 
-      {/* Modal for displaying room details */}
       <Modal
         title="Room Details"
         visible={isModalVisible}
@@ -225,7 +229,6 @@ export default function ManagementAccount() {
             <Descriptions.Item label="Building">
               {buildingNameFromId(roomDetails.buildingId)}
             </Descriptions.Item>
-            {/* Add more fields as necessary */}
           </Descriptions>
         ) : (
           <p>No details available for this room.</p>

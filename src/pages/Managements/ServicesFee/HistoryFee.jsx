@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, DatePicker, Select, Input, message, Button } from "antd";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { Table, DatePicker, Select, Input, message, Button, Space, Typography } from "antd";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 import moment from "moment";
 import columsFee from "../../../components/layout/Colums/columsFee";
+
+const { Title } = Typography;
 
 export default function HistoryFee() {
   const [users, setUsers] = useState([]);
@@ -92,32 +94,37 @@ export default function HistoryFee() {
   const columns = columsFee();
 
   return (
-    <div>
-      <Select
-        style={{ width: 200, marginRight: 8 }}
-        placeholder="Select Building"
-        onChange={handleBuildingChange}
-        options={buildings.map((building) => ({
-          value: building.name,
-          label: building.name,
-        }))}
-      />
-      <DatePicker
-        picker="month"
-        value={selectedDate}
-        onChange={handleDateChange}
-        disabledDate={disabledDate}
-        style={{ marginRight: 8 }}
-      />
-      <Input
-        placeholder="Search by User or Room"
-        value={searchTerm}
-        onChange={handleSearch}
-        style={{ width: 200, marginRight: 8 }}
-      />
-      <Button type="primary" onClick={handleFetchData}>
-        Fetch Data
-      </Button>
+    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+      <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
+        History Fee Overview
+      </Title>
+
+      <Space direction="horizontal" style={{ marginBottom: 16 }} size="middle">
+        <Select
+          style={{ width: 200 }}
+          placeholder="Select Building"
+          onChange={handleBuildingChange}
+          options={buildings.map((building) => ({
+            value: building.name,
+            label: building.name,
+          }))}
+        />
+        <DatePicker
+          picker="month"
+          value={selectedDate}
+          onChange={handleDateChange}
+          disabledDate={disabledDate}
+        />
+        <Input
+          placeholder="Search by User or Room"
+          value={searchTerm}
+          onChange={handleSearch}
+          style={{ width: 200 }}
+        />
+        <Button type="primary" onClick={handleFetchData}>
+          Fetch Data
+        </Button>
+      </Space>
 
       {users.length > 0 ? (
         <Table dataSource={users} columns={columns} rowKey="id" />

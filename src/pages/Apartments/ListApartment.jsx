@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Select, Popconfirm, message } from "antd";
+import { Table, Button, Modal, Form, Input, Select, Popconfirm, message, Space, Row, Col} from "antd";
 import { db } from "../../Services/firebase";
 import {
   collection,
@@ -9,13 +9,13 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore";
-
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
 export default function ListApartment() {
   const [buildings, setBuildings] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [filteredRooms, setFilteredRooms] = useState([]); // New state to store filtered rooms
+  const [filteredRooms, setFilteredRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
@@ -24,10 +24,9 @@ export default function ListApartment() {
 
   useEffect(() => {
     fetchBuildings();
-    fetchRooms(); // Fetch all rooms initially
+    fetchRooms(); 
   }, []);
 
-  // Fetch all buildings
   const fetchBuildings = async () => {
     try {
       const buildingsCollection = collection(db, "buildings");
@@ -42,7 +41,6 @@ export default function ListApartment() {
     }
   };
 
-  // Fetch all rooms initially and when a building is selected
   const fetchRooms = async (buildingId = null) => {
     try {
       const roomsCollection = collection(db, "rooms");
@@ -51,13 +49,11 @@ export default function ListApartment() {
         id: doc.id,
         ...doc.data(),
       }));
-
-      // If a building is selected, filter by buildingId; otherwise show all rooms
       if (buildingId) {
         const filtered = roomList.filter((room) => room.buildingId === buildingId);
         setFilteredRooms(filtered);
       } else {
-        setFilteredRooms(roomList); // Show all rooms initially
+        setFilteredRooms(roomList);
       }
 
       setRooms(roomList);
@@ -66,21 +62,21 @@ export default function ListApartment() {
     }
   };
 
-  // Show room details in modal
+
   const showDetail = (room) => {
     setSelectedRoom(room);
     setIsModalVisible(true);
     form.setFieldsValue(room);
   };
 
-  // Handle room update
+
   const handleOk = async () => {
     const updatedRoom = form.getFieldsValue();
     try {
       await updateDoc(doc(db, "rooms", selectedRoom.id), updatedRoom);
       fetchRooms(selectedBuildingId);
       setIsModalVisible(false);
-      setSelectedRoom(null); // Clear after close
+      setSelectedRoom(null); 
       message.success("Room updated successfully!");
     } catch (error) {
       console.error("Error updating room:", error);
@@ -88,24 +84,22 @@ export default function ListApartment() {
     }
   };
 
-  // Close modal
+
   const handleCancel = () => {
     setIsModalVisible(false);
-    setSelectedRoom(null); // Clear selection on close
+    setSelectedRoom(null); 
   };
 
-  // Handle building selection and filter rooms by building
   const handleBuildingChange = (value) => {
     setSelectedBuildingId(value);
     if (value) {
-      fetchRooms(value); // Fetch rooms for the selected building
+      fetchRooms(value); 
     } else {
-      setFilteredRooms(rooms); // Show all rooms if no building is selected
+      setFilteredRooms(rooms);
     }
     setSelectedRoom(null);
   };
 
-  // Handle room addition
   const handleAddRoom = async (values) => {
     if (!selectedBuildingId) {
       message.error("Please select a building first.");
@@ -127,7 +121,6 @@ export default function ListApartment() {
     }
   };
 
-  // Handle room deletion
   const handleDeleteRoom = async (id) => {
     try {
       await deleteDoc(doc(db, "rooms", id));
@@ -139,7 +132,7 @@ export default function ListApartment() {
     }
   };
 
-  // Define table columns
+
   const columns = [
     {
       title: "Room Number",
@@ -150,6 +143,7 @@ export default function ListApartment() {
           {text}
         </Button>
       ),
+      sorter: (a, b) => parseInt(a.roomNumber, 10) - parseInt(b.roomNumber, 10),
     },
     {
       title: "Room Type",
@@ -160,31 +154,35 @@ export default function ListApartment() {
       title: "Area (sqm)",
       dataIndex: "area",
       key: "area",
+      sorter: (a, b) => a.area - b.area,
     },
     {
       title: "Actions",
       key: "actions",
       render: (text, record) => (
-        <span>
-          <Button onClick={() => showDetail(record)}>Edit</Button>
+        <Space>
+          <EditOutlined
+            style={{ color: "blue", cursor: "pointer", fontSize: "20px" }} 
+            onClick={() => showDetail(record)}
+          />
           <Popconfirm
             title="Are you sure to delete this room?"
             onConfirm={() => handleDeleteRoom(record.id)}
           >
-            <Button type="link" danger>
-              Delete
-            </Button>
+            <DeleteOutlined
+              style={{ color: "red", cursor: "pointer", fontSize: "20px" }} 
+            />
           </Popconfirm>
-        </span>
+        </Space>
       ),
     },
   ];
 
   return (
-    <div>
+    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
       <Select
         placeholder="Select a Building"
-        style={{ width: 200, marginBottom: 20 }}
+        style={{ width: "100%", marginBottom: "20px" }}
         onChange={handleBuildingChange}
         allowClear
       >
@@ -200,36 +198,30 @@ export default function ListApartment() {
         form={addForm}
         layout="vertical"
         onFinish={handleAddRoom}
-        style={{ marginBottom: 20 }}
       >
-        <Form.Item
-          label="Room Number"
-          name="roomNumber"
-          rules={[{ required: true, message: "Please input room number!" }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Room Type"
-          name="roomType"
-          rules={[{ required: true, message: "Please input room type!" }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Area (sqm)"
-          name="area"
-          rules={[{ required: true, message: "Please input area!" }]}
-        >
-          <Input type="number" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Form.Item label="Room" name="roomNumber" rules={[{ required: true, message: "Please input room number!" }]}>
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Type" name="roomType" rules={[{ required: true, message: "Please input room type!" }]}>
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Area(sqm)" name="area" rules={[{ required: true, message: "Please input area!" }]}>
+              <Input type="number" />
+            </Form.Item>
+          </Col>
+        </Row>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" style={{ width: "100%", marginTop: "10px" }}>
             Add Room
           </Button>
         </Form.Item>
       </Form>
-
       <Table
         dataSource={filteredRooms.map((room) => ({
           key: room.id,
@@ -238,8 +230,6 @@ export default function ListApartment() {
         columns={columns}
         pagination={false}
       />
-
-      {/* Modal for editing room */}
       <Modal
         title="Room Details"
         visible={isModalVisible}
@@ -247,10 +237,10 @@ export default function ListApartment() {
         onCancel={handleCancel}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Room Number" name="roomNumber">
+          <Form.Item label="Room" name="roomNumber">
             <Input />
           </Form.Item>
-          <Form.Item label="Room Type" name="roomType">
+          <Form.Item label="Type" name="roomType">
             <Input />
           </Form.Item>
           <Form.Item label="Area (sqm)" name="area">

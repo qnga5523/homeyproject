@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
 import {
   Button,
   DatePicker,
@@ -14,7 +13,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 
 import { db, storage } from "../../Services/firebase";
-import { sendNotificationToOwners } from "./NotificationEvent";
+import { sendNotificationToOwners } from "../Notification/NotificationService";
 const { RangePicker } = DatePicker;
 const normFile = (e) => {
   if (Array.isArray(e)) {
@@ -57,8 +56,6 @@ export default function CreateEvent() {
     } = values;
   
     const formattedPostDate = postDate ? postDate.toDate() : null;
-  
-  
     const eventsCollectionRef = collection(db, "events");
   
     const uploadImage = async (file) => {

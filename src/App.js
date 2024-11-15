@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Login from "./pages/Auth/Login";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
-import Homepage from "./pages/Home";
 import Signup from "./pages/Auth/Signup";
 
 import RequestAccount from "./pages/Admin/Accounts/RequestAccounts";
@@ -24,10 +23,6 @@ import SetFee from "./pages/Managements/ServicesFee/SetFee";
 import ListApartment from "./pages/Apartments/ListApartment";
 import AddData from "./pages/Apartments/AddData";
 import ChangePassword from "./pages/Profile/changepassword";
-
-import AppContact from "./pages/Home/contact";
-import Aboutus from "./pages/Home/about";
-import Feature from "./pages/Home/feature";
 
 import PricesWater from "./pages/Managements/Prices/Water/PricesWater";
 import PricesClean from "./pages/Managements/Prices/FeeClean/PricesClean";
@@ -50,6 +45,9 @@ import OwnerFee from "./pages/Managements/ServicesFee/OwnerFee";
 import UserBookings from "./pages/Managements/ServiceBook/UserBookings";
 import { NotFound } from "./components/common/NotFound";
 import ServicePriceCharts from "./pages/Managements/Prices/ServicePriceCharts";
+import ServiceBookingChart from "./pages/Managements/ServiceBook/ServiceBookingChart";
+import MonthlyServiceFeeChart from "./pages/Managements/ServicesFee/MonthlyServiceChart";
+
 
 
 
@@ -65,22 +63,17 @@ function App() {
     <Router>
       <Routes>
         {/* public */}
-        <Route path="/" element={<Homepage />} />
-        <Route path="/contact" element={<AppContact/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/password" element={<ForgotPassword />} />
         <Route path="/signup" element={<Signup />} />
         {/* Event */}
-        
-        <Route path="/contact" element={<AppContact />} />
-        <Route path="/about" element={<Aboutus />} />
-        <Route path="/features" element={<Feature />} />
+      
         <Route path="*" element={<NotFound />} />
-        <Route path="ServicePriceCharts" element={<ServicePriceCharts/>}/>
+       
       
         {/* Admin */}
         <Route
-          path="/admin"
+          path="/"
           element={
             <ProtectedRoute role="admin">
               <Dashboard/>
@@ -118,6 +111,8 @@ function App() {
           <Route path="notification" element={<DetailNotification/>}/>
           <Route path="feedback" element={<Feedback/>}/>
           <Route path="reportFeedback" element={<FeedbackReport/>}/>
+          <Route path="ServicePriceCharts" element={<ServicePriceCharts/>}/>
+          <Route path="ServiceBookingCharts" element={<ServiceBookingChart/>}/>
           {/* Chart */}
          </Route>
         {/* Owner */}
@@ -156,6 +151,7 @@ function App() {
         <Route path="feehistory" element={<OwnerFee/>}/>
 
         {/* dataStatistics */}
+        <Route path="feechart" element={<MonthlyServiceFeeChart/>}/>
 
         </Route>   
         </Routes>

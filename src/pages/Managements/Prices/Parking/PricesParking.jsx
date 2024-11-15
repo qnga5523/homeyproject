@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Form, Input, DatePicker, Select } from "antd";
+import { Table, Button, Form, Input, DatePicker, Select ,Tooltip, Typography,Space } from "antd";
 import moment from "moment";
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
+import { EditOutlined, DeleteOutlined, CheckCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 import { db } from "../../../../Services/firebase";
 
 const { Option } = Select;
-
+const { Title } = Typography;
 export default function PricesParking() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
   const [editingPrice, setEditingPrice] = useState(null);
 
-  // Fetch data from Firestore
   const fetchPrices = async () => {
     const pricesCollection = collection(db, "parkingPrices");
     const priceSnapshot = await getDocs(pricesCollection);
@@ -45,7 +45,7 @@ export default function PricesParking() {
     }
 
     form.resetFields();
-    fetchPrices(); // Fetch updated data after submit
+    fetchPrices();
   };
 
   const handleEditPrice = (record) => {
@@ -59,18 +59,13 @@ export default function PricesParking() {
   };
   const setDefaultPrice = async (id) => {
     const updatedPrices = prices.map(async (price) => {
-      const priceDoc = doc(db, "parkingPrices", price.id); 
-  
-      // Chỉ thay đổi trạng thái cho bản ghi có id khớp
+      const priceDoc = doc(db, "parkingPrices", price.id);  
       if (price.id === id) {
-        // Nếu bản ghi hiện tại là default, tắt nó đi
         if (price.default) {
           await updateDoc(priceDoc, { default: false });
         } else {
-          // Nếu không, đặt nó thành default và tắt các bản ghi khác
           await updateDoc(priceDoc, { default: true });
   
-          // Tắt trạng thái default cho tất cả các bản ghi khác cùng loại xe
           const otherPrices = prices.filter(p => p.vehicleType === price.vehicleType && p.id !== id);
           await Promise.all(otherPrices.map(otherPrice => {
             const otherPriceDoc = doc(db, "parkingPrices", otherPrice.id);
@@ -80,10 +75,8 @@ export default function PricesParking() {
       }
     });
   
-    await Promise.all(updatedPrices);
-  
-    // Cập nhật lại danh sách giá sau khi chỉnh sửa
-    fetchPrices(); // Lấy lại dữ liệu mới từ Firestore
+    await Promise.all(updatedPrices);  
+    fetchPrices(); 
   };
   
 
@@ -109,9 +102,13 @@ export default function PricesParking() {
       key: "default",
       render: (_, record) => (
         <div>
-          <span>{record.default ? "Default" : "Paused"}</span>
+          {record.default ? (
+            <CheckCircleOutlined style={{ color: "green" }} />
+          ) : (
+            <PauseCircleOutlined style={{ color: "gray" }} />
+          )}
           <Button type="link" onClick={() => setDefaultPrice(record.id)}>
-            {record.default ? "Pause" : "Set Default"}
+            {record.default ? "" : "Default"}
           </Button>
         </div>
       ),
@@ -120,17 +117,28 @@ export default function PricesParking() {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
-          <Button onClick={() => handleEditPrice(record)}>Edit</Button>
-          <Button danger onClick={() => deletePrice(record.id)}>Delete</Button>
-        </>
+        <Space size="middle">
+          <Tooltip title="Edit">
+            <Button icon={<EditOutlined />} onClick={() => handleEditPrice(record)} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button danger icon={<DeleteOutlined />} onClick={() => deletePrice(record.id)} />
+          </Tooltip>
+        </Space>
       ),
     }
   ];
 
   return (
-    <>
-      <Form form={form} layout="inline" onFinish={onFinish}>
+    <div style={{ textAlign: "center" }}>
+    <Title level={2} style={{ marginBottom: "20px" }}>Parking Price Management</Title>
+    <Form
+      form={form}
+      layout="inline"
+      onFinish={onFinish}
+      style={{ marginBottom: "30px", justifyContent: "center" }}
+    >
+      <Space size="large">
         <Form.Item name="vehicleType" rules={[{ required: true, message: "Please select vehicle type!" }]}>
           <Select placeholder="Select Vehicle Type">
             <Option value="Car">Car</Option>
@@ -153,8 +161,9 @@ export default function PricesParking() {
             Submit
           </Button>
         </Form.Item>
+        </Space>
       </Form>
       <Table dataSource={prices} columns={columns} rowKey="id" />
-    </>
+      </div>
   );
 }

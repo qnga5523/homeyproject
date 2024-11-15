@@ -6,10 +6,13 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Button, Table, Space, message } from "antd";
+import { Table, Space, message } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { db } from "../../../Services/firebase";
 import emailjs from "emailjs-com"
 import { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_USER_ID } from "../Email/EmailReactApi";
+import { Typography } from "antd";
+const { Title } = Typography;
 export default function RequestAccount() {
   const [owners, setOwners] = useState([]);
 
@@ -64,7 +67,7 @@ export default function RequestAccount() {
   };
 
   const columns = [
-    { title: "Email", dataIndex: "userEmail", key: "userEmail" },
+    { title: "Email", dataIndex: "email", key: "email" },
 
     { title: "User Name", dataIndex: "Username", key: "Username" },
     {
@@ -84,16 +87,33 @@ export default function RequestAccount() {
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-         <Button type="primary" onClick={() => handleApprove(record.id, record.email)}>
-            Approve
-          </Button>
-          <Button danger onClick={() => handleReject(record.id)}>
-            Reject
-          </Button>
+          <CheckCircleOutlined
+            style={{ color: "green", fontSize: "20px", cursor: "pointer" }}
+            onClick={() => handleApprove(record.id, record.email)}
+          />
+          <CloseCircleOutlined
+            style={{ color: "red", fontSize: "20px", cursor: "pointer" }}
+            onClick={() => handleReject(record.id)}
+          />
         </Space>
       ),
     },
   ];
 
-  return <Table dataSource={owners} columns={columns} rowKey="id" />;
+  return (
+    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+      <Title
+        level={2}
+        style={{
+          textAlign: "center",
+          fontWeight: "bold",
+          marginBottom: "20px",
+        }}
+      >
+        Request Account for Owner
+      </Title>
+      <Table dataSource={owners} columns={columns} rowKey="id" />
+    </div>
+  );
+  
 }

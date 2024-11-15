@@ -32,17 +32,17 @@ export default function EventPage() {
           ...doc.data(),
         }));
         setEvents(eventsData);
-        setFilteredEvents(eventsData); // Initialize with all events
+        setFilteredEvents(eventsData); 
       } catch (error) {
         console.error("Error fetching events: ", error);
       }
     };
     const fetchUserRole = async () => {
       if (auth.currentUser) {
-        const userDoc = doc(db, "Users", auth.currentUser.uid); // Assuming user roles are stored in "Users" collection
+        const userDoc = doc(db, "Users", auth.currentUser.uid);
         const userSnapshot = await getDoc(userDoc);
         if (userSnapshot.exists()) {
-          setUserRole(userSnapshot.data().role); // Set the user role, e.g., "admin" or "owner"
+          setUserRole(userSnapshot.data().role); 
         }
       }
     };
@@ -54,7 +54,7 @@ export default function EventPage() {
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     if (category === "") {
-      setFilteredEvents(events); // Show all events if no category is selected
+      setFilteredEvents(events); 
     } else {
       setFilteredEvents(events.filter((event) => event.req === category));
     }
@@ -67,7 +67,7 @@ export default function EventPage() {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => navigate("/admin/CreateEvent")}
+          onClick={() => navigate("/CreateEvent")}
           style={{ marginBottom: "20px" }}
         >
           Create Event

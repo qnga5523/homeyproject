@@ -1,12 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, message, Upload, Progress, Table } from "antd";
-import { collection, doc, setDoc, getDocs, where, query, getDoc } from "firebase/firestore";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  message,
+  Upload,
+  Progress,
+  Table,
+  Divider,
+  Card,
+  Typography,
+  Col, Row
+} from "antd";
+import {
+  collection,
+  doc,
+  setDoc,
+  getDocs,
+  where,
+  query,
+  getDoc
+} from "firebase/firestore";
 import { db, auth, storage } from "../../Services/firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
+const { Title, Text } = Typography;
 
 export default function VehicleRegister() {
   const [form] = Form.useForm();
@@ -178,63 +200,75 @@ export default function VehicleRegister() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Vehicle Registration</h2>
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item
-          label="Select Vehicle Type"
-          name="vehicleType"
-          rules={[{ required: true, message: "Please select vehicle type!" }]}
-        >
-          <Select placeholder="Select vehicle type">
-            <Option value="motorbike">Motorbike</Option>
-            <Option value="car">Car</Option>
-            <Option value="bicycle">Bicycle</Option>
-            <Option value="electric_bicycle">Electric Bicycle</Option>
-          </Select>
-        </Form.Item>
+      <Title level={2} style={{ textAlign: "center", color: "#1890ff" }}>
+        Vehicle Registration
+      </Title>
+      <Divider />
+      <Row gutter={16}>
+        <Col xs={24} md={12}>
+          <Card title="Register New Vehicle" bordered style={{ borderRadius: 8 }}>
+            <Form form={form} layout="vertical" onFinish={handleSubmit}>
+              <Form.Item
+                label="Select Vehicle Type"
+                name="vehicleType"
+                rules={[{ required: true, message: "Please select vehicle type!" }]}
+              >
+                <Select placeholder="Select vehicle type">
+                  <Option value="motorbike">Motorbike</Option>
+                  <Option value="car">Car</Option>
+                  <Option value="bicycle">Bicycle</Option>
+                  <Option value="electric_bicycle">Electric Bicycle</Option>
+                </Select>
+              </Form.Item>
 
-        <Form.Item
-          label="License Plate"
-          name="licensePlate"
-          rules={[
-            { required: true, message: "Please enter the license plate!" },
-            { min: 5, message: "License plate must be at least 5 characters long!" },
-          ]}
-        >
-          <Input placeholder="Enter license plate" />
-        </Form.Item>
+              <Form.Item
+                label="License Plate"
+                name="licensePlate"
+                rules={[
+                  { required: true, message: "Please enter the license plate!" },
+                  { min: 5, message: "License plate must be at least 5 characters long!" },
+                ]}
+              >
+                <Input placeholder="Enter license plate" />
+              </Form.Item>
 
-        <Form.Item label="Additional Description" name="description">
-          <Input.TextArea placeholder="Enter description (if any)" />
-        </Form.Item>
+              <Form.Item label="Additional Description" name="description">
+                <Input.TextArea placeholder="Enter description (if any)" />
+              </Form.Item>
 
-        <Form.Item label="Vehicle Image" name="vehicleImage">
-          <Upload
-            beforeUpload={beforeImageUpload}
-            showUploadList={false}
-            customRequest={({ file }) => handleImageUpload(file)}
-          >
-            <Button icon={<UploadOutlined />}>Select Image</Button>
-          </Upload>
-          {imageFile && <p>Selected: {imageFile.name}</p>}
-          {uploadProgress > 0 && <Progress percent={Math.round(uploadProgress)} />}
-        </Form.Item>
+              <Form.Item label="Vehicle Image" name="vehicleImage">
+                <Upload
+                  beforeUpload={beforeImageUpload}
+                  showUploadList={false}
+                  customRequest={({ file }) => handleImageUpload(file)}
+                >
+                  <Button icon={<UploadOutlined />}>Select Image</Button>
+                </Upload>
+                {imageFile && <p>Selected: {imageFile.name}</p>}
+                {uploadProgress > 0 && <Progress percent={Math.round(uploadProgress)} />}
+              </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            Register
-          </Button>
-        </Form.Item>
-      </Form>
-
-      <h2>Approved Vehicles</h2>
-      <Table
-        columns={columns}
-        dataSource={vehicles}
-        loading={loading}
-        rowKey="id"
-        pagination={false}
-      />
+              <Form.Item>
+                <Button type="primary" htmlType="submit" loading={loading} block>
+                  Register
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Approved Vehicles" bordered style={{ borderRadius: 8 }}>
+            <Table
+              columns={columns}
+              dataSource={vehicles}
+              loading={loading}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: "max-content" }}
+            />
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 }

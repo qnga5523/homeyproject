@@ -38,8 +38,8 @@ export default function AvatarOwner() {
   }, []);
 
   const handleMenuClick = ({ key }) => {
-    if (key === "ownerprofile") {
-      navigate("/owner/profile");
+    if (key === "ownerpassword") {
+      navigate("/owner/changepassword");
     } else if (key === "logout") {
       auth.signOut().then(() => navigate("/login")).catch(() => message.error("Logout failed."));
     }
@@ -52,15 +52,15 @@ export default function AvatarOwner() {
         title={<Text strong>{owner?.Username}</Text>}
         description={
           <>
-            <Text type="secondary">{owner?.role}</Text>
+            <Text type="secondary">Owner</Text>
             <br />
-            <Text type="secondary">{owner?.email}</Text>
+            {/* <Text type="secondary">{owner?.email}</Text> */}
           </>
         }
       />
       <Menu onClick={handleMenuClick} style={{ marginTop: 8 }}>
-        <Menu.Item key="ownerprofile" icon={<ProfileOutlined />}>
-          Profile
+        <Menu.Item key="ownerpassword" icon={<ProfileOutlined />}>
+          Change Password
         </Menu.Item>
         <Menu.Item key="logout" icon={<LogoutOutlined />} danger>
           Logout
@@ -76,13 +76,11 @@ export default function AvatarOwner() {
           <UserOutlined style={{ fontSize: "24px" }} />
         ) : (
           <Avatar
+          style={{ marginRight: "40px" }}
             src={owner?.avatarUrl || null}
             icon={!owner?.avatarUrl && <UserOutlined />}
             size={40}
           >
-            {!owner?.avatarUrl && owner?.Username
-              ? owner.Username.charAt(0).toUpperCase()
-              : ""}
           </Avatar>
         )}
       </Button>

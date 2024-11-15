@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Radio, Space } from 'antd';
+import { Form, Input, Button, Radio, Space,message } from 'antd';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from '../../Services/firebase';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 const { TextArea } = Input;
 
 export default function Feedback() {
@@ -15,7 +15,7 @@ export default function Feedback() {
   });
   const [isMandatory, setIsMandatory] = useState(false);
   const navigate = useNavigate();
-
+  const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
   const checkFeedbackRequired = async () => {
     const currentDate = new Date();
@@ -24,10 +24,19 @@ export default function Feedback() {
  
     if (user) {
       const userDoc = await getDoc(doc(db, "Users", user.uid));
-      if (userDoc.exists() && userDoc.data().role === "owner" && day >= 1 && day <= 5) {
-        setIsMandatory(true);  
+      if (userDoc.exists()) {
+        const userData = userDoc.data();       
+        if (userData.role === "admin") {
+          setIsAdmin(true);
+        }
+        if (userData.role === "owner" && day >= 1 && day <= 5) {
+          setIsMandatory(true);
+        } else if (userData.role === "owner") {
+          navigate('/owner');
+        }
       } else {
-        navigate('/owner'); 
+        message.error("User not found or unauthorized");
+        navigate('/login');
       }
     }
   };
@@ -94,6 +103,13 @@ export default function Feedback() {
   return (
     <div className="p-6 max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Feedback</h1>
+      {isAdmin && (
+        <div className="mb-4 text-right">
+          <Link to="/reportFeedback" className="text-blue-500 hover:underline">
+            View Feedback Report
+          </Link>
+        </div>
+      )}
       <Form layout="vertical" onFinish={handleSubmit}>
 
         <Form.Item label="Overall, how would you rate your experience using the condominium management software?" className="mb-6">

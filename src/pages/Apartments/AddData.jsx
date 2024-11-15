@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Table, Popconfirm } from "antd";
+import { Form, Input, Button, Table, Popconfirm, Row, Col } from "antd";
 import { db } from "../../Services/firebase";
-import {
-  collection,
-  addDoc,
-  deleteDoc,
-  doc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 export default function ManageBuildings() {
   const [buildingName, setBuildingName] = useState("");
   const [floors, setFloors] = useState(0);
   const [roomsPerFloor, setRoomsPerFloor] = useState(0);
   const [buildings, setBuildings] = useState([]);
-  const [currentBuildingId, setCurrentBuildingId] = useState(null); // ID của tòa nhà đang chỉnh sửa
+  const [currentBuildingId, setCurrentBuildingId] = useState(null);
 
   useEffect(() => {
     fetchBuildings();
@@ -43,7 +37,6 @@ export default function ManageBuildings() {
 
     try {
       if (currentBuildingId) {
-        // Cập nhật tòa nhà hiện tại
         const buildingRef = doc(db, "buildings", currentBuildingId);
         await updateDoc(buildingRef, {
           name: buildingName,
@@ -53,7 +46,6 @@ export default function ManageBuildings() {
         });
         alert("Building updated successfully!");
       } else {
-        // Thêm tòa nhà mới
         await addDoc(collection(db, "buildings"), {
           name: buildingName,
           floors: floors,
@@ -62,12 +54,11 @@ export default function ManageBuildings() {
         });
         alert("Building added successfully!");
       }
-      fetchBuildings(); // Refresh building list
-      // Reset form fields
+      fetchBuildings();
       setBuildingName("");
       setFloors(0);
       setRoomsPerFloor(0);
-      setCurrentBuildingId(null); // Reset ID sau khi thêm hoặc cập nhật
+      setCurrentBuildingId(null);
     } catch (error) {
       console.error("Error saving building: ", error);
     }
@@ -77,15 +68,25 @@ export default function ManageBuildings() {
     try {
       await deleteDoc(doc(db, "buildings", id));
       alert("Building deleted successfully!");
-      fetchBuildings(); // Refresh building list
+      fetchBuildings();
     } catch (error) {
       console.error("Error deleting building: ", error);
     }
   };
 
+  const handleEdit = (id) => {
+    const building = buildings.find((b) => b.id === id);
+    if (building) {
+      setBuildingName(building.name);
+      setFloors(building.floors);
+      setRoomsPerFloor(building.roomsPerFloor);
+      setCurrentBuildingId(id);
+    }
+  };
+
   const columns = [
     {
-      title: "Building Name",
+      title: "Building",
       dataIndex: "name",
       key: "name",
     },
@@ -95,7 +96,7 @@ export default function ManageBuildings() {
       key: "floors",
     },
     {
-      title: "Rooms per Floor",
+      title: "Rooms",
       dataIndex: "roomsPerFloor",
       key: "roomsPerFloor",
     },
@@ -104,53 +105,54 @@ export default function ManageBuildings() {
       key: "actions",
       render: (text, record) => (
         <span>
-          <Button onClick={() => handleEdit(record.id)}>Edit</Button>
+          <EditOutlined
+            style={{ fontSize: "18px", color: "#1890ff", cursor: "pointer", marginRight: 16 }}
+            onClick={() => handleEdit(record.id)}
+          />
           <Popconfirm
             title="Are you sure to delete this building?"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button type="link">Delete</Button>
+            <DeleteOutlined style={{ fontSize: "18px", color: "#ff4d4f", cursor: "pointer" }} />
           </Popconfirm>
         </span>
       ),
     },
   ];
 
-  const handleEdit = (id) => {
-    const building = buildings.find((b) => b.id === id);
-    if (building) {
-      setBuildingName(building.name);
-      setFloors(building.floors);
-      setRoomsPerFloor(building.roomsPerFloor);
-      setCurrentBuildingId(id); 
-    }
-  };
-
   return (
-    <div>
+    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
       <Form layout="vertical" onFinish={handleSubmit}>
-        <Form.Item label="Building Name">
-          <Input
-            value={buildingName}
-            onChange={(e) => setBuildingName(e.target.value)}
-          />
-        </Form.Item>
-        <Form.Item label="Number of Floors">
-          <Input
-            type="number"
-            value={floors}
-            onChange={(e) => setFloors(Number(e.target.value))}
-          />
-        </Form.Item>
-        <Form.Item label="Rooms per Floor">
-          <Input
-            type="number"
-            value={roomsPerFloor}
-            onChange={(e) => setRoomsPerFloor(Number(e.target.value))}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Form.Item label="Building" required>
+              <Input
+                value={buildingName}
+                onChange={(e) => setBuildingName(e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Floors" required>
+              <Input
+                type="number"
+                value={floors}
+                onChange={(e) => setFloors(Number(e.target.value))}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Rooms" required>
+              <Input
+                type="number"
+                value={roomsPerFloor}
+                onChange={(e) => setRoomsPerFloor(Number(e.target.value))}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
             {currentBuildingId ? "Update Building" : "Add Building"}
           </Button>
         </Form.Item>

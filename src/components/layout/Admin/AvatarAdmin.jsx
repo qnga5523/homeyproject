@@ -56,7 +56,6 @@ export default function AdminAvatar() {
           <>
             <Text type="secondary">Admin</Text>
             <br />
-            <Text type="secondary">{admin?.email}</Text>
           </>
         }
       />
@@ -78,11 +77,11 @@ export default function AdminAvatar() {
           <UserOutlined style={{ fontSize: "24px" }} />
         ) : (
           <Avatar
+          style={{ marginRight: "40px" }}
             src={admin?.avatarUrl || null}
             icon={!admin?.avatarUrl && <UserOutlined />}
             size={40}
           >
-            {!admin?.avatarUrl && admin?.Username ? admin.Username.charAt(0).toUpperCase() : ""}
           </Avatar>
         )}
       </Button>

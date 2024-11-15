@@ -48,7 +48,6 @@ export default function Signup() {
         collection(db, "rooms"),
         where("buildingId", "==", selectedBuilding.id)
       );
-
       const roomsSnapshot = await getDocs(roomsQuery);
       const roomList = roomsSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -62,6 +61,8 @@ export default function Signup() {
 
   const onFinish = async (values) => {
     const { email, password, phone, name, room, building } = values;
+    const selectedBuilding = buildings.find((b) => b.id === building);
+    const selectedRoom = rooms.find((r) => r.id === room);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -75,8 +76,8 @@ export default function Signup() {
           email: user.email,
           Username: name,
           Phone: phone,
-          room: room,
-          building: building,
+          room: selectedRoom ? selectedRoom.roomNumber : room,
+          building: selectedBuilding ? selectedBuilding.name : building,
           role: "owner",
           approved: false,
         });
@@ -95,13 +96,11 @@ export default function Signup() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      // Fetch user details from Firestore
       const userDoc = await getDoc(doc(db, "Users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.role === "admin") {
-          window.location.href = "/admin";
+          window.location.href = "/";
         } else if (userData.role === "owner" && userData.approved) {
           window.location.href = "/owner";
         } else {
@@ -134,7 +133,15 @@ export default function Signup() {
       >
         <Option value=""></Option>
         <Option value="86">+86</Option>
-        <Option value="87">+84</Option>
+        <Option value="84">+84</Option>
+        <Option value="1">+1</Option>
+        <Option value="55">+55</Option>
+        <Option value="81">+81</Option>
+        <Option value="49">+49</Option>
+        <Option value="91">+91</Option>
+        <Option value="33">+33</Option>
+        <Option value="44">+44</Option>
+        <Option value="61">+61</Option>
       </Select>
     </Form.Item>
   );

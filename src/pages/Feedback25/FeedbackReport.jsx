@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
-import { List, Card, DatePicker, Spin } from 'antd';
+import { DatePicker, Spin, Card, Typography, List } from 'antd';
 import { db } from '../../Services/firebase';
 import { doc, getDoc } from "firebase/firestore";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend
-} from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import moment from 'moment';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function FeedbackReport() {
+const { Title, Text } = Typography;
+
+export default function FeedbackReport({ showAnswers = true , showDatePicker = true}) {
   const [chartData, setChartData] = useState(null);
+  const [feedbackCount, setFeedbackCount] = useState(0);
   const [openFeedback, setOpenFeedback] = useState({
     improvementSuggestions: [],
     usefulFeatures: [],
@@ -46,12 +44,14 @@ export default function FeedbackReport() {
         ]
       });
 
+      setFeedbackCount(data.feedbackCount || 0);
       setOpenFeedback({
         improvementSuggestions: data.improvementSuggestions,
         usefulFeatures: data.usefulFeatures
       });
     } else {
       setChartData(null);
+      setFeedbackCount(0);
       setOpenFeedback({
         improvementSuggestions: [],
         usefulFeatures: []
@@ -69,60 +69,59 @@ export default function FeedbackReport() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">Feedback Summary</h1>
-      <div className="flex justify-center mb-6">
-        <DatePicker 
-          picker="month" 
-          onChange={handleDateChange} 
-          value={selectedDate} 
-          format="MMMM YYYY"
-        />
-      </div>
+    <div>
+
+      {showDatePicker && (
+        <div className="flex justify-center mb-6">
+          <DatePicker 
+            picker="month" 
+            onChange={handleDateChange} 
+            value={selectedDate} 
+            format="MMMM YYYY"
+          />
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center">
           <Spin size="large" />
         </div>
       ) : (
+        <Card className="text-center" style={{ padding: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ width: "100%", maxWidth: "400px" }}>
+            {chartData ? (
+              <Pie style={{ height: "280px" }} data={chartData} options={{ maintainAspectRatio: false }} />
+            ) : (
+              <Text>No data available for the selected month.</Text>
+            )}
+          </div>
+        </Card>
+      )}
+
+    
+      {showAnswers && (
         <>
-
-          {chartData ? (
-            <div className="mb-8 flex justify-center">
-              <div style={{ width: "50%", maxWidth: "300px", margin: "0 auto" }}>
-                <h2 className="text-2xl font-semibold mb-4 text-center">Overall Satisfaction</h2>
-                <Pie data={chartData} />
-              </div>
-            </div>
-          ) : (
-            <p className="text-center text-lg">No feedback data available for the selected month.</p>
-          )}
-
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Improvement Suggestions</h2>
+          <Card title="Improvement Suggestions" className="mb-8">
             <List
-              bordered
-              dataSource={openFeedback.improvementSuggestions}
+              dataSource={openFeedback.improvementSuggestions.slice(0, 3)}
               renderItem={(item) => (
                 <List.Item>
-                  <Card>{item}</Card>
+                  <Text>{item}</Text>
                 </List.Item>
               )}
             />
-          </div>
+          </Card>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Useful Features</h2>
+          <Card title="Useful Features">
             <List
-              bordered
-              dataSource={openFeedback.usefulFeatures}
+              dataSource={openFeedback.usefulFeatures.slice(0, 3)}
               renderItem={(item) => (
                 <List.Item>
-                  <Card>{item}</Card>
+                  <Text>{item}</Text>
                 </List.Item>
               )}
             />
-          </div>
+          </Card>
         </>
       )}
     </div>

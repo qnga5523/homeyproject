@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, updateDoc, doc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../Services/firebase';
-import { Table, Tag, Button, Modal, Input, message, DatePicker, Form } from 'antd';
+import { Table, Tag, Button, Modal, Input, message, DatePicker, Form, Typography, Space } from 'antd';
 
 const { TextArea } = Input;
+const { Title } = Typography;
 
 export default function ReqBook() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [responseModalVisible, setResponseModalVisible] = useState(false);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [adminResponse, setAdminResponse] = useState('');
   const [proposedTimes, setProposedTimes] = useState([]);
-  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'serviceBookings'));
-        const bookingsList = querySnapshot.docs.map(doc => {
-          const data = doc.data();
-          console.log("Fetched booking data:", data); 
-          return { ...data, id: doc.id, userId: data.userId || null };
-        });
+        const bookingsList = querySnapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id,
+          userId: doc.data().userId || null,
+        }));
         setBookings(bookingsList);
         setLoading(false);
       } catch (error) {
@@ -40,9 +41,55 @@ export default function ReqBook() {
     setProposedTimes(booking.proposedTimes || []);
     setResponseModalVisible(true);
   };
+
   const handleOpenDetailsModal = (booking) => {
     setSelectedBooking(booking);
     setDetailsModalVisible(true);
+  };
+
+  const handleSendResponse = async (status) => {
+    if (!selectedBooking || !selectedBooking.userId) {
+      message.error("User ID is missing for the selected booking.");
+      return;
+    }
+
+    try {
+      const bookingRef = doc(db, 'serviceBookings', selectedBooking.id);
+      await updateDoc(bookingRef, {
+        adminResponse: adminResponse,
+        responseStatus: status,
+        proposedTimes: proposedTimes,
+      });
+      
+      message.success(`Booking ${status.toLowerCase()} successfully!`);
+      setResponseModalVisible(false);
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking.id === selectedBooking.id
+            ? { ...booking, adminResponse, responseStatus: status, proposedTimes }
+            : booking
+        )
+      );
+      await addDoc(collection(db, 'notifications'), {
+        userId: selectedBooking.userId,
+        role: 'user',
+        content: `Your booking request has been ${status.toLowerCase()} by the admin.`,
+        bookingId: selectedBooking.id,
+        isRead: false,
+        createdAt: serverTimestamp(),
+      });
+      await addDoc(collection(db, 'notifications'), {
+        userId: null,
+        role: 'admin',
+        content: `Booking request from ${selectedBooking.residentName} has been ${status.toLowerCase()}.`,
+        bookingId: selectedBooking.id,
+        isRead: false,
+        createdAt: serverTimestamp(),
+      });
+    } catch (error) {
+      message.error(`Failed to ${status.toLowerCase()} booking.`);
+      console.error("Error updating response:", error);
+    }
   };
 
   const handleAddProposedTime = (time) => {
@@ -53,45 +100,6 @@ export default function ReqBook() {
     setProposedTimes(proposedTimes.filter((_, i) => i !== index));
   };
 
-  const handleSendResponse = async () => {
-    if (!selectedBooking || !selectedBooking.userId) {
-      message.error("User ID is missing for the selected booking.");
-      return;
-    }
-  
-    try {
-      const bookingRef = doc(db, 'serviceBookings', selectedBooking.id);
-      await updateDoc(bookingRef, {
-        adminResponse: adminResponse,
-        responseStatus: 'Responded',
-        proposedTimes: proposedTimes,
-      });
-      message.success('Response sent successfully!');
-      setResponseModalVisible(false);
-  
-      // Update booking in state
-      setBookings((prevBookings) =>
-        prevBookings.map((booking) =>
-          booking.id === selectedBooking.id
-            ? { ...booking, adminResponse, responseStatus: 'Responded', proposedTimes }
-            : booking
-        )
-      );
-  
-      // Create notification for user
-      await addDoc(collection(db, 'notifications'), {
-        userId: selectedBooking.userId, 
-        role: 'user',
-        content: `Your booking request has been responded to by the admin. Status: Responded.`,
-        bookingId: selectedBooking.id,
-        isRead: false,
-        createdAt: serverTimestamp(),
-      });
-    } catch (error) {
-      message.error('Failed to send response.');
-      console.error("Error sending response:", error);
-    }
-  };
   const columns = [
     {
       title: 'Resident Name',
@@ -129,9 +137,9 @@ export default function ReqBook() {
           case 'managementservice':
             color = 'blue';
             break;
-            case 'infrastructureservice':
-              color='yellow';
-              break;
+          case 'infrastructureservice':
+            color = 'yellow';
+            break;
           default:
             color = 'grey';
         }
@@ -143,7 +151,7 @@ export default function ReqBook() {
       dataIndex: 'responseStatus',
       key: 'responseStatus',
       render: (status) => (
-        <Tag color={status === 'Responded' ? 'green' : 'red'}>
+        <Tag color={status === 'Approved' ? 'green' : status === 'Rejected' ? 'red' : 'grey'}>
           {status ? status.toUpperCase() : 'PENDING'}
         </Tag>
       ),
@@ -158,6 +166,7 @@ export default function ReqBook() {
       ),
     },
   ];
+
   const renderBookingDetails = () => {
     if (!selectedBooking) return null;
     return (
@@ -165,118 +174,39 @@ export default function ReqBook() {
         <p><strong>Resident Name:</strong> {selectedBooking.residentName}</p>
         <p><strong>Room:</strong> {selectedBooking.room}</p>
         <p><strong>Building:</strong> {selectedBooking.building}</p>
-        <p><strong>Service Type:</strong> {selectedBooking.serviceType.toUpperCase()}</p>
-        <p><strong>Status:</strong> {selectedBooking.status || 'Pending'}</p>
-        {selectedBooking.serviceType === 'cleaning' && (
-          <>
-            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
-            <p><strong>Special Requirements:</strong> {selectedBooking.cause || 'N/A'}</p>
-            <p><strong>Contact Information:</strong> {selectedBooking.notes || 'N/A'}</p>
-            <p><strong>Start Time:</strong> {selectedBooking.startTime ? 
-  (selectedBooking.startTime.toDate ? selectedBooking.startTime.toDate().toLocaleString() : new Date(selectedBooking.startTime).toLocaleString()) 
-  : 'N/A'}
-</p>
-<p><strong>End Time:</strong> {selectedBooking.endTime ? 
-  (selectedBooking.endTime.toDate ? selectedBooking.endTime.toDate().toLocaleString() : new Date(selectedBooking.endTime).toLocaleString()) 
-  : 'N/A'}
-</p>
-
-
-          </>
-        )}
-        
-        {selectedBooking.serviceType === 'security' && (
-          <>
-            <p><strong>Service Name:</strong> {selectedBooking.field}</p>
-            <p><strong>Duration (Hours):</strong> {selectedBooking.duration}</p>
-            <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
-            <p><strong>Special Instructions:</strong> {selectedBooking.notes || 'N/A'}</p>
-          </>
-        )}
-  
-        {selectedBooking.serviceType === 'managementservice' && (
-          <>
-            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
-            <p><strong>Details of Request:</strong> {selectedBooking.notes || 'N/A'}</p>
-            <p><strong>Preferred Schedule:</strong> {selectedBooking.PreferredSchedule ? 
-  (selectedBooking.PreferredSchedule.toDate ? selectedBooking.PreferredSchedule.toDate().toLocaleString() : new Date(selectedBooking.PreferredSchedule).toLocaleString()) 
-  : 'N/A'}
-</p>
-            <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
-            <p><strong>Images:</strong> {selectedBooking.images && selectedBooking.images.length > 0 ? selectedBooking.images.map((url, index) => (
-          <img key={index} src={url} alt="booking" style={{ width: '100px', marginRight: '5px' }} />
-        )) : 'N/A'}</p>
-            
-          </>
-        )}
-  
-        {selectedBooking.serviceType === 'infrastructureservice' && (
-          <>
-            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
-            <p><strong>Issue Description:</strong> {selectedBooking.notes || 'N/A'}</p>
-            <p><strong>Preferred Schedule:</strong> {selectedBooking.PreferredSchedule ? 
-  (selectedBooking.PreferredSchedule.toDate ? selectedBooking.PreferredSchedule.toDate().toLocaleString() : new Date(selectedBooking.PreferredSchedule).toLocaleString()) 
-  : 'N/A'}
-</p> <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
-            <p><strong>Images:</strong> {selectedBooking.images && selectedBooking.images.length > 0 ? selectedBooking.images.map((url, index) => (
-          <img key={index} src={url} alt="booking" style={{ width: '100px', marginRight: '5px' }} />
-        )) : 'N/A'}</p>
-          </>
-        )}
-  
-        {selectedBooking.serviceType === 'recreationalservice' && (
-          <>
-            <p><strong>Service Name:</strong> {selectedBooking.itemName}</p>
-            <p><strong>Special Requirements:</strong> {selectedBooking.cause || 'N/A'}</p>
-            <p><strong>Booking Details:</strong> {selectedBooking.BookingDetails ? 
-  (selectedBooking.BookingDetails.toDate ? selectedBooking.BookingDetails.toDate().toLocaleString() : new Date(selectedBooking.BookingDetails).toLocaleString()) 
-  : 'N/A'}
-</p>
-
-            <p><strong>Participants:</strong> {selectedBooking.participants || 'N/A'}</p>
-            <p><strong>Contact Information:</strong> {selectedBooking.contact || 'N/A'}</p>
-          </>
-        )}
-  
-        <p><strong>Payment Method:</strong> {selectedBooking.paymentMethod || 'N/A'}</p>
-        <p><strong>Images:</strong> {selectedBooking.images && selectedBooking.images.length > 0 ? selectedBooking.images.map((url, index) => (
-          <img key={index} src={url} alt="booking" style={{ width: '100px', marginRight: '5px' }} />
-        )) : 'N/A'}</p>
       </div>
     );
   };
 
   return (
-    <div>
-      <h2>Booked Services</h2>
+    <div style={{ textAlign: "center" }}>
+      <Title level={2} style={{ marginBottom: "20px" }}>Booking Management</Title>
       <Table
         columns={columns}
         dataSource={bookings}
         loading={loading}
         rowKey="id"
         pagination={{ pageSize: 5 }}
+        style={{ marginBottom: "30px", justifyContent: "center" }}
       />
 
-<Modal
-  title="Booking Details"
-  visible={detailsModalVisible}
-  onCancel={() => setDetailsModalVisible(false)}
-  footer={[
-    <Button key="close" onClick={() => setDetailsModalVisible(false)}>
-      Close
-    </Button>,
-  ]}
->
-  {renderBookingDetails()}
-</Modal>
-      {/* Modal for Admin Response */}
+      <Modal
+        title="Booking Details"
+        visible={detailsModalVisible}
+        onCancel={() => setDetailsModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setDetailsModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        {renderBookingDetails()}
+      </Modal>
       <Modal
         title="Respond to Booking"
         visible={responseModalVisible}
         onCancel={() => setResponseModalVisible(false)}
-        onOk={handleSendResponse}
-        okText="Send Response"
-        cancelText="Cancel"
+        footer={null}
       >
         <Form layout="vertical">
           <Form.Item label="Admin Response">
@@ -304,6 +234,15 @@ export default function ReqBook() {
               ))}
             </ul>
           </Form.Item>
+
+          <Space style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+            <Button type="primary" onClick={() => handleSendResponse("Approved")}>
+              Approve
+            </Button>
+            <Button type="danger" onClick={() => handleSendResponse("Rejected")}>
+              Reject
+            </Button>
+          </Space>
         </Form>
       </Modal>
     </div>

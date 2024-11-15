@@ -1,80 +1,72 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
-import { Table, Button, Modal } from "antd";
+import { Table, Button, Modal, message } from "antd";
 
-export default function ListVehicle({ setVehicleCounts }) {
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(false);
+export default function ListVehicle() {
   const [groupedVehicles, setGroupedVehicles] = useState([]);
   const [selectedUserVehicles, setSelectedUserVehicles] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchApprovedVehicles = async () => {
       setLoading(true);
       const q = query(
         collection(db, "Vehicle"),
-        where("status", "==", "approved") 
+        where("status", "==", "approved")
       );
 
-      const querySnapshot = await getDocs(q);
-      const approvedVehicles = [];
+      try {
+        const querySnapshot = await getDocs(q);
+        const approvedVehicles = querySnapshot.docs.map((docSnapshot) => ({
+          id: docSnapshot.id,
+          ...docSnapshot.data(),
+        }));
 
-      querySnapshot.forEach((doc) => {
-        approvedVehicles.push({ ...doc.data(), id: doc.id });
-      });
-      const vehicleCounts = {
-        total: 0,
-        carCount: 0,
-        motorcycleCount: 0,
-        electricBicycleCount: 0,
-        bicycleCount: 0,
-      };
-      const grouped = approvedVehicles.reduce((acc, vehicle) => {
-        const userId = vehicle.userId;
-        const vehicleType = vehicle.vehicleType;
-        vehicleCounts.total += 1;
-        if (vehicleType === "car") vehicleCounts.carCount += 1;
-        else if (vehicleType === "motorbike") vehicleCounts.motorcycleCount += 1;
-        else if (vehicleType === "electric_bicycle") vehicleCounts.electricBicycleCount += 1;
-        else if (vehicleType === "bicycle") vehicleCounts.bicycleCount += 1;
+        // Group vehicles by `userId`
+        const grouped = approvedVehicles.reduce((acc, vehicle) => {
+          const userId = vehicle.userId;
+          const vehicleType = vehicle.vehicleType;
 
-        if (!acc[userId]) {
-          acc[userId] = {
-            userId,
-            totalVehicles: 0,
-            carCount: 0,
-            motorcycleCount: 0,
-            electricBicycleCount: 0, 
-            bicycleCount: 0,
-            vehicles: [],
-          };
-        }
+          if (!acc[userId]) {
+            acc[userId] = {
+              userId,
+              Username: vehicle.Username || "Unknown",
+              email: vehicle.email || "N/A",
+              Phone: vehicle.Phone || "N/A",
+              room: vehicle.room || "N/A",
+              building: vehicle.building || "N/A",
+              totalVehicles: 0,
+              carCount: 0,
+              motorcycleCount: 0,
+              electricBicycleCount: 0,
+              bicycleCount: 0,
+              vehicles: [],
+            };
+          }
 
-        acc[userId].totalVehicles += 1;
+          acc[userId].totalVehicles += 1;
+          if (vehicleType === "car") acc[userId].carCount += 1;
+          else if (vehicleType === "motorbike") acc[userId].motorcycleCount += 1;
+          else if (vehicleType === "electric_bicycle") acc[userId].electricBicycleCount += 1;
+          else if (vehicleType === "bicycle") acc[userId].bicycleCount += 1;
 
-      
-        if (vehicleType === "car") acc[userId].carCount += 1;
-        else if (vehicleType === "motorbike") acc[userId].motorcycleCount += 1;
-        else if (vehicleType === "electric_bicycle")
-          acc[userId].electricBicycleCount += 1;
-        else if (vehicleType === "bicycle") acc[userId].bicycleCount += 1;
+          acc[userId].vehicles.push(vehicle);
+          return acc;
+        }, {});
 
-        acc[userId].vehicles.push(vehicle);
-        return acc;
-      }, {});
-
-
-      setGroupedVehicles(Object.values(grouped));
-      setVehicles(approvedVehicles);
-      setVehicleCounts(vehicleCounts);
-      setLoading(false);
+        setGroupedVehicles(Object.values(grouped));
+      } catch (error) {
+        message.error("Failed to fetch vehicle data");
+        console.error("Error fetching vehicle data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchApprovedVehicles();
-  }, [setVehicleCounts]);
-
+  }, []);
 
   const showUserVehicles = (userVehicles) => {
     setSelectedUserVehicles(userVehicles);
@@ -83,9 +75,19 @@ export default function ListVehicle({ setVehicleCounts }) {
 
   const columns = [
     {
-      title: "User ID",
-      dataIndex: "userId",
-      key: "userId",
+      title: "Username",
+      dataIndex: "Username",
+      key: "Username",
+    },
+    {
+      title: "Apartment",
+      dataIndex: "room",
+      key: "room",
+    },
+    {
+      title: "Building",
+      dataIndex: "building",
+      key: "building",
     },
     {
       title: "Total Vehicles",
@@ -122,7 +124,7 @@ export default function ListVehicle({ setVehicleCounts }) {
       ),
     },
   ];
-  
+
   const detailColumns = [
     {
       title: "Vehicle Type",
@@ -147,7 +149,7 @@ export default function ListVehicle({ setVehicleCounts }) {
         text ? <img src={text} alt="vehicle" style={{ width: 100 }} /> : "N/A",
     },
   ];
-  
+
   return (
     <>
       <Table
@@ -157,7 +159,7 @@ export default function ListVehicle({ setVehicleCounts }) {
         rowKey="userId"
         pagination={false}
       />
-  
+
       <Modal
         title="User Vehicle Details"
         visible={isModalVisible}
@@ -174,5 +176,4 @@ export default function ListVehicle({ setVehicleCounts }) {
       </Modal>
     </>
   );
-  
 }

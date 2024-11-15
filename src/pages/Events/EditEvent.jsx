@@ -15,26 +15,21 @@ import { PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { db, storage } from "../../Services/firebase";
 const { RangePicker } = DatePicker;
-
 export default function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [event, setEvent] = useState(null);
-
+  const [event, setEvent] = useState(null)
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         const eventDoc = doc(db, "events", id);
         const eventSnapshot = await getDoc(eventDoc);
-
         if (eventSnapshot.exists()) {
           const eventData = eventSnapshot.data();
           setEvent(eventData);
-
-          // Initialize form with fetched data, converting dates to moment objects
-          form.setFieldsValue({
+       form.setFieldsValue({
             ...eventData,
             postDate: eventData.postDate
               ? moment(eventData.postDate.toDate())
@@ -97,15 +92,15 @@ export default function EditEvent() {
         postDate: formattedPostDate || event.postDate,
         deadline: formattedDeadline || event.deadline,
         content: content || event.content,
-        number: number !== undefined ? number : event.number, // Ensure it's not undefined
-        apart: apart !== undefined ? apart : event.apart, // Ensure it's not undefined
+        number: number !== undefined ? number : event.number, 
+        apart: apart !== undefined ? apart : event.apart, 
         imageUrl: imageUrl || event.imageUrl,
       };
 
       await updateDoc(eventRef, updatedData);
 
       message.success("Event updated successfully");
-      navigate(`/admin/event/${id}`);
+      navigate(`/event/${id}`);
     } catch (error) {
       console.error("Error updating event: ", error);
       message.error("Failed to update event");

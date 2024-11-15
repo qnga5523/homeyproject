@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Form, Input, DatePicker } from "antd";
+import { Table, Button, Form, Input, DatePicker, Tooltip, Typography,Space  } from "antd";
+import { EditOutlined, DeleteOutlined, CheckCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../../../Services/firebase";
+const { Title } = Typography;
 export default function PricesClean() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
@@ -123,9 +125,13 @@ export default function PricesClean() {
       key: "default",
       render: (_, record) => (
         <div>
-          <span>{record.default ? "Default" : "Paused"}</span>
+          {record.default ? (
+            <CheckCircleOutlined style={{ color: "green" }} />
+          ) : (
+            <PauseCircleOutlined style={{ color: "gray" }} />
+          )}
           <Button type="link" onClick={() => setDefaultPrice(record.id)}>
-            {record.default ? "Pause" : "Set Default"}
+            {record.default ? "" : "Default"}
           </Button>
         </div>
       ),
@@ -134,22 +140,28 @@ export default function PricesClean() {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
-          <Button onClick={() => handleEditPrice(record)}>Edit</Button>
-          <Button danger onClick={() => deletePrice(record.id)}>Delete</Button>
-          
-        </>
+        <Space size="middle">
+          <Tooltip title="Edit">
+            <Button icon={<EditOutlined />} onClick={() => handleEditPrice(record)} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button danger icon={<DeleteOutlined />} onClick={() => deletePrice(record.id)} />
+          </Tooltip>
+        </Space>
       ),
     }
   ];
 
   return (
-    <>
+    <div style={{ textAlign: "center" }}>
+      <Title level={2} style={{ marginBottom: "20px" }}>Service Price Management</Title>
       <Form
         form={form}
         layout="inline"
         onFinish={onFinish}
+        style={{ marginBottom: "30px", justifyContent: "center" }}
       >
+        <Space size="large">
         <Form.Item
           name="area"
           rules={[{ required: true, message: "Please input area!" }]}
@@ -173,9 +185,10 @@ export default function PricesClean() {
             Submit
           </Button>
         </Form.Item>
+        </Space>
       </Form>
       <Table dataSource={prices} columns={columns} rowKey="id" />
-    </>
+    </div>
   );
 }
 

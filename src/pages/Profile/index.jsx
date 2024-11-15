@@ -22,7 +22,6 @@ export default function Profile() {
         if (docSnap.exists()) {
           const profileData = docSnap.data();
           setProfile(profileData);
-          // Fetch room info for the user's assigned room and building
           fetchRoomInfo(profileData.building, profileData.room);
         } else {
           message.error("User data not found");
@@ -36,7 +35,6 @@ export default function Profile() {
   const fetchRoomInfo = async (buildingName, roomNumber) => {
     if (buildingName && roomNumber) {
       try {
-        // Step 1: Get the buildingId based on the building name
         const buildingsCollection = collection(db, "buildings");
         const buildingQuery = query(buildingsCollection, where("name", "==", buildingName));
         const buildingSnapshot = await getDocs(buildingQuery);
@@ -47,8 +45,6 @@ export default function Profile() {
         }
 
         const buildingId = buildingSnapshot.docs[0].id;
-
-        // Step 2: Query rooms collection with buildingId and roomNumber
         const roomsCollection = collection(db, "rooms");
         const roomQuery = query(
           roomsCollection,
@@ -125,7 +121,6 @@ export default function Profile() {
               <Form.Item label="Household members">
                 <Input value={profile.members || ""} disabled />
               </Form.Item>
-              {/* Room Information Section */}
               {roomInfo && (
                 <>
                   <Title level={5} style={{ marginTop: "1rem" }}>Room Information</Title>

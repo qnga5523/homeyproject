@@ -47,7 +47,7 @@ export default function SetFee() {
 
     for (const userDoc of usersSnapshot.docs) {
       const userData = userDoc.data();
-      if (userData.role === "owner") {
+      if (userData.role === "owner" && userData.approved === true) {
         const roomDoc = roomsSnapshot.docs.find(
           (doc) => doc.data().roomNumber === userData.room
         );
@@ -212,6 +212,7 @@ export default function SetFee() {
       const day = selectedDate.date();
       const buildingName = selectedBuilding;
       const savedUsers = [];
+      let totalIncome = 0;
   
       for (const user of users) {
         const userDocRef = doc(
@@ -255,13 +256,24 @@ export default function SetFee() {
           month,
           year,
         };
-  
+        totalIncome += user.totalmoney ?? 0;
         await setDoc(userDocRef, dataToSave);
         savedUsers.push({ ...dataToSave, id: user.id });
       }
+      const reportDocRef = doc(
+        db,
+        "monthlyIncomeReports",
+        `${month}_${year}_${buildingName}`
+      );
+      await setDoc(reportDocRef, {
+        building: buildingName,
+        month,
+        year,
+        totalIncome,
+      });
   
       message.success(`Data successfully saved for the month: ${month} ${year}`);
-      navigate("/admin/invoice-review", { state: { users: savedUsers } });
+      navigate("/invoice-review", { state: { users: savedUsers } });
     } catch (error) {
       message.error("Error saving data: " + error.message);
     }
@@ -277,7 +289,7 @@ export default function SetFee() {
         style={{ marginBottom: 16 }}
       />
       <Select
-        style={{ width: 200, marginBottom: 16 }}
+        style={{ width: 200, marginBottom: 20, marginLeft:20, marginRight:20 }}
         placeholder="Select Building"
         onChange={handleBuildingChange}
         options={buildings.map((building) => ({
@@ -288,7 +300,7 @@ export default function SetFee() {
       <Button
         type="primary"
         onClick={fetchUsersAndPrices}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 16 , marginRight: 50}}
         disabled={!selectedBuilding}
       >
         Load Building
@@ -297,7 +309,7 @@ export default function SetFee() {
         placeholder="Search by Room"
         value={searchRoom}
         onChange={handleRoomSearch}
-        style={{ width: 200, marginBottom: 16, marginLeft: 8 }}
+        style={{ width: 200, marginBottom: 10, marginRight: 20 }}
       />
       <Button type="primary" onClick={handleSave} style={{ marginBottom: 16 }}>
         Save Data
@@ -306,6 +318,7 @@ export default function SetFee() {
         columns={columns}
         dataSource={filteredUsers}
         bordered
+        scroll={{ x: "max-content" }}
         size="middle"
         rowKey="id"
       />

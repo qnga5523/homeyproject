@@ -68,7 +68,7 @@ export default function DetailEvent() {
   };
 
   const handleEdit = () => {
-    navigate(`/admin/edit-event/${id}`);
+    navigate(`/edit-event/${id}`);
   };
 
   if (loading) {

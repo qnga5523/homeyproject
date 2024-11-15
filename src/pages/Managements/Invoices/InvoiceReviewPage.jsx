@@ -52,7 +52,6 @@ const InvoiceReviewPage = () => {
       <h2 style={styles.title}>Invoice Management</h2>
       <div style={styles.content}>
         <div style={styles.tableContainer}>
-          <h3>Invoice List</h3>
           <Table
             columns={columns}
             dataSource={users}
@@ -64,7 +63,7 @@ const InvoiceReviewPage = () => {
 
       <Button
         type="primary"
-        onClick={() => navigate("/admin")}
+        onClick={() => navigate("/")}
         style={{ marginTop: "20px" }}
       >
         Back to Dashboard

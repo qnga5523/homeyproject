@@ -6,8 +6,6 @@ const sendInvoiceEmail = async (user) => {
     if (!user.email) {
       throw new Error("User email is missing");
     }
-
-    // Format the invoice details for inclusion in the email message
     const messageContent = `
       Dear ${user.username},
 
@@ -35,14 +33,13 @@ const sendInvoiceEmail = async (user) => {
     `;
 
 
-    // Setup template parameters
+
     const templateParams = {
       to_name: user.username,
       to_email: user.email,
-      message: messageContent, // Send formatted content in the email message
+      message: messageContent, 
     };
 
-    // Send the email using EmailJS
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
