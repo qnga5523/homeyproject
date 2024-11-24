@@ -47,9 +47,7 @@ import { NotFound } from "./components/common/NotFound";
 import ServicePriceCharts from "./pages/Managements/Prices/ServicePriceCharts";
 import ServiceBookingChart from "./pages/Managements/ServiceBook/ServiceBookingChart";
 import MonthlyServiceFeeChart from "./pages/Managements/ServicesFee/MonthlyServiceChart";
-
-
-
+import InvoiceDocument from "./components/layout/Colums/InvoiceDocument";
 
 
 function App() {
@@ -66,10 +64,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/password" element={<ForgotPassword />} />
         <Route path="/signup" element={<Signup />} />
-        {/* Event */}
-      
-        <Route path="*" element={<NotFound />} />
-       
+        {/* Event */}      
+        <Route path="*" element={<NotFound />} />      
       
         {/* Admin */}
         <Route
@@ -113,6 +109,8 @@ function App() {
           <Route path="reportFeedback" element={<FeedbackReport/>}/>
           <Route path="ServicePriceCharts" element={<ServicePriceCharts/>}/>
           <Route path="ServiceBookingCharts" element={<ServiceBookingChart/>}/>
+          <Route path="compfee" element={<MonthlyServiceFeeChart/>}/>
+   
           {/* Chart */}
          </Route>
         {/* Owner */}
@@ -152,6 +150,7 @@ function App() {
 
         {/* dataStatistics */}
         <Route path="feechart" element={<MonthlyServiceFeeChart/>}/>
+
 
         </Route>   
         </Routes>

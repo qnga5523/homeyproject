@@ -11,6 +11,7 @@ import {
   Card,
   Button,
   Typography,
+  Input,
 } from "antd";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -57,7 +58,9 @@ import FeedbackReport from "../Feedback25/FeedbackReport";
 import ServicePriceCharts from "../Managements/Prices/ServicePriceCharts";
 import ServiceBookingChart from "../Managements/ServiceBook/ServiceBookingChart";
 import MonthlyServiceFeeChart from "../Managements/ServicesFee/MonthlyServiceChart"
-import TableBuilding from "../../components/layout/Colums/TableBuilding";
+import TotalFee from "../../components/layout/Colums/TotalFee";
+import ContactSupport from "../../components/common/ContactSupport";
+
 
 const { Title, Paragraph } = Typography;
 const { Header, Sider, Content } = Layout;
@@ -117,6 +120,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -216,7 +220,7 @@ export default function Dashboard() {
     fetchUserRole();
     fetchEvents();
   }, [navigate]);
-
+ 
   const logoPath = userRole === "admin" ? "/" : "/owner";
   const isRootDashboard =
     location.pathname === "/owner" || location.pathname === "/";
@@ -314,11 +318,6 @@ export default function Dashboard() {
         },
       ],
     },
-    {
-      key: "18",
-      icon: <SolutionOutlined />,
-      label: <Link to="/invoice-review">Invoice Template</Link>,
-    },
   ];
 
   const userMenu = [
@@ -376,6 +375,7 @@ export default function Dashboard() {
               style={{ height: "50px", width: "auto" }}
             />
           </Link>
+        
         </div>
         <Menu
           theme="dark"
@@ -424,8 +424,10 @@ export default function Dashboard() {
               }
             )}
           </div>
-
+          
+        
           <div className="flex items-center space-x-4">
+          <ContactSupport />
             <Dropdown
               overlay={<NotificationsMenu notifications={notifications} />}
               trigger={["click"]}
@@ -555,16 +557,19 @@ export default function Dashboard() {
                     <Col span={24}>
                       <Card title="Service Price Charts" bordered={false}
                       style={{ textAlign: "center", marginTop:"24px" }}>
-                        <ServicePriceCharts />
+                        <ServicePriceCharts showParking={false}/>
                       </Card>
                     </Col>
                   </Row>
                   <Row gutter={[16, 16]}>
-                    <Col span={24}>  
-                    <Card title=" Owner Count by Building" bordered={false} style={{ textAlign: "center", marginTop:"24px" }}>
-                    <TableBuilding/></Card>                  
+                    <Col span={24}>
+                      <Card title="Service Price Charts" bordered={false}
+                      style={{ textAlign: "center", marginTop:"24px" }}>
+                        <TotalFee showTableOnly={false}/>
+                      </Card>
                     </Col>
                   </Row>
+                  
                 </div>
               </>
             )}
@@ -602,7 +607,7 @@ export default function Dashboard() {
                            </Paragraph>
                            <Button
                              type="link"
-                             href={`/event/${event.id}`}
+                             href={`/owner/event/${event.id}`}
                              className="block text-center mt-2"
                              style={{ color: "#1890ff" }}
                            >

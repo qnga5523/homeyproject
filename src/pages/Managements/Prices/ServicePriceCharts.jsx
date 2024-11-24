@@ -16,6 +16,7 @@ import {
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../Services/firebase';
 import { CarOutlined, ContainerOutlined } from '@ant-design/icons';
+import TotalFee from '../../../components/layout/Colums/TotalFee';
 
 ChartJS.register(
   CategoryScale,
@@ -30,7 +31,7 @@ ChartJS.register(
 
 const { Title: AntTitle } = Typography;
 
-export default function ServicePriceCharts() {
+export default function ServicePriceCharts(showParking= true) {
   const [pricesData, setPricesData] = useState({ cleaning: [], parking: [], water: [] });
   const [loading, setLoading] = useState(true);
 
@@ -204,6 +205,7 @@ export default function ServicePriceCharts() {
               </div>
             </Card>
           </Col>
+        {showParking &&(
           <Col xs={24} md={12} className="mb-4">
             <Card
               title={
@@ -221,6 +223,7 @@ export default function ServicePriceCharts() {
               </div>
             </Card>
           </Col>
+        )}
         </Row>
       )}
     </div>

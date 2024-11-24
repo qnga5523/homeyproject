@@ -4,13 +4,9 @@ import {
   message,
   Typography,
   Divider,
-  Col,
-  Row,
-  Button,
-  Card,
   Statistic,
-  Space,
-  Alert
+  Alert,
+  Button,
 } from "antd";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
@@ -23,7 +19,7 @@ import {
   FilePdfOutlined,
   HomeOutlined,
   AuditOutlined,
-  CopyrightOutlined
+  CopyrightOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -110,87 +106,87 @@ export default function OwnerInvoice() {
   });
 
   return (
-    <Row gutter={[16, 16]} style={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
-      <Col xs={24} md={12}>
-        <Card bordered={false} style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <Title level={4} style={{ color: "#0073e6" }}>Service Fee Invoice</Title>
-            <DatePicker
-              picker="month"
-              value={selectedMonth}
-              onChange={(date) => setSelectedMonth(date)}
-              style={{ marginBottom: 16, display: "block", width: "100%" }}
-            />
-            {fees ? (
-              <>
-                <Divider orientation="left"> <AuditOutlined />Invoice Details</Divider>
-                <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-                  <Col xs={12} sm={12} md={12}>
-                    <Statistic
-                      title="Room"
-                      value={fees.room || "N/A"}
-                      prefix={<HomeOutlined />}
-                    />
-                  </Col>
-                  <Col xs={12} sm={12} md={12}>
-                    <Statistic
-                      title="Building"
-                      value={fees.building || "N/A"}
-                      prefix={<CopyrightOutlined />}
-                    />
-                  </Col>
-                </Row>
-                <Divider orientation="left">Service Fees</Divider>
-                <Space direction="vertical" size="small" style={{ lineHeight: "2.0" }}>
-                  <Text strong>Area Fee: </Text>
-                  <Text>{USDollar.format(fees.totalarea || 0)}</Text>
-                  <Text strong>Water Fee: </Text>
-                  <Text>{USDollar.format(fees.totalwater || 0)}</Text>
-                  <Text strong>Parking Fee: </Text>
-                  <Text>{USDollar.format(fees.totalParking || 0)}</Text>
-                </Space>
-                <Divider />
-                <Title level={4} style={{ color: "#1890ff" }}>
-                  Total Amount: {USDollar.format(fees.totalmoney || 0)}
-                </Title>
-                <Divider />
-                <div className="text-center mt-2">
-                  <Text type="secondary">Thank you for your payment!</Text>
-                </div>
-                <div className="mt-2 text-center">
-                  <PDFDownloadLink
-                    document={<InvoiceDocument user={fees} />}
-                    fileName={`Invoice_${selectedMonth.format("MMMM")}_${selectedYear}.pdf`}
-                  >
-                    {({ loading }) =>
-                      loading ? "Loading document..." : (
-                        <Button type="primary" icon={<FilePdfOutlined />}>
-                          Download Invoice PDF
-                        </Button>
-                      )
-                    }
-                  </PDFDownloadLink>
-                </div>
-              </>
-            ) : (
-              <Alert
-                message="No data available for the selected month and year."
-                type="warning"
-                showIcon
+    <div className="flex flex-col lg:flex-row gap-8 p-6 max-w-7xl mx-auto bg-gray-50 rounded-lg shadow-md">
+      {/* Left Section */}
+      <div className="w-full lg:w-2/5 bg-white rounded-lg shadow-md p-6">
+        <Title level={4} className="text-blue-600 mb-4">
+          Service Fee Invoice
+        </Title>
+        <DatePicker
+          picker="month"
+          value={selectedMonth}
+          onChange={(date) => setSelectedMonth(date)}
+          className="w-full mb-6"
+        />
+        {fees ? (
+          <>
+            <Divider orientation="left">
+              <AuditOutlined /> Invoice Details
+            </Divider>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <Statistic
+                title="Room"
+                value={fees.room || "N/A"}
+                prefix={<HomeOutlined />}
+                className="text-center"
               />
-            )}
-          </Space>
-        </Card>
-      </Col>
-      <Col xs={24} md={12}>
-        <Card
-          title="Monthly Service Fee Overview"
-          bordered={false}
-          style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
-        >
-          <MonthlyServiceFeeChart />
-        </Card>
-      </Col>
-    </Row>
+              <Statistic
+                title="Building"
+                value={fees.building || "N/A"}
+                prefix={<CopyrightOutlined />}
+                className="text-center"
+              />
+            </div>
+            <Divider orientation="center">Service Fees</Divider>
+      <div className="space-y-2 text-center text-sm">
+              <Text strong>Area Fee:   </Text>
+              <Text>{USDollar.format(fees.totalarea || 0)}</Text>
+              <br />
+              <Text strong>Water Fee:   </Text>
+              <Text>{USDollar.format(fees.totalwater || 0)}</Text>
+              <br />
+              <Text strong>Parking Fee:   </Text>
+              <Text>{USDollar.format(fees.totalParking || 0)}</Text>
+            </div>
+            <Divider />
+            <Title level={4} className="text-blue-500 text-center ">
+              Total Amount: {USDollar.format(fees.totalmoney || 0)}
+            </Title>
+            <Divider />
+            <div className="text-center">
+              <Text type="secondary">Thank you for your payment!</Text>
+            </div>
+            <div className="mt-4 flex justify-center">
+              <PDFDownloadLink
+                document={<InvoiceDocument user={fees} />}
+                fileName={`Invoice_${selectedMonth.format("MMMM")}_${selectedYear}.pdf`}
+              >
+                {({ loading }) =>
+                  loading ? (
+                    "Loading document..."
+                  ) : (
+                    <Button type="primary" icon={<FilePdfOutlined />}>
+                      Download Invoice PDF
+                    </Button>
+                  )
+                }
+              </PDFDownloadLink>
+            </div>
+          </>
+        ) : (
+          <Alert
+            message="No data available for the selected month and year."
+            type="warning"
+            showIcon
+          />
+        )}
+      </div>
+      <div className="w-full lg:w-3/5 bg-white rounded-lg shadow-md p-6">
+        <Title level={4} className="text-blue-600 mb-4">
+          Monthly Service Fee Overview
+        </Title>
+        <MonthlyServiceFeeChart />
+      </div>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 
 const styles = StyleSheet.create({
@@ -28,6 +28,9 @@ const InvoiceDocument = ({ user = {} }) => {
     username = "Username Placeholder",
     room = "Room Placeholder",
     building = "Building Placeholder",
+    month="Month",
+    day="Day",
+    year="Year",
     area = "0",
     priceservice = "0",
     totalarea = "0",
@@ -64,6 +67,8 @@ const InvoiceDocument = ({ user = {} }) => {
           <Text style={styles.text}>Username: {username}</Text>
           <Text style={styles.text}>Room: {room}</Text>
           <Text style={styles.text}>Building: {building}</Text>
+          <Text style={styles.text}>Date: {day}/{month}/{year}</Text>
+          
         </View>
 
         <View style={styles.section}>
@@ -135,13 +140,13 @@ const InvoiceDocument = ({ user = {} }) => {
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>${pricesBicycle}</Text></View>
               <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalBicycle}</Text></View>
             </View>
-            <View style={styles.tableRow}>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>Parking</Text></View>
-              <View style={styles.tableColAlt}><Text style={styles.tableCell}>${totalParking}</Text></View>
-            </View>
           </View>
+          
         </View>
-
+        <View style={styles.section}>
+          <Text style={styles.text}>Total Parking : ${totalParking}</Text>
+        </View>
+       
         <View style={styles.section}>
           <Text style={styles.subtitle}>Total Fee</Text>
           <Text style={styles.text}>Total Amount Due: ${totalmoney}</Text>

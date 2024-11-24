@@ -135,8 +135,8 @@ export default function columsFee(handleFieldChange) {
                 },
                 {
                   title: "Total",
-                  dataIndex: "totalcar",
-                  key: "totalcar",
+                  dataIndex: "totalCar",
+                  key: "totalCar",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -161,8 +161,8 @@ export default function columsFee(handleFieldChange) {
                 },
                 {
                   title: "Total",
-                  dataIndex: "totalmotorbike",
-                  key: "totalmotorbike",
+                  dataIndex: "totalMotorbike",
+                  key: "totalMotorbike",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -186,8 +186,8 @@ export default function columsFee(handleFieldChange) {
                 },
                 {
                   title: "Total",
-                  dataIndex: "totalelectric",
-                  key: "totalelectric",
+                  dataIndex: "totalElectric",
+                  key: "totalElectric",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },
@@ -211,8 +211,8 @@ export default function columsFee(handleFieldChange) {
                 },
                 {
                   title: "Total",
-                  dataIndex: "totalbicycle",
-                  key: "totalbicycle",
+                  dataIndex: "totalBicycle",
+                  key: "totalBicycle",
                   width: 100,
                   render: (text) => USDollar.format(text),
                 },

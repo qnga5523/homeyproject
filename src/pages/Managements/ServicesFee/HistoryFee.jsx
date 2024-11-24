@@ -4,6 +4,10 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 import moment from "moment";
 import columsFee from "../../../components/layout/Colums/columsFee";
+import { pdf } from "@react-pdf/renderer";
+import InvoiceDocument from "../../../components/layout/Colums/InvoiceDocument";
+import sendInvoiceEmail from "../Invoices/sendInvoiceEmail";
+
 
 const { Title } = Typography;
 
@@ -52,7 +56,7 @@ export default function HistoryFee() {
       usersSnapshot.forEach((doc) => {
         const data = doc.data();
         const userRoom = `${data.username} ${data.room}`.toLowerCase();
-        
+
         if (userRoom.includes(searchTerm.toLowerCase())) {
           fetchedUsers.push(data);
         }
@@ -87,11 +91,46 @@ export default function HistoryFee() {
     fetchHistoryData(selectedBuilding, month, year, searchTerm);
   };
 
+  const handleViewPDF = async (user) => {
+    try {
+      const blob = await pdf(<InvoiceDocument user={user} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      message.error("Error generating PDF: " + error.message);
+    }
+  };
+
+  const handleSendInvoice = async (user) => {
+    try {
+      await sendInvoiceEmail(user);
+      message.success(`Invoice sent successfully to ${user.email}`);
+    } catch (error) {
+      message.error("Failed to send invoice: " + error.message);
+    }
+  };
+
   const disabledDate = (current) => {
     return current && current.year() > currentYear;
   };
 
-  const columns = columsFee();
+  const columns = [
+    ...columsFee(),
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, user) => (
+        <Space size="middle">
+          <Button type="link" onClick={() => handleViewPDF(user)}>
+            View Invoice
+          </Button>
+          <Button type="primary" onClick={() => handleSendInvoice(user)}>
+            Send Invoice
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
@@ -127,9 +166,14 @@ export default function HistoryFee() {
       </Space>
 
       {users.length > 0 ? (
-        <Table dataSource={users} columns={columns} rowKey="id"bordered
-        scroll={{ x: "max-content" }}
-        size="middle" />
+        <Table
+          dataSource={users}
+          columns={columns}
+          rowKey="id"
+          bordered
+          scroll={{ x: "max-content" }}
+          size="middle"
+        />
       ) : (
         <p>No data available. Adjust the filters to view fees.</p>
       )}

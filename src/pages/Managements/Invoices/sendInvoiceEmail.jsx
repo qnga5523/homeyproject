@@ -32,8 +32,6 @@ const sendInvoiceEmail = async (user) => {
       Homey Management Team
     `;
 
-
-
     const templateParams = {
       to_name: user.username,
       to_email: user.email,

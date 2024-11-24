@@ -161,11 +161,7 @@ export default function SetFee() {
     const updatedUsers = users.map((user) => {
       if (user.id === record.id) {
         const newData = { ...user, [field]: value };
-        const totalService = newData.area * (newData.priceservice || 0);
-        const CSC = newData.CSC ?? 0;
-        const CSD = newData.CSD ?? 0;
-        const totalConsume = CSC - CSD || 0;
-        const totalWater = (totalConsume || 0) * (newData.priceswater || 0);
+        //Parking
         const totalCar = newData.carCount * (parkingPrices.Car || 0);
         const totalMotorbike =
           newData.motorcycleCount * (parkingPrices.Motorcycle || 0);
@@ -175,11 +171,21 @@ export default function SetFee() {
           newData.bicycleCount * (parkingPrices.Bicycle || 0);
         const totalParking =
           totalCar + totalMotorbike + totalElectric + totalBicycle;
+        
+        const totalService = newData.area * (newData.priceservice || 0);
+        const CSC = newData.CSC ?? 0;
+        const CSD = newData.CSD ?? 0;
+        const totalConsume = CSC - CSD || 0;
+        const totalWater = (totalConsume || 0) * (newData.priceswater || 0);
         const totalMoney =
           (totalService || 0) + (totalWater || 0) + (totalParking || 0);
 
         return {
           ...newData,
+          totalCar,
+          totalMotorbike,
+          totalElectric,
+          totalBicycle,
           totalarea: totalService,
           totalconsume: totalConsume,
           totalwater: totalWater || 0,

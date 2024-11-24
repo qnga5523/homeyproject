@@ -39,7 +39,7 @@ const NotificationsMenu = ({ notifications = [] }) => {
   return (
     <div
       style={{
-        width: "450px",  // Adjusted width for a wider appearance
+        width: "450px", 
         padding: "15px",
         background: "#fff",
         borderRadius: "10px",
