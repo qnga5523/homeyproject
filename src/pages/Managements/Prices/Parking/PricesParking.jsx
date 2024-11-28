@@ -10,7 +10,6 @@ const { Title } = Typography;
 export default function PricesParking() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
-  const [editingPrice, setEditingPrice] = useState(null);
 
   const fetchPrices = async () => {
     const pricesCollection = collection(db, "parkingPrices");
@@ -33,30 +32,14 @@ export default function PricesParking() {
   const onFinish = async (values) => {
     const processedValues = {
       ...values,
-      date: values.date ? values.date.toDate() : null,
-    };
-
-    if (editingPrice) {
-      const priceDoc = doc(db, "parkingPrices", editingPrice.id);
-      await updateDoc(priceDoc, processedValues);
-      setEditingPrice(null);
-    } else {
+      date: new Date(),
+    }; 
       await addDoc(collection(db, "parkingPrices"), processedValues);
-    }
 
     form.resetFields();
     fetchPrices();
   };
 
-  const handleEditPrice = (record) => {
-    setEditingPrice(record);
-    form.setFieldsValue({
-      vehicleType: record.vehicleType,
-      quantity: record.quantity,
-      price: record.price,
-      date: record.date ? moment(record.date) : null,
-    });
-  };
   const setDefaultPrice = async (id) => {
     const updatedPrices = prices.map(async (price) => {
       const priceDoc = doc(db, "parkingPrices", price.id);  
@@ -94,7 +77,7 @@ export default function PricesParking() {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date',
+      render: (date) => (date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "No Date"),
     },
     {
       title: "Status",
@@ -118,9 +101,6 @@ export default function PricesParking() {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="Edit">
-            <Button icon={<EditOutlined />} onClick={() => handleEditPrice(record)} />
-          </Tooltip>
           <Tooltip title="Delete">
             <Button danger icon={<DeleteOutlined />} onClick={() => deletePrice(record.id)} />
           </Tooltip>
@@ -153,9 +133,12 @@ export default function PricesParking() {
         <Form.Item name="price" rules={[{ required: true, message: "Please input price!" }]}>
           <Input placeholder="Price" type="number" />
         </Form.Item>
-        <Form.Item name="date" rules={[{ required: true, message: "Please select date!" }]}>
-          <DatePicker showTime />
-        </Form.Item>
+        <Form.Item name="date">
+            <Input
+              disabled
+              value={moment().format("YYYY-MM-DD HH:mm:ss")} 
+            />
+          </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Submit

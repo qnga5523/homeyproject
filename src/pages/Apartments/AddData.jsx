@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Table, Popconfirm, Row, Col } from "antd";
+import { Form, Input, Button, Table, Popconfirm, Row, Col, Card, Typography, Divider } from "antd";
 import { db } from "../../Services/firebase";
 import { collection, addDoc, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 export default function ManageBuildings() {
   const [buildingName, setBuildingName] = useState("");
@@ -26,6 +28,11 @@ export default function ManageBuildings() {
   };
 
   const handleSubmit = async () => {
+    const duplicate = buildings.some((building) => building.name === buildingName.trim());
+  if (duplicate) {
+    alert("Building name already exists. Please choose a different name.");
+    return;
+  }
     const rooms = [];
     for (let i = 1; i <= floors; i++) {
       for (let j = 1; j <= roomsPerFloor; j++) {
@@ -39,7 +46,7 @@ export default function ManageBuildings() {
       if (currentBuildingId) {
         const buildingRef = doc(db, "buildings", currentBuildingId);
         await updateDoc(buildingRef, {
-          name: buildingName,
+          name: buildingName.trim(),
           floors: floors,
           roomsPerFloor: roomsPerFloor,
           rooms: rooms,
@@ -47,7 +54,7 @@ export default function ManageBuildings() {
         alert("Building updated successfully!");
       } else {
         await addDoc(collection(db, "buildings"), {
-          name: buildingName,
+          name: buildingName.trim(),
           floors: floors,
           roomsPerFloor: roomsPerFloor,
           rooms: rooms,
@@ -55,13 +62,17 @@ export default function ManageBuildings() {
         alert("Building added successfully!");
       }
       fetchBuildings();
-      setBuildingName("");
-      setFloors(0);
-      setRoomsPerFloor(0);
-      setCurrentBuildingId(null);
+      resetForm();
     } catch (error) {
       console.error("Error saving building: ", error);
     }
+  };
+
+  const resetForm = () => {
+    setBuildingName("");
+    setFloors(0);
+    setRoomsPerFloor(0);
+    setCurrentBuildingId(null);
   };
 
   const handleDelete = async (id) => {
@@ -121,51 +132,97 @@ export default function ManageBuildings() {
   ];
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <Form layout="vertical" onFinish={handleSubmit}>
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item label="Building" required>
-              <Input
-                value={buildingName}
-                onChange={(e) => setBuildingName(e.target.value)}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Floors" required>
-              <Input
-                type="number"
-                value={floors}
-                onChange={(e) => setFloors(Number(e.target.value))}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Rooms" required>
-              <Input
-                type="number"
-                value={roomsPerFloor}
-                onChange={(e) => setRoomsPerFloor(Number(e.target.value))}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
-            {currentBuildingId ? "Update Building" : "Add Building"}
-          </Button>
-        </Form.Item>
-      </Form>
+    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+      <Card
+        style={{
+          marginBottom: "30px",
+          borderRadius: "10px",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
+          Manage Buildings
+        </Title>
+        <Divider />
+        <Form layout="vertical" onFinish={handleSubmit}>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                label={<Text strong>Building Name</Text>}
+                required
+                tooltip="Enter the name of the building"
+              >
+                <Input
+                  placeholder="Building Name"
+                  value={buildingName}
+                  onChange={(e) => setBuildingName(e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label={<Text strong>Number of Floors</Text>}
+                required
+                tooltip="Enter the total number of floors"
+              >
+                <Input
+                  type="number"
+                  placeholder="Floors"
+                  value={floors}
+                  onChange={(e) => setFloors(Number(e.target.value))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label={<Text strong>Rooms per Floor</Text>}
+                required
+                tooltip="Enter the number of rooms on each floor"
+              >
+                <Input
+                  type="number"
+                  placeholder="Rooms per Floor"
+                  value={roomsPerFloor}
+                  onChange={(e) => setRoomsPerFloor(Number(e.target.value))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                width: "100%",
+                borderRadius: "5px",
+                backgroundColor: currentBuildingId ? "#1890ff" : "#52c41a",
+              }}
+            >
+              {currentBuildingId ? "Update Building" : "Add Building"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
 
-      <Table
-        dataSource={buildings.map((building) => ({
-          key: building.id,
-          ...building,
-        }))}
-        columns={columns}
-        pagination={false}
-      />
+      <Card
+        style={{
+          borderRadius: "10px",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Title level={4} style={{ textAlign: "center", marginBottom: "20px" }}>
+           Buildings
+        </Title>
+        <Table
+          dataSource={buildings.map((building) => ({
+            key: building.id,
+            ...building,
+          }))}
+          columns={columns}
+          pagination={false}
+          bordered
+        />
+      </Card>
     </div>
   );
 }

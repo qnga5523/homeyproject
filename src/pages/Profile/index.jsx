@@ -123,6 +123,15 @@ export default function Profile() {
               <Form.Item label="Building">
                 <Input value={profile.building || ""} disabled />
               </Form.Item>
+              <Form.Item label="Gender">
+                <Input value={profile.gender || ""} disabled />
+              </Form.Item>
+              <Form.Item label="Nation">
+                <Input value={profile.nation || ""} disabled />
+              </Form.Item>
+              <Form.Item label="Date of Birth">
+                <Input value={profile.dateOfBirth || ""} disabled />
+              </Form.Item>
               <Form.Item label="Household members">
                 <Input value={profile.members || ""} disabled />
               </Form.Item>

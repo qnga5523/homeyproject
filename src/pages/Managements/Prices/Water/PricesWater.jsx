@@ -11,14 +11,10 @@ import { db } from "../../../../Services/firebase";
 import { Table, Button, Form, Input, DatePicker, Tooltip, Typography,Space  } from "antd";
 import { EditOutlined, DeleteOutlined, CheckCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 import moment from "moment";
-
 const { Title } = Typography;
-
 export default function PricesWater() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
-  const [editingPrice, setEditingPrice] = useState(null);  
-
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -42,20 +38,10 @@ export default function PricesWater() {
 
     const processedValues = {
       ...values,
-      date: values.date ? values.date.toDate() : null,
-    };
-  
-    if (editingPrice) {
-      const priceDoc = doc(db, "waterPrices", editingPrice.id);
-      await updateDoc(priceDoc, processedValues);
-      setEditingPrice(null);
-    } else {
+      date: new Date(),
+    };   
       await addDoc(collection(db, "waterPrices"), processedValues);
-    }
-  
     form.resetFields();
-  
-
     const pricesCollection = collection(db, "waterPrices");
     const priceSnapshot = await getDocs(pricesCollection);
     const priceList = priceSnapshot.docs.map((doc) => ({
@@ -68,8 +54,6 @@ export default function PricesWater() {
   const setDefaultPrice = async (id) => {
     const updatedPrices = prices.map(async (price) => {
       const priceDoc = doc(db, "waterPrices", price.id);
-  
-
       if (price.id === id && price.default) {
         await updateDoc(priceDoc, { default: false });
       } 
@@ -92,15 +76,6 @@ export default function PricesWater() {
     setPrices(priceList);
   };
   
-  const handleEditPrice = (record) => {
-    setEditingPrice(record);  
-  
-    form.setFieldsValue({
-      volume: record.volume,
-      price: record.price,
-      date: record.date ? moment(record.date) : null,
-    });
-  };
 
   const deletePrice = async (id) => {
     const priceDoc = doc(db, "waterPrices", id);
@@ -126,7 +101,7 @@ export default function PricesWater() {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', 
+      render: (date) => (date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "No Date"),
     },
     {
       title: "Status",
@@ -150,9 +125,6 @@ export default function PricesWater() {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="Edit">
-            <Button icon={<EditOutlined />} onClick={() => handleEditPrice(record)} />
-          </Tooltip>
           <Tooltip title="Delete">
             <Button danger icon={<DeleteOutlined />} onClick={() => deletePrice(record.id)} />
           </Tooltip>
@@ -183,11 +155,11 @@ export default function PricesWater() {
           >
             <Input placeholder="Price" />
           </Form.Item>
-          <Form.Item
-            name="date"
-            rules={[{ required: true, message: "Please select date!" }]}
-          >
-            <DatePicker showTime />
+          <Form.Item name="date">
+            <Input
+              disabled
+              value={moment().format("YYYY-MM-DD HH:mm:ss")} 
+            />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

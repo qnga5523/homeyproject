@@ -32,24 +32,9 @@ export default function Login() {
         }
       }
     } catch (error) {
-      let errorMessage = "";
-      switch (error.code) {
-        case "auth/wrong-password":
-          errorMessage =
-            "The password you entered is incorrect. Please try again.";
-          break;
-        case "auth/user-not-found":
-          errorMessage =
-            "No user found with this email. Please register or try again.";
-          break;
-        case "auth/invalid-email":
-          errorMessage =
-            "The email address you entered is not valid. Please check and try again.";
-          break;
-        default:
-          errorMessage = error.message;
-      }
-      toast.error(errorMessage);
+      toast.error("The email address or password you entered is not valid. Please check and try again..", {
+        position: "top-center",
+      });
     }
   };
   const handleGoogleSignIn = async () => {

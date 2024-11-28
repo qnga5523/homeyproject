@@ -8,9 +8,6 @@ const { Title } = Typography;
 export default function PricesClean() {
   const [form] = Form.useForm();
   const [prices, setPrices] = useState([]);
-  const [editingPrice, setEditingPrice] = useState(null);  
-
-
   useEffect(() => {
     const fetchPrices = async () => {
       const pricesCollection = collection(db, "cleanPrices");
@@ -20,7 +17,9 @@ export default function PricesClean() {
         return {
           ...data,
           id: doc.id,
-          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date, 
+          date: doc.data().date && typeof doc.data().date.toDate === "function"
+          ? doc.data().date.toDate()
+          : doc.data().date,
         };
       });
       setPrices(priceList);
@@ -33,16 +32,9 @@ export default function PricesClean() {
 
     const processedValues = {
       ...values,
-      date: values.date ? values.date.toDate() : null,
-    };
-  
-    if (editingPrice) {
-      const priceDoc = doc(db, "cleanPrices", editingPrice.id);
-      await updateDoc(priceDoc, processedValues);
-      setEditingPrice(null);
-    } else {
+      date: new Date(),
+    };   
       await addDoc(collection(db, "cleanPrices"), processedValues);
-    }
   
     form.resetFields();
   
@@ -81,16 +73,6 @@ export default function PricesClean() {
     }));
     setPrices(priceList);
   };
-  
-  const handleEditPrice = (record) => {
-    setEditingPrice(record);  
-  
-    form.setFieldsValue({
-      volume: record.volume,
-      price: record.price,
-      date: record.date ? moment(record.date) : null,  
-    });
-  };
 
 
   const deletePrice = async (id) => {
@@ -117,7 +99,7 @@ export default function PricesClean() {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (date) => date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : 'No Date', 
+      render: (date) => (date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "No Date"),
     },
     {
       title: "Status",
@@ -141,9 +123,6 @@ export default function PricesClean() {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="Edit">
-            <Button icon={<EditOutlined />} onClick={() => handleEditPrice(record)} />
-          </Tooltip>
           <Tooltip title="Delete">
             <Button danger icon={<DeleteOutlined />} onClick={() => deletePrice(record.id)} />
           </Tooltip>
@@ -174,12 +153,12 @@ export default function PricesClean() {
         >
           <Input placeholder="Price" />
         </Form.Item>
-        <Form.Item
-          name="date"
-          rules={[{ required: true, message: "Please select date!" }]}
-        >
-          <DatePicker showTime />
-        </Form.Item>
+        <Form.Item name="date">
+            <Input
+              disabled
+              value={moment().format("YYYY-MM-DD HH:mm:ss")} 
+            />
+          </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Submit

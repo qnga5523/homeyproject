@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Upload, message, Image } from "antd";
+import { Form, Input, Button, Upload, message, Image, DatePicker, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { auth, db, storage } from "../../Services/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import moment from "moment";
+
+const { Option } = Select;
 
 export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) {
   const [form] = Form.useForm();
@@ -11,9 +14,13 @@ export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) 
   const [currentAvatar, setCurrentAvatar] = useState(profile.avatarUrl || "");
 
   useEffect(() => {
+    // Prepopulate the form with profile data
     form.setFieldsValue({
       ...profile,
-      members: profile.members ? profile.members.join(", ") : "", 
+      members: profile.members ? profile.members.join(", ") : "",
+      gender: profile.gender || undefined,
+      nation: profile.nation || "",
+      dateOfBirth: profile.dateOfBirth ? moment(profile.dateOfBirth) : null,
     });
   }, [form, profile]);
 
@@ -33,15 +40,17 @@ export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) 
           const file = fileList[0].originFileObj;
           avatarUrl = await handleUpload(file);
         }
+
         const membersArray = values.members
-        ? values.members.split(",").map((member) => member.trim())
-        : [];
+          ? values.members.split(",").map((member) => member.trim())
+          : [];
 
         const userRef = doc(db, "Users", user.uid);
         await updateDoc(userRef, {
           ...values,
           avatarUrl: avatarUrl,
           members: membersArray,
+          dateOfBirth: values.dateOfBirth ? values.dateOfBirth.toISOString() : null,
         });
 
         message.success("Profile updated successfully");
@@ -55,6 +64,22 @@ export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) 
 
   const handleChange = ({ fileList }) => {
     setFileList(fileList);
+  };
+
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("You can only upload image files!");
+      return false;
+    }
+
+    const isSizeValid = file.size / 1024 / 1024 < 5; // Maximum 5MB
+    if (!isSizeValid) {
+      message.error("Image must be smaller than 5MB!");
+      return false;
+    }
+
+    return true;
   };
 
   return (
@@ -91,7 +116,7 @@ export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) 
             <Upload
               listType="picture"
               accept="image/*"
-              beforeUpload={() => false}
+              beforeUpload={beforeUpload}
               onChange={handleChange}
               fileList={fileList}
               className="w-full sm:w-auto"
@@ -116,6 +141,19 @@ export default function EditProfile({ profile, onProfileUpdate, setIsEditing }) 
         </Form.Item>
         <Form.Item label="Building" name="building" rules={[{ required: true, message: "Please enter your building" }]}>
           <Input placeholder="Enter your building name" />
+        </Form.Item>
+        <Form.Item label="Gender" name="gender" rules={[{ required: true, message: "Please select your gender" }]}>
+          <Select placeholder="Select your gender">
+            <Option value="male">Male</Option>
+            <Option value="female">Female</Option>
+            <Option value="other">Other</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item label="Nation" name="nation" rules={[{ required: true, message: "Please enter your nationality" }]}>
+          <Input placeholder="Enter your nationality" />
+        </Form.Item>
+        <Form.Item label="Date of Birth" name="dateOfBirth">
+          <DatePicker style={{ width: "100%" }} placeholder="Select your date of birth" />
         </Form.Item>
         <Form.Item
           label="Members"

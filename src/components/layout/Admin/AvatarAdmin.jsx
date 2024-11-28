@@ -38,7 +38,7 @@ export default function AdminAvatar() {
 
   const handleMenuClick = ({ key }) => {
     if (key === "adminprofile") {
-      navigate("/admin/profile");
+      navigate("/profile");
     } else if (key === "logout") {
       auth.signOut().then(() => {
         navigate("/login");

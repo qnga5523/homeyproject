@@ -47,7 +47,7 @@ import { NotFound } from "./components/common/NotFound";
 import ServicePriceCharts from "./pages/Managements/Prices/ServicePriceCharts";
 import ServiceBookingChart from "./pages/Managements/ServiceBook/ServiceBookingChart";
 import MonthlyServiceFeeChart from "./pages/Managements/ServicesFee/MonthlyServiceChart";
-import InvoiceDocument from "./components/layout/Colums/InvoiceDocument";
+
 
 
 function App() {

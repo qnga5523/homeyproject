@@ -64,7 +64,18 @@ export default function Signup() {
     const { email, password, phone, name, room, building } = values;
     const selectedBuilding = buildings.find((b) => b.id === building);
     const selectedRoom = rooms.find((r) => r.id === room);
+
     try {
+      const existingUser = await getDocs(
+        query(collection(db, "Users"), where("email", "==", email))
+      );
+      if (!existingUser.empty) {
+        toast.error("Email already exists. Please use a different email.", {
+          position: "top-center",
+        });
+        return;
+      }
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -85,16 +96,14 @@ export default function Signup() {
         await sendNotification(
           null,
           "admin",
-          `New user "${name}" has registered and requires approval.`
+          `New user "${name}" has registered and waiting for approval.`
         );
       }
-      toast.success("User Registered Successfully!!", {
+      toast.success("Account created successfully. Waiting for approval.", {
         position: "top-center",
       });
     } catch (error) {
-      toast.error(error.message, {
-        position: "bottom-center",
-      });
+      console.error("Error during sign-in:", error);
     }
   };
   const handleGoogleSignIn = async () => {
@@ -191,6 +200,11 @@ export default function Signup() {
                   message: "Please input your name!",
                   whitespace: true,
                 },
+                {
+                  pattern: /^[a-zA-Z0-9 ]+$/,
+                  message:
+                    "Username cannot contain special characters like @$%^^.",
+                },
               ]}
             >
               <Input placeholder="Username" className="rounded-full py-2" />
@@ -201,6 +215,10 @@ export default function Signup() {
                 {
                   required: true,
                   message: "Please input your phone number!",
+                },
+                {
+                  pattern: /^[0-9]+$/,
+                  message: "Phone number must contain only numbers.",
                 },
               ]}
             >

@@ -16,6 +16,7 @@ export default function ListApartment() {
   const [buildings, setBuildings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [missingRooms, setMissingRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
@@ -52,6 +53,7 @@ export default function ListApartment() {
       if (buildingId) {
         const filtered = roomList.filter((room) => room.buildingId === buildingId);
         setFilteredRooms(filtered);
+        calculateMissingRooms(buildingId, filtered);
       } else {
         setFilteredRooms(roomList);
       }
@@ -60,6 +62,24 @@ export default function ListApartment() {
     } catch (error) {
       console.error("Error fetching rooms:", error);
     }
+  };
+
+  const calculateMissingRooms = (buildingId, existingRooms) => {
+    const building = buildings.find((b) => b.id === buildingId);
+    if (!building) return;
+
+    const { floors, roomsPerFloor } = building;
+    const totalRooms = [];
+    for (let i = 1; i <= floors; i++) {
+      for (let j = 1; j <= roomsPerFloor; j++) {
+        const roomNumber = `${i}${j < 10 ? `0${j}` : j}`;
+        totalRooms.push(roomNumber);
+      }
+    }
+
+    const existingRoomNumbers = existingRooms.map((room) => room.roomNumber);
+    const missing = totalRooms.filter((room) => !existingRoomNumbers.includes(room));
+    setMissingRooms(missing);
   };
 
 
@@ -201,8 +221,18 @@ export default function ListApartment() {
       >
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Room" name="roomNumber" rules={[{ required: true, message: "Please input room number!" }]}>
-              <Input />
+          <Form.Item
+              label="Room"
+              name="roomNumber"
+              rules={[{ required: true, message: "Please select a room!" }]}
+            >
+              <Select placeholder="Select Room">
+                {missingRooms.map((room) => (
+                  <Option key={room} value={room}>
+                    {room}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={8}>
