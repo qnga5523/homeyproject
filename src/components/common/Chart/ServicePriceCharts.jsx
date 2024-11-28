@@ -16,7 +16,6 @@ import {
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../Services/firebase';
 import { CarOutlined, ContainerOutlined } from '@ant-design/icons';
-import TotalFee from '../../../components/layout/Colums/TotalFee';
 
 ChartJS.register(
   CategoryScale,
@@ -30,18 +29,15 @@ ChartJS.register(
 );
 
 const { Title: AntTitle } = Typography;
-
 export default function ServicePriceCharts(showParking= true) {
   const [pricesData, setPricesData] = useState({ cleaning: [], parking: [], water: [] });
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchPrices = async () => {
       try {
         const cleaningPrices = await getServicePrices('cleanPrices');
         const parkingPrices = await getServicePrices('parkingPrices');
         const waterPrices = await getServicePrices('waterPrices');
-
         setPricesData({
           cleaning: cleaningPrices,
           parking: parkingPrices,
@@ -52,10 +48,8 @@ export default function ServicePriceCharts(showParking= true) {
         console.error('Error fetching prices:', error);
       }
     };
-
     fetchPrices();
   }, []);
-
   const getServicePrices = async (collectionName) => {
     const pricesCollection = collection(db, collectionName);
     const priceSnapshot = await getDocs(pricesCollection);
@@ -68,20 +62,17 @@ export default function ServicePriceCharts(showParking= true) {
       };
     });
   };
-
   const dates = Array.from(new Set([
     ...pricesData.cleaning.map(p => moment(p.date).format('YYYY-MM-DD')),
     ...pricesData.parking.map(p => moment(p.date).format('YYYY-MM-DD')),
     ...pricesData.water.map(p => moment(p.date).format('YYYY-MM-DD')),
   ])).sort();
-
   const getPriceOnDate = (data, date, vehicleType = null) => {
     const entry = vehicleType
       ? data.find(d => moment(d.date).format('YYYY-MM-DD') === date && d.vehicleType === vehicleType)
       : data.find(d => moment(d.date).format('YYYY-MM-DD') === date);
     return entry ? entry.price : 0;
   };
-
   const barChartData = {
     labels: dates,
     datasets: [

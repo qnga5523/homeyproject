@@ -1,5 +1,5 @@
 import { addDoc, collection, serverTimestamp, doc, updateDoc, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../Services/firebase';
+import { db } from './firebase';
 import { message } from 'antd';
 
 /**

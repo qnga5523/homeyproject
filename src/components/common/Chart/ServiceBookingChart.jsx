@@ -17,14 +17,11 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function ServiceBookingChart() {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
-
   useEffect(() => {
     const fetchMonthlyBookings = async () => {
       const bookingsRef = collection(db, 'serviceBookings');
       const querySnapshot = await getDocs(bookingsRef);
-
       const monthlyCounts = {};
-
       querySnapshot.forEach((doc) => {
         const booking = doc.data();
         if (booking.createdAt && booking.serviceType) {
@@ -41,7 +38,6 @@ export default function ServiceBookingChart() {
           monthlyCounts[monthYear][booking.serviceType] += 1;
         }
       });
-
       const sortedMonths = Object.keys(monthlyCounts).sort((a, b) => moment(a).diff(moment(b)));
       const datasets = [
         {
@@ -70,7 +66,6 @@ export default function ServiceBookingChart() {
           data: sortedMonths.map((month) => monthlyCounts[month].recreationalservice),
         },
       ];
-
       setChartData({
         labels: sortedMonths,
         datasets: datasets,
@@ -79,7 +74,6 @@ export default function ServiceBookingChart() {
 
     fetchMonthlyBookings();
   }, []);
-
   const options = {
     responsive: true,
     plugins: {

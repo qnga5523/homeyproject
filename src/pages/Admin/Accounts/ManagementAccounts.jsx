@@ -36,8 +36,6 @@ export default function ManagementAccount() {
   const [loadingRoom, setLoadingRoom] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBuilding, setSelectedBuilding] = useState("");
-
-
   const fetchBuildings = async () => {
     try {
       const buildingSnapshot = await getDocs(collection(db, "buildings"));

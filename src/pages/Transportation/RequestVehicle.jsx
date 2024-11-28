@@ -2,7 +2,7 @@ import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 import { Button, message, Table, Image, Modal,Card, Typography  } from "antd";
-import { sendNotification } from "../Notification/NotificationService";
+import { sendNotification } from "../../Services/NotificationService";
 const { Title } = Typography;
 export default function RequestVehicle() {
   const [requests, setRequests] = useState([]);

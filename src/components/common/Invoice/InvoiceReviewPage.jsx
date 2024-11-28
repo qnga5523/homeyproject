@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Table, message } from "antd";
 import { pdf } from "@react-pdf/renderer";
 import { useNavigate, useLocation } from "react-router-dom";
-import InvoiceDocument from "../../../components/layout/Colums/InvoiceDocument"; 
+import InvoiceDocument from "./InvoiceDocument"; 
 import sendInvoiceEmail from "./sendInvoiceEmail";
 
 const InvoiceReviewPage = () => {
@@ -10,7 +10,6 @@ const InvoiceReviewPage = () => {
   const location = useLocation();
   const { users } = location.state || {};
   const [selectedUser, setSelectedUser] = useState(null);
-
   const handleSendEmail = async (user) => {
     if (!user.email) {
       message.error("User email is missing. Cannot send email.");
@@ -19,14 +18,12 @@ const InvoiceReviewPage = () => {
     await sendInvoiceEmail(user);
     message.success(`Invoice sent to ${user.username}`);
   };
-  
   const handleSelectUser = async (user) => {
     setSelectedUser(user);
      const blob = await pdf(<InvoiceDocument user={user} />).toBlob();
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
   };
-
   const columns = [
     { title: "Username", dataIndex: "username", key: "username" },
     { title: "Room", dataIndex: "room", key: "room" },
@@ -46,7 +43,6 @@ const InvoiceReviewPage = () => {
       ),
     },
   ];
-
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Invoice Management</h2>
@@ -71,12 +67,10 @@ const InvoiceReviewPage = () => {
     </div>
   );
 };
-
 const styles = {
   container: { padding: "20px" },
   title: { fontSize: "24px", textAlign: "center", marginBottom: "20px" },
   content: { display: "flex", gap: "20px" },
   tableContainer: { flex: 1 },
 };
-
 export default InvoiceReviewPage;

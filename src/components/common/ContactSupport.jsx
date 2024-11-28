@@ -6,23 +6,18 @@ import { useNavigate } from "react-router-dom";
 const ContactSupport = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
-
   const showModal = () => {
     setIsModalVisible(true);
   };
-
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-
   const handleGoToServiceBook = () => {
     navigate("/owner/book");
     setIsModalVisible(false);
   };
-
   return (
     <>
-
       <Tooltip title="Contact Support" >
         <Button
           shape="circle"

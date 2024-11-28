@@ -10,7 +10,7 @@ import { Table, Space, message, Input, Select } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { db } from "../../../Services/firebase";
 import emailjs from "emailjs-com"
-import { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_USER_ID } from "../Email/EmailReactApi";
+import { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_USER_ID } from "../../../Services/Email/EmailReactApi";
 import { Typography } from "antd";
 const { Option } = Select;
 const { Title } = Typography;

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { DatePicker, Spin, Card, Typography, List } from 'antd';
-import { db } from '../../Services/firebase';
+import { db } from '../../../Services/firebase';
 import { doc, getDoc } from "firebase/firestore";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import moment from 'moment';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export default function FeedbackReport({ showAnswers = true , showDatePicker = true}) {
   const [chartData, setChartData] = useState(null);
@@ -96,9 +96,7 @@ export default function FeedbackReport({ showAnswers = true , showDatePicker = t
             )}
           </div>
         </Card>
-      )}
-
-    
+      )}    
       {showAnswers && (
         <>
           <Card title="Improvement Suggestions" className="mb-8">

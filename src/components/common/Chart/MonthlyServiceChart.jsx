@@ -81,7 +81,7 @@ export default function MonthlyServiceFeeChart() {
       labels,
       datasets: [
         {
-          label: 'Monthly Service Fees (Total Money)',
+          label: 'Monthly Service Fees',
           data: moneyValues,
           borderColor: '#36A2EB',
           backgroundColor: 'rgba(54, 162, 235, 0.5)',
@@ -94,7 +94,7 @@ export default function MonthlyServiceFeeChart() {
       labels,
       datasets: [
         {
-          label: 'Monthly Water Fees (Total Water)',
+          label: 'Monthly Water Fees',
           data: waterValues,
           borderColor: '#FF6384',
           backgroundColor: 'rgba(255, 99, 132, 0.5)',

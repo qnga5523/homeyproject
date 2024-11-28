@@ -1,7 +1,5 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-
-
 const styles = StyleSheet.create({
   page: { padding: 30 },
   section: { marginBottom: 15 },
@@ -20,10 +18,8 @@ const styles = StyleSheet.create({
   paymentText: { fontSize: 12, fontWeight: "bold", color: "#333" },
   qrCode: { width: 80, height: 80 },
 });
-
 const InvoiceDocument = ({ user = {} }) => {
   console.log("User data inside InvoiceDocument:", user);
-
   const {
     username = "Username Placeholder",
     room = "Room Placeholder",
@@ -54,23 +50,19 @@ const InvoiceDocument = ({ user = {} }) => {
     totalParking = "0",
     totalmoney = "0",
   } = user;
-
   return (
     <Document>
       <Page style={styles.page}>
         <View style={styles.section}>
           <Text style={styles.title}>Invoice</Text>
         </View>
-
         <View style={styles.section}>
           <Text style={styles.subtitle}>Customer Information</Text>
           <Text style={styles.text}>Username: {username}</Text>
           <Text style={styles.text}>Room: {room}</Text>
           <Text style={styles.text}>Building: {building}</Text>
-          <Text style={styles.text}>Date: {day}/{month}/{year}</Text>
-          
+          <Text style={styles.text}>Date: {day}/{month}/{year}</Text>         
         </View>
-
         <View style={styles.section}>
           <Text style={styles.subtitle}>Service Fees</Text>
           <View style={styles.table}>

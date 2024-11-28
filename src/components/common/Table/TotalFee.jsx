@@ -15,24 +15,19 @@ export default function TotalFee({ showTableOnly = true }) {
   const [chartData, setChartData] = useState(null);
   const [feeTableData, setFeeTableData] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const fetchMonthlyFeesForAllBuildings = async () => {
     const monthlyData = {};
     const tableData = [];
-
     for (let i = 0; i < 12; i++) {
       const date = moment().subtract(i, "months");
       const monthYear = date.format("YYYY-MM");
       const monthLabel = date.format("MMMM YYYY");
-
       try {
         const buildingsSnapshot = await getDocs(
           collection(db, "monthlyIncomeReports")
         );
-
         let totalIncomeAllBuildings = 0;
         const buildingContributions = [];
-
         buildingsSnapshot.forEach((doc) => {
           const data = doc.data();
           if (doc.id.startsWith(`${date.format("MMMM")}_${date.year()}`)) {
@@ -41,7 +36,6 @@ export default function TotalFee({ showTableOnly = true }) {
             buildingContributions.push({ building: data.building, income });
           }
         });
-
         buildingContributions.forEach((buildingData) => {
           const { building, income } = buildingData;
           const percentage = totalIncomeAllBuildings
@@ -63,10 +57,8 @@ export default function TotalFee({ showTableOnly = true }) {
         console.error("Error fetching building fees:", error);
       }
     }
-
     const labels = Object.keys(monthlyData).sort();
     const incomeValues = labels.map((month) => monthlyData[month]);
-
     setChartData({
       labels,
       datasets: [
@@ -79,11 +71,9 @@ export default function TotalFee({ showTableOnly = true }) {
         },
       ],
     });
-
     setFeeTableData(tableData);
     setLoading(false);
   };
-
   useEffect(() => {
     fetchMonthlyFeesForAllBuildings();
   }, []);
@@ -94,9 +84,7 @@ export default function TotalFee({ showTableOnly = true }) {
       return data.filter((item) => item[key] === value).length;
     }
     return 0; 
-  };
-  
-
+  };  
   const feeTableColumns = [
     {
       title: "Month",
@@ -149,7 +137,6 @@ export default function TotalFee({ showTableOnly = true }) {
         record.isTotal ? <strong>{text}</strong> : text,
     },
   ];
-
   return (
     <div className="px-4 md:px-8 lg:px-12">
       {loading ? (
