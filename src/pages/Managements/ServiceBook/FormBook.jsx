@@ -24,8 +24,8 @@ import {
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "../../../Services/firebase";
-import { sendNotification } from "../../Notification/NotificationService";
 import { useNavigate } from "react-router-dom";
+import { sendNotification } from "../../../Services/NotificationService";
 const { Option } = Select;
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -66,7 +66,6 @@ export default function AddBookingForm() {
       const room = userData.room || "N/A";
       const building = userData.building || "N/A";
       let imageUrls = [];
-
       if (fileList.length > 0) {
         const uploadPromises = fileList.map(async (file) => {
           const fileToUpload = file.originFileObj || file;
@@ -76,7 +75,6 @@ export default function AddBookingForm() {
         });
         imageUrls = await Promise.all(uploadPromises);
       }
-
       const bookingData = {
         userId,
         residentName,
@@ -96,9 +94,7 @@ export default function AddBookingForm() {
         createdAt: serverTimestamp(),
       };
       const bookingRef = await addDoc(collection(db, "serviceBookings"), bookingData);
-
       await sendNotification("admin", "admin", `New booking request from ${residentName}`, bookingRef.id);
-
       message.success("Booking added successfully!");
       form.resetFields();
       setServiceType(null);

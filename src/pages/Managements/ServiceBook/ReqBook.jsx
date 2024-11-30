@@ -41,18 +41,15 @@ export default function ReqBook() {
     setProposedTimes(booking.proposedTimes || []);
     setResponseModalVisible(true);
   };
-
   const handleOpenDetailsModal = (booking) => {
     setSelectedBooking(booking);
     setDetailsModalVisible(true);
   };
-
   const handleSendResponse = async (status) => {
     if (!selectedBooking || !selectedBooking.userId) {
       message.error("User ID is missing for the selected booking.");
       return;
     }
-
     try {
       const bookingRef = doc(db, 'serviceBookings', selectedBooking.id);
       await updateDoc(bookingRef, {
@@ -60,7 +57,6 @@ export default function ReqBook() {
         responseStatus: status,
         proposedTimes: proposedTimes,
       });
-      
       message.success(`Booking ${status.toLowerCase()} successfully!`);
       setResponseModalVisible(false);
       setBookings((prevBookings) =>
@@ -216,8 +212,8 @@ export default function ReqBook() {
         dataSource={bookings}
         loading={loading}
         rowKey="id"
-        pagination={{ pageSize: 5 }}
-        style={{ marginBottom: "30px", justifyContent: "center" }}
+        pagination={{ pageSize: 20 }}
+        style={{ marginBottom: "30px", justifyContent: "center",  }}
       />
 
       <Modal

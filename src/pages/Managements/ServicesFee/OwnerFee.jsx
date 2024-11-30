@@ -12,8 +12,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 import moment from "moment";
 import { getAuth } from "firebase/auth";
-import MonthlyServiceFeeChart from "./MonthlyServiceChart";
-import InvoiceDocument from "../../../components/layout/Colums/InvoiceDocument";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import {
   FilePdfOutlined,
@@ -21,6 +19,8 @@ import {
   AuditOutlined,
   CopyrightOutlined,
 } from "@ant-design/icons";
+import MonthlyServiceFeeChart from "../../../components/common/Chart/MonthlyServiceChart";
+import InvoiceDocument from "../../../components/common/Invoice/InvoiceDocument";
 
 const { Title, Text } = Typography;
 

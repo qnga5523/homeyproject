@@ -13,7 +13,8 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 
 import { db, storage } from "../../Services/firebase";
-import { sendNotificationToOwners } from "../Notification/NotificationService";
+import { sendNotificationToOwners } from "../../Services/NotificationService";
+
 
 const normFile = (e) => {
   if (Array.isArray(e)) {

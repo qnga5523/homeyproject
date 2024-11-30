@@ -74,7 +74,6 @@ export default function RequestAccount() {
       message.error("Failed to approve account.");
     }
   };
-
   const handleReject = async (id) => {
     await deleteDoc(doc(db, "Users", id));
     message.error("Account rejected and deleted.");

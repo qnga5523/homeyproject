@@ -17,13 +17,12 @@ import {
   getDoc,
 } from "firebase/firestore";
 import backgroundImg from "../../assets/img/logo/bg.jpg";
-import { sendNotification } from "../Notification/NotificationService";
+import { sendNotification } from "../../Services/NotificationService";
 export default function Signup() {
   const [form] = Form.useForm();
   const [buildings, setBuildings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState("");
-
   useEffect(() => {
     const fetchBuildings = async () => {
       const buildingsSnapshot = await getDocs(collection(db, "buildings"));
@@ -35,7 +34,6 @@ export default function Signup() {
     };
     fetchBuildings();
   }, []);
-
   const onBuildingChange = async (value) => {
     setSelectedBuilding(value);
 
@@ -59,7 +57,6 @@ export default function Signup() {
       setRooms([]);
     }
   };
-
   const onFinish = async (values) => {
     const { email, password, phone, name, room, building } = values;
     const selectedBuilding = buildings.find((b) => b.id === building);
@@ -75,14 +72,12 @@ export default function Signup() {
         });
         return;
       }
-
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
-
       if (user) {
         await setDoc(doc(db, "Users", user.uid), {
           email: user.email,

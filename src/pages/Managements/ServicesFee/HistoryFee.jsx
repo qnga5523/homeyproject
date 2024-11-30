@@ -5,8 +5,8 @@ import { db } from "../../../Services/firebase";
 import moment from "moment";
 import columsFee from "../../../components/layout/Colums/columsFee";
 import { pdf } from "@react-pdf/renderer";
-import InvoiceDocument from "../../../components/layout/Colums/InvoiceDocument";
-import sendInvoiceEmail from "../Invoices/sendInvoiceEmail";
+import InvoiceDocument from "../../../components/common/Invoice/InvoiceDocument";
+import sendInvoiceEmail from "../../../components/common/Invoice/sendInvoiceEmail";
 
 
 const { Title } = Typography;
@@ -36,10 +36,8 @@ export default function HistoryFee() {
 
     fetchBuildings();
   }, []);
-
   const fetchHistoryData = async (building, month, year, searchTerm) => {
     if (!building || !month || !year) return;
-
     try {
       const usersCollection = collection(
         db,
@@ -49,19 +47,15 @@ export default function HistoryFee() {
         building,
         "Users"
       );
-
       const usersSnapshot = await getDocs(usersCollection);
       const fetchedUsers = [];
-
       usersSnapshot.forEach((doc) => {
         const data = doc.data();
         const userRoom = `${data.username} ${data.room}`.toLowerCase();
-
         if (userRoom.includes(searchTerm.toLowerCase())) {
           fetchedUsers.push(data);
         }
       });
-
       if (fetchedUsers.length > 0) {
         setUsers(fetchedUsers);
       } else {

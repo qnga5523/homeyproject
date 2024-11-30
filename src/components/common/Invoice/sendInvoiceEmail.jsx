@@ -1,6 +1,5 @@
 import emailjs from "emailjs-com";
 import { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_USER_ID } from "../../../Services/Email/EmailReactApi";
-
 const sendInvoiceEmail = async (user) => {
   try {
     if (!user.email) {

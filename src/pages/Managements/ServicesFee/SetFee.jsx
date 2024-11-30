@@ -38,13 +38,11 @@ export default function SetFee() {
   const fetchUsersAndPrices = async () => {
     if (!selectedBuilding) return;
     console.log("fetchUsersAndPrices called for building:", selectedBuilding);
-
     const usersSnapshot = await getDocs(
       query(collection(db, "Users"), where("building", "==", selectedBuilding))
     );
     const fetchedUsers = [];
     const roomsSnapshot = await getDocs(collection(db, "rooms"));
-
     for (const userDoc of usersSnapshot.docs) {
       const userData = userDoc.data();
       if (userData.role === "owner" && userData.approved === true) {
@@ -161,7 +159,6 @@ export default function SetFee() {
     const updatedUsers = users.map((user) => {
       if (user.id === record.id) {
         const newData = { ...user, [field]: value };
-        //Parking
         const totalCar = newData.carCount * (parkingPrices.Car || 0);
         const totalMotorbike =
           newData.motorcycleCount * (parkingPrices.Motorcycle || 0);
@@ -171,7 +168,6 @@ export default function SetFee() {
           newData.bicycleCount * (parkingPrices.Bicycle || 0);
         const totalParking =
           totalCar + totalMotorbike + totalElectric + totalBicycle;
-        
         const totalService = newData.area * (newData.priceservice || 0);
         const CSC = newData.CSC ?? 0;
         const CSD = newData.CSD ?? 0;

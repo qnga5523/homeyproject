@@ -6,7 +6,6 @@ import { doc, getDoc } from "firebase/firestore";
 export default function ProtectedRoute({ role, children }) {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {

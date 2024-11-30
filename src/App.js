@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { auth } from "./Services/firebase";
-
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -38,15 +37,17 @@ import HistoryFee from "./pages/Managements/ServicesFee/HistoryFee";
 import Dashboard from "./pages/Dashboard";
 import DetailNotification from "./pages/Notification/DetailNotification";
 
-import InvoiceReviewPage from "./pages/Managements/Invoices/InvoiceReviewPage";
-import Feedback from "./pages/Feedback25/Feedback";
-import FeedbackReport from "./pages/Feedback25/FeedbackReport";
+
+
 import OwnerFee from "./pages/Managements/ServicesFee/OwnerFee";
 import UserBookings from "./pages/Managements/ServiceBook/UserBookings";
 import { NotFound } from "./components/common/NotFound";
-import ServicePriceCharts from "./pages/Managements/Prices/ServicePriceCharts";
-import ServiceBookingChart from "./pages/Managements/ServiceBook/ServiceBookingChart";
-import MonthlyServiceFeeChart from "./pages/Managements/ServicesFee/MonthlyServiceChart";
+import InvoiceReviewPage from "./components/common/Invoice/InvoiceReviewPage";
+import Feedback from "./pages/Feedbacks/Feedback";
+import FeedbackReport from "./components/common/Chart/FeedbackReport";
+import ServicePriceCharts from "./components/common/Chart/ServicePriceCharts";
+import ServiceBookingChart from "./components/common/Chart/ServiceBookingChart";
+import MonthlyServiceFeeChart from "./components/common/Chart/MonthlyServiceChart";
 
 
 

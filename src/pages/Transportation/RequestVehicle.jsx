@@ -8,12 +8,10 @@ export default function RequestVehicle() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState({});
-
   useEffect(() => {
     const fetchVehicleRequests = async () => {
       setLoading(true);
       const requestsSnapshot = await getDocs(collection(db, "Vehicle"));
-
       const fetchedRequests = [];
       requestsSnapshot.forEach((doc) => {
         const data = doc.data();
@@ -21,38 +19,31 @@ export default function RequestVehicle() {
           fetchedRequests.push({ ...data, id: doc.id });
         }
       });
-
       setRequests(fetchedRequests);
       setLoading(false);
     };
-
     fetchVehicleRequests();
   }, []);
 
   const handleAction = async (record, status) => {
     const requestDocRef = doc(db, "Vehicle", record.id);
     setActionLoading({ ...actionLoading, [record.id]: true });
-
     try {
       await updateDoc(requestDocRef, { status });
       message.success(`Vehicle registration ${status.toLowerCase()} successfully!`);
       setRequests(requests.filter((request) => request.id !== record.id));
-
       await sendNotification(
         record.userId, 
         'user', 
         `Your vehicle registration has been ${status.toLowerCase()} by the admin.`, 
         record.id 
       );
-
-    
       await sendNotification(
         null, 
         'admin', 
         `Vehicle registration request for ${record.userId} has been ${status.toLowerCase()}.`,
         record.id 
       );
-
     } catch (error) {
       message.error(`Failed to ${status.toLowerCase()} vehicle registration.`);
       console.error("Error updating vehicle status:", error);

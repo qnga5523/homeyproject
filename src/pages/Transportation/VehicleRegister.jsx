@@ -73,27 +73,21 @@ export default function VehicleRegister() {
   const handleImageUpload = (file) => {
     setImageFile(file);
   };
-
   const handleSubmit = async (values) => {
     const currentUser = auth.currentUser;
-
     if (!currentUser) {
       message.error("You are not logged in!");
       return;
     }
-
     const userId = currentUser.uid;
     const requestDocRef = doc(collection(db, "Vehicle"));
-
     try {
       const userDoc = await getDoc(doc(db, "Users", userId));
       if (!userDoc.exists()) {
         message.error("User information not found.");
         return;
       }
-
       const { Username, room, building } = userDoc.data();
-
       const vehicleData = {
         userId,
         vehicleType: values.vehicleType,
@@ -104,13 +98,10 @@ export default function VehicleRegister() {
         room,
         building,
       };
-
       setLoading(true);
-
       if (imageFile) {
         const storageRef = ref(storage, `vehicle_images/${userId}/${imageFile.name}`);
         const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
         uploadTask.on(
           "state_changed",
           (snapshot) => {

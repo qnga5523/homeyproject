@@ -54,13 +54,13 @@ import AdminAvatar from "../../components/layout/Admin/AvatarAdmin";
 import AvatarOwner from "../../components/layout/Owner/AvatarOwner";
 import { auth, db } from "../../Services/firebase";
 import NotificationsMenu from "../../components/common/notificationsMenu";
-import FeedbackReport from "../Feedback25/FeedbackReport";
-import ServicePriceCharts from "../Managements/Prices/ServicePriceCharts";
-import ServiceBookingChart from "../Managements/ServiceBook/ServiceBookingChart";
-import MonthlyServiceFeeChart from "../Managements/ServicesFee/MonthlyServiceChart"
-import TotalFee from "../../components/layout/Colums/TotalFee";
-import ContactSupport from "../../components/common/ContactSupport";
 
+import FeedbackReport from "../../components/common/Chart/FeedbackReport";
+import ContactSupport from "../../components/common/ContactSupport";
+import ServiceBookingChart from "../../components/common/Chart/ServiceBookingChart";
+import ServicePriceCharts from "../../components/common/Chart/ServicePriceCharts";
+import MonthlyServiceFeeChart from "../../components/common/Chart/MonthlyServiceChart";
+import TotalFee from "../../components/common/Table/TotalFee";
 
 const { Title, Paragraph } = Typography;
 const { Header, Sider, Content } = Layout;
@@ -451,6 +451,7 @@ export default function Dashboard() {
           className={`pt-16`}
           style={{
             marginLeft: collapsed ? 80 : 250,
+            minHeight: "calc(100vh - 64px)",
             height: "calc(100vh - 64px)",
             overflowY: "auto",
             backgroundColor: "#F6FBFE",
