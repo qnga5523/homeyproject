@@ -127,12 +127,12 @@ export default function HistoryFee() {
   ];
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+    <div style={{ maxWidth: "100%", margin: "0 auto", padding: "20px" }}>
       <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
         History Fee Overview
       </Title>
 
-      <Space direction="horizontal" style={{ marginBottom: 16 }} size="middle">
+      <Space direction="horizontal" style={{ width: 200, marginBottom: 20, marginLeft:20, marginRight:20  }} size="middle">
         <Select
           style={{ width: 200 }}
           placeholder="Select Building"
@@ -152,7 +152,7 @@ export default function HistoryFee() {
           placeholder="Search by User or Room"
           value={searchTerm}
           onChange={handleSearch}
-          style={{ width: 200 }}
+          style={{ width: 200 ,marginBottom: 10, marginRight: 20}}
         />
         <Button type="primary" onClick={handleFetchData}>
           Fetch Data

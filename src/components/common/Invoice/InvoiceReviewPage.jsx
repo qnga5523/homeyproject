@@ -27,7 +27,7 @@ const InvoiceReviewPage = () => {
   const columns = [
     { title: "Username", dataIndex: "username", key: "username" },
     { title: "Room", dataIndex: "room", key: "room" },
-    { title: "Total Fee", dataIndex: "totalmoney", key: "totalmoney", render: (text) => `${text} VND` },
+    { title: "Total Fee", dataIndex: "totalmoney", key: "totalmoney", render: (text) => `$${text}` },
     {
       title: "Actions",
       key: "actions",
@@ -52,7 +52,7 @@ const InvoiceReviewPage = () => {
             columns={columns}
             dataSource={users}
             rowKey="id"
-            pagination={{ pageSize: 5 }}
+            pagination={{ pageSize: 10 }}
           />
         </div>
       </div>

@@ -144,10 +144,10 @@ export default function SetFee() {
           acc[`prices${type}`] = parkingPricesData[type];
           return acc;
         }, {}),
-        totalcar: totalCar,
-        totalmotorbike: totalMotorbike,
-        totalelectric: totalElectric,
-        totalbicycle: totalBicycle,
+        totalCar: totalCar,
+        totalMotorbike: totalMotorbike,
+        totalElectric: totalElectric,
+        totalBicycle: totalBicycle,
         totalParking,
         totalmoney: totalAreaFee + totalParking,
       };
@@ -207,6 +207,8 @@ export default function SetFee() {
     user.room.toLowerCase().includes(searchRoom)
   );
   console.log("Filtered users for table:", filteredUsers);
+
+//save data
   const handleSave = async () => {
     try {
       if (!selectedBuilding) {
@@ -216,7 +218,7 @@ export default function SetFee() {
 
       const incompleteUsers = users.filter(
         (user) =>     
-          user.CSC === undefined || user.CSD === undefined 
+          user.CSC === 0 || user.CSD === 0 
       );
   
       if (incompleteUsers.length > 0) {

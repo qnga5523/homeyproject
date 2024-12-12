@@ -28,11 +28,13 @@ export default function ManageBuildings() {
   };
 
   const handleSubmit = async () => {
+    // Check for duplicate building names
     const duplicate = buildings.some((building) => building.name === buildingName.trim());
   if (duplicate) {
     alert("Building name already exists. Please choose a different name.");
     return;
   }
+   // Generate room numbers based on the number of floors and rooms per floor
     const rooms = [];
     for (let i = 1; i <= floors; i++) {
       for (let j = 1; j <= roomsPerFloor; j++) {
@@ -44,6 +46,7 @@ export default function ManageBuildings() {
 
     try {
       if (currentBuildingId) {
+           // update existing building in Firestore
         const buildingRef = doc(db, "buildings", currentBuildingId);
         await updateDoc(buildingRef, {
           name: buildingName.trim(),
@@ -53,6 +56,7 @@ export default function ManageBuildings() {
         });
         alert("Building updated successfully!");
       } else {
+        //update new
         await addDoc(collection(db, "buildings"), {
           name: buildingName.trim(),
           floors: floors,
