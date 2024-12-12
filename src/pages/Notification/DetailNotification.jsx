@@ -50,29 +50,28 @@ export default function DetailNotification() {
 
   const handleNotificationClick = async (eventId, notificationId) => {
     const user = auth.currentUser;
-
+  
     if (!user) {
       console.error("User not authenticated");
       return;
     }
-
+  
     try {
       const userDoc = await getDoc(doc(db, "Users", user.uid));
       if (!userDoc.exists()) {
         console.error("User document not found.");
         return;
       }
-
-      const userRole = userDoc.data().role;
-      const rolePath = userRole === "admin" ? "admin" : "owner";
-
+  
+      const userRole = userDoc.data().role; 
+      const basePath = userRole === "admin" ? "" : "/owner"; 
       if (eventId) {
-        navigate(`/${rolePath}/event/${eventId}`);
+        navigate(`${basePath}/event/${eventId}`);
       }
-
+  
       const notificationRef = doc(db, "notifications", notificationId);
       await updateDoc(notificationRef, { isRead: true });
-
+  
       setNotifications((prev) =>
         prev.map((notification) =>
           notification.id === notificationId ? { ...notification, isRead: true } : notification
@@ -82,6 +81,7 @@ export default function DetailNotification() {
       console.error("Error updating notification or navigating:", error);
     }
   };
+  
 
   const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 

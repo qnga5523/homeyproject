@@ -82,7 +82,6 @@ const NotificationsMenu = ({ notifications = [] }) => {
                     <Text strong style={{ color: "#333", fontSize: "14px" }}>
                       {item.content || "Notification"}{" "}
                       <span style={{ color: "#888", fontWeight: "normal" }}>
-                        from {item.username || "Unknown User"}
                       </span>
                     </Text>
                   }

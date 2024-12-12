@@ -7,8 +7,9 @@ import { message } from 'antd';
  * @param {string} role 
  * @param {string} content
  * @param {string|null} relatedId  
+ * @param {string} type
  */
-export const sendNotification = async (userId, role, content, relatedId  = null) => {
+export const sendNotification = async (userId, role, content, relatedId = null, type) => {
   try {
     const notificationsCollectionRef = collection(db, "notifications");
     await addDoc(notificationsCollectionRef, {
@@ -16,6 +17,7 @@ export const sendNotification = async (userId, role, content, relatedId  = null)
       role,
       content,
       relatedId ,
+      type,
       isRead: false,
       createdAt: serverTimestamp(),
     });

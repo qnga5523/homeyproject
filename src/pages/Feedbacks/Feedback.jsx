@@ -30,7 +30,7 @@ export default function Feedback() {
           if (userData.role === "admin") {
             setIsAdmin(true);
           }
-          if (userData.role === "owner" && day >= 1 && day <= 5) {
+          if (userData.role === "owner" && day >= 1 && day <= 13) {
             setIsMandatory(true);
           } else if (userData.role === "owner") {
             navigate('/owner');

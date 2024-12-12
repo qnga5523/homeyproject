@@ -139,7 +139,7 @@ export default function RequestVehicle() {
         dataSource={requests}
         loading={loading}
         rowKey="id"
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 10 }}
         bordered
       />
     </Card>

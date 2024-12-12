@@ -184,7 +184,7 @@ export default function ListVehicle() {
             dataSource={groupedVehicles}
             loading={loading}
             rowKey="userId"
-            pagination={{ pageSize: 5 }}
+            pagination={{ pageSize: 10 }}
             bordered
             locale={{
               emptyText: (

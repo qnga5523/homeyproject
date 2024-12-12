@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
-import { DatePicker, Spin, Card, Typography, List } from 'antd';
+import { DatePicker, Spin, Card, Typography, List, Button } from 'antd';
 import { db } from '../../../Services/firebase';
 import { doc, getDoc } from "firebase/firestore";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -10,7 +10,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const { Text } = Typography;
 
-export default function FeedbackReport({ showAnswers = true , showDatePicker = true}) {
+export default function FeedbackReport({ showAnswers = true, showDatePicker = true }) {
   const [chartData, setChartData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
   const [openFeedback, setOpenFeedback] = useState({
@@ -19,6 +19,9 @@ export default function FeedbackReport({ showAnswers = true , showDatePicker = t
   });
   const [selectedDate, setSelectedDate] = useState(moment());
   const [loading, setLoading] = useState(false);
+
+  const [showAllImprovement, setShowAllImprovement] = useState(false);
+  const [showAllFeatures, setShowAllFeatures] = useState(false);
 
   const fetchData = async (date) => {
     setLoading(true);
@@ -68,9 +71,16 @@ export default function FeedbackReport({ showAnswers = true , showDatePicker = t
     setSelectedDate(date);
   };
 
+  const toggleImprovementView = () => {
+    setShowAllImprovement(!showAllImprovement);
+  };
+
+  const toggleFeaturesView = () => {
+    setShowAllFeatures(!showAllFeatures);
+  };
+
   return (
     <div>
-
       {showDatePicker && (
         <div className="flex justify-center mb-6">
           <DatePicker 
@@ -96,29 +106,40 @@ export default function FeedbackReport({ showAnswers = true , showDatePicker = t
             )}
           </div>
         </Card>
-      )}    
+      )}
+
       {showAnswers && (
         <>
           <Card title="Improvement Suggestions" className="mb-8">
             <List
-              dataSource={openFeedback.improvementSuggestions.slice(0, 3)}
+              dataSource={showAllImprovement ? openFeedback.improvementSuggestions : openFeedback.improvementSuggestions.slice(0, 3)}
               renderItem={(item) => (
                 <List.Item>
                   <Text>{item}</Text>
                 </List.Item>
               )}
             />
+            {openFeedback.improvementSuggestions.length > 3 && (
+              <Button type="link" onClick={toggleImprovementView}>
+                {showAllImprovement ? "Show Less" : "View All"}
+              </Button>
+            )}
           </Card>
 
           <Card title="Useful Features">
             <List
-              dataSource={openFeedback.usefulFeatures.slice(0, 3)}
+              dataSource={showAllFeatures ? openFeedback.usefulFeatures : openFeedback.usefulFeatures.slice(0, 3)}
               renderItem={(item) => (
                 <List.Item>
                   <Text>{item}</Text>
                 </List.Item>
               )}
             />
+            {openFeedback.usefulFeatures.length > 3 && (
+              <Button type="link" onClick={toggleFeaturesView}>
+                {showAllFeatures ? "Show Less" : "View All"}
+              </Button>
+            )}
           </Card>
         </>
       )}

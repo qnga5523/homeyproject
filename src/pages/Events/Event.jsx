@@ -99,24 +99,25 @@ export default function EventPage() {
         {filteredEvents.map((event) => (
           <Col xs={24} sm={12} md={8} lg={6} key={event.id}>
             <Card
-              hoverable
-              cover={
-                <img
-                  alt={event.title}
-                  src={event.imageUrl}
-                  style={{ height: "200px", objectFit: "cover" }}
-                />
-              }
-            >
-              <Title level={4}>{event.title}</Title>
-              <Paragraph>{event.content.slice(0, 100)}...</Paragraph>
-              <Button
-                type="link"
-                href={`/${userRole}/event/${event.id}`} 
-              >
-                Read More
-              </Button>
-            </Card>
+  hoverable
+  cover={
+    <img
+      alt={event.title}
+      src={event.imageUrl}
+      style={{ height: "200px", objectFit: "cover" }}
+    />
+  }
+>
+  <Title level={4}>{event.title}</Title>
+  <Paragraph>{event.content.slice(0, 100)}...</Paragraph>
+  <Button
+    type="link"
+    href={userRole === "admin" ? `/event/${event.id}` : `/owner/event/${event.id}`}
+  >
+    Read More
+  </Button>
+</Card>
+
           </Col>
         ))}
       </Row>
