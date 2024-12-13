@@ -202,6 +202,9 @@ export default function SetFee() {
   const handleRoomSearch = (e) => {
     setSearchRoom(e.target.value.toLowerCase());
   };
+  const disabledDate = (current) => {
+    return current && current.format("YYYY-MM-DD") !== moment().format("YYYY-MM-DD");
+  };
 
   const filteredUsers = users.filter((user) =>
     user.room.toLowerCase().includes(searchRoom)
@@ -305,6 +308,7 @@ export default function SetFee() {
       <DatePicker
         value={selectedDate}
         onChange={(date) => setSelectedDate(date)}
+        disabledDate={disabledDate}
         style={{ marginBottom: 16 }}
       />
       <Select

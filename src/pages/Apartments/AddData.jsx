@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Table, Popconfirm, Row, Col, Card, Typography, Divider } from "antd";
 import { db } from "../../Services/firebase";
 import { collection, addDoc, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -89,15 +89,15 @@ export default function ManageBuildings() {
     }
   };
 
-  const handleEdit = (id) => {
-    const building = buildings.find((b) => b.id === id);
-    if (building) {
-      setBuildingName(building.name);
-      setFloors(building.floors);
-      setRoomsPerFloor(building.roomsPerFloor);
-      setCurrentBuildingId(id);
-    }
-  };
+  // const handleEdit = (id) => {
+  //   const building = buildings.find((b) => b.id === id);
+  //   if (building) {
+  //     setBuildingName(building.name);
+  //     setFloors(building.floors);
+  //     setRoomsPerFloor(building.roomsPerFloor);
+  //     setCurrentBuildingId(id);
+  //   }
+  // };
 
   const columns = [
     {
@@ -120,10 +120,10 @@ export default function ManageBuildings() {
       key: "actions",
       render: (text, record) => (
         <span>
-          <EditOutlined
+          {/* <EditOutlined
             style={{ fontSize: "18px", color: "#1890ff", cursor: "pointer", marginRight: 16 }}
             onClick={() => handleEdit(record.id)}
-          />
+          /> */}
           <Popconfirm
             title="Are you sure to delete this building?"
             onConfirm={() => handleDelete(record.id)}

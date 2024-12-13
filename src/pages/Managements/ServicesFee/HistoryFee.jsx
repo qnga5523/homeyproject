@@ -3,7 +3,7 @@ import { Table, DatePicker, Select, Input, message, Button, Space, Typography } 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
 import moment from "moment";
-import columsFee from "../../../components/layout/Colums/columsFee";
+import columsHistoryFee from "../../../components/layout/Colums/columsHistoryFee";
 import { pdf } from "@react-pdf/renderer";
 import InvoiceDocument from "../../../components/common/Invoice/InvoiceDocument";
 import sendInvoiceEmail from "../../../components/common/Invoice/sendInvoiceEmail";
@@ -109,7 +109,7 @@ export default function HistoryFee() {
   };
 
   const columns = [
-    ...columsFee(),
+    ...columsHistoryFee(),
     {
       title: "Actions",
       key: "actions",

@@ -224,9 +224,7 @@ export default function ManagementAccount() {
             <Descriptions.Item label="Area (sqm)">
               {roomDetails.area}
             </Descriptions.Item>
-            <Descriptions.Item label="Building">
-              {roomDetails.buildingId}
-            </Descriptions.Item>
+           
           </Descriptions>
         ) : (
           <p>No details available for this room.</p>
